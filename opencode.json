@@ -1,0 +1,190 @@
+{
+  "$schema": "https://claude.ai/config.json",
+  "instructions": ["CLAUDE.md", "AGENTS.md"],
+  "command": {
+    "code-rabbit": {
+      "template": ".claude/command/code-rabbit.md",
+      "description": "Process CodeRabbit review comments with context-aware discretion"
+    },
+    "prompt": {
+      "template": ".claude/command/prompt.md",
+      "description": "Handle complex prompts that may fail if entered directly"
+    },
+    "re-init": {
+      "template": ".claude/command/re-init.md",
+      "description": "Re-initialize project configuration"
+    },
+    "context:create": {
+      "template": ".claude/command/context/create.md",
+      "description": "Create project context documentation"
+    },
+    "context:prime": {
+      "template": ".claude/command/context/prime.md",
+      "description": "Load essential context for a new agent session"
+    },
+    "context:update": {
+      "template": ".claude/command/context/update.md",
+      "description": "Update existing project context"
+    },
+    "testing:prime": {
+      "template": ".claude/command/testing/prime.md",
+      "description": "Configure testing setup"
+    },
+    "testing:run": {
+      "template": ".claude/command/testing/run.md",
+      "description": "Execute tests with configured test-runner agent"
+    },
+    "pm:blocked": {
+      "template": ".claude/command/pm/blocked.md",
+      "description": "Show blocked issues"
+    },
+    "pm:clean": {
+      "template": ".claude/command/pm/clean.md",
+      "description": "Clean up project management files"
+    },
+    "pm:epic-close": {
+      "template": ".claude/command/pm/epic-close.md",
+      "description": "Close an epic"
+    },
+    "pm:epic-decompose": {
+      "template": ".claude/command/pm/epic-decompose.md",
+      "description": "Decompose epic into tasks"
+    },
+    "pm:epic-edit": {
+      "template": ".claude/command/pm/epic-edit.md",
+      "description": "Edit epic details"
+    },
+    "pm:epic-list": {
+      "template": ".claude/command/pm/epic-list.md",
+      "description": "List all epics"
+    },
+    "pm:epic-merge": {
+      "template": ".claude/command/pm/epic-merge.md",
+      "description": "Merge epic branch"
+    },
+    "pm:epic-oneshot": {
+      "template": ".claude/command/pm/epic-oneshot.md",
+      "description": "Execute epic in one shot"
+    },
+    "pm:epic-refresh": {
+      "template": ".claude/command/pm/epic-refresh.md",
+      "description": "Refresh epic data"
+    },
+    "pm:epic-show": {
+      "template": ".claude/command/pm/epic-show.md",
+      "description": "Show epic details"
+    },
+    "pm:epic-start": {
+      "template": ".claude/command/pm/epic-start.md",
+      "description": "Launch parallel agents to work on epic tasks"
+    },
+    "pm:epic-start-worktree": {
+      "template": ".claude/command/pm/epic-start-worktree.md",
+      "description": "Start epic using git worktree"
+    },
+    "pm:epic-status": {
+      "template": ".claude/command/pm/epic-status.md",
+      "description": "Show epic status"
+    },
+    "pm:epic-sync": {
+      "template": ".claude/command/pm/epic-sync.md",
+      "description": "Sync epic with GitHub"
+    },
+    "pm:help": {
+      "template": ".claude/command/pm/help.md",
+      "description": "Show PM system help"
+    },
+    "pm:import": {
+      "template": ".claude/command/pm/import.md",
+      "description": "Import issues from GitHub"
+    },
+    "pm:in-progress": {
+      "template": ".claude/command/pm/in-progress.md",
+      "description": "Show in-progress issues"
+    },
+    "pm:init": {
+      "template": ".claude/command/pm/init.md",
+      "description": "Initialize PM system"
+    },
+    "pm:issue-analyze": {
+      "template": ".claude/command/pm/issue-analyze.md",
+      "description": "Analyze issue for parallel execution"
+    },
+    "pm:issue-close": {
+      "template": ".claude/command/pm/issue-close.md",
+      "description": "Close an issue"
+    },
+    "pm:issue-edit": {
+      "template": ".claude/command/pm/issue-edit.md",
+      "description": "Edit issue details"
+    },
+    "pm:issue-reopen": {
+      "template": ".claude/command/pm/issue-reopen.md",
+      "description": "Reopen a closed issue"
+    },
+    "pm:issue-show": {
+      "template": ".claude/command/pm/issue-show.md",
+      "description": "Display issue and sub-issues with detailed information"
+    },
+    "pm:issue-start": {
+      "template": ".claude/command/pm/issue-start.md",
+      "description": "Start work on an issue"
+    },
+    "pm:issue-status": {
+      "template": ".claude/command/pm/issue-status.md",
+      "description": "Show issue status"
+    },
+    "pm:issue-sync": {
+      "template": ".claude/command/pm/issue-sync.md",
+      "description": "Sync issue with GitHub"
+    },
+    "pm:next": {
+      "template": ".claude/command/pm/next.md",
+      "description": "Show next available work"
+    },
+    "pm:prd-edit": {
+      "template": ".claude/command/pm/prd-edit.md",
+      "description": "Edit PRD document"
+    },
+    "pm:prd-list": {
+      "template": ".claude/command/pm/prd-list.md",
+      "description": "List all PRDs"
+    },
+    "pm:prd-new": {
+      "template": ".claude/command/pm/prd-new.md",
+      "description": "Create new PRD"
+    },
+    "pm:prd-parse": {
+      "template": ".claude/command/pm/prd-parse.md",
+      "description": "Parse PRD into tasks"
+    },
+    "pm:prd-status": {
+      "template": ".claude/command/pm/prd-status.md",
+      "description": "Show PRD status"
+    },
+    "pm:search": {
+      "template": ".claude/command/pm/search.md",
+      "description": "Search issues and epics"
+    },
+    "pm:standup": {
+      "template": ".claude/command/pm/standup.md",
+      "description": "Generate standup report"
+    },
+    "pm:status": {
+      "template": ".claude/command/pm/status.md",
+      "description": "Show overall PM status"
+    },
+    "pm:sync": {
+      "template": ".claude/command/pm/sync.md",
+      "description": "Sync all items with GitHub"
+    },
+    "pm:test-reference-update": {
+      "template": ".claude/command/pm/test-reference-update.md",
+      "description": "Update test references"
+    },
+    "pm:validate": {
+      "template": ".claude/command/pm/validate.md",
+      "description": "Validate PM system state"
+    }
+  }
+}
