@@ -1,6 +1,6 @@
 # PromptyDumpty
 
-![Logo](logo.png)
+<img src="logo.png" width=200px />
 
 A lightweight, universal package manager for AI agent artifacts (prompts, instructions, rules, workflows, etc.).
 
