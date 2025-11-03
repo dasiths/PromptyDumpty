@@ -1,6 +1,5 @@
 """Tests for file installer."""
 
-import pytest
 from pathlib import Path
 from dumpty.installer import FileInstaller
 from dumpty.agent_detector import Agent
@@ -70,9 +69,7 @@ def test_install_file_preserves_metadata(tmp_path):
 
     installer = FileInstaller(project_root)
 
-    dest_path, _ = installer.install_file(
-        source_file, Agent.COPILOT, "pkg", "file.md"
-    )
+    dest_path, _ = installer.install_file(source_file, Agent.COPILOT, "pkg", "file.md")
 
     # shutil.copy2 preserves modification time
     assert dest_path.stat().st_mtime == source_file.stat().st_mtime

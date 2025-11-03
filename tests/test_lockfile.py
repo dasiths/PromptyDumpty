@@ -1,6 +1,5 @@
 """Tests for lockfile management."""
 
-import pytest
 from pathlib import Path
 from dumpty.lockfile import LockfileManager
 from dumpty.models import InstalledPackage, InstalledFile

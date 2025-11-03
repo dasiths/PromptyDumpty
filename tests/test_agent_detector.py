@@ -1,6 +1,5 @@
 """Tests for agent detection."""
 
-import pytest
 from pathlib import Path
 from dumpty.agent_detector import Agent, AgentDetector
 

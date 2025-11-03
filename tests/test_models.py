@@ -1,7 +1,6 @@
 """Tests for data models."""
 
 import pytest
-from pathlib import Path
 from dumpty.models import Artifact, PackageManifest, InstalledPackage, InstalledFile
 
 

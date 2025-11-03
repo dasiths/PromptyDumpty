@@ -4,7 +4,6 @@ import subprocess
 import shutil
 from pathlib import Path
 from typing import Optional, Protocol
-from abc import ABC, abstractmethod
 
 
 class GitOperations(Protocol):

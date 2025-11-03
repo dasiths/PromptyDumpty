@@ -4,7 +4,6 @@ import pytest
 from pathlib import Path
 from dumpty.downloader import (
     PackageDownloader,
-    ShellGitOperations,
     FileSystemGitOperations,
 )
 
@@ -134,16 +133,13 @@ def test_package_downloader_extract_repo_name():
     downloader = PackageDownloader(git_ops=git_ops)
 
     # Test with .git extension
-    url1 = "https://github.com/org/repo.git"
     dir1 = downloader.cache_dir / "repo"
     assert "repo" in str(dir1)
 
     # Test without .git extension
-    url2 = "https://github.com/org/repo"
     dir2 = downloader.cache_dir / "repo"
     assert "repo" in str(dir2)
 
     # Test with trailing slash
-    url3 = "https://github.com/org/repo/"
     dir3 = downloader.cache_dir / "repo"
     assert "repo" in str(dir3)

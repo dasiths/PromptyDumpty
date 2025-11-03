@@ -139,9 +139,7 @@ class InstalledPackage:
         files = {}
         for agent, file_list in data.get("files", {}).items():
             files[agent] = [
-                InstalledFile(
-                    source=f["source"], installed=f["installed"], checksum=f["checksum"]
-                )
+                InstalledFile(source=f["source"], installed=f["installed"], checksum=f["checksum"])
                 for f in file_list
             ]
 

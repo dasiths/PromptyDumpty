@@ -31,9 +31,7 @@ def cli():
     "--agent",
     help="Install for specific agent (copilot, claude, etc.). Defaults to auto-detect.",
 )
-@click.option(
-    "--version", "pkg_version", help="Package version (tag, branch, or commit)"
-)
+@click.option("--version", "pkg_version", help="Package version (tag, branch, or commit)")
 def install(package_url: str, agent: str, pkg_version: str):
     """Install a package from a Git repository."""
     try:
@@ -54,9 +52,7 @@ def install(package_url: str, agent: str, pkg_version: str):
         elif detected_agents:
             target_agents = detected_agents
         else:
-            console.print(
-                "[yellow]Warning:[/] No AI agents detected in this project."
-            )
+            console.print("[yellow]Warning:[/] No AI agents detected in this project.")
             console.print(
                 "Please specify an agent with --agent flag or create an agent directory "
                 "(e.g., .github, .claude, .cursor)"
@@ -71,9 +67,7 @@ def install(package_url: str, agent: str, pkg_version: str):
         # Load manifest
         manifest_path = package_dir / "dumpty.package.yaml"
         if not manifest_path.exists():
-            console.print(
-                f"[red]Error:[/] No dumpty.package.yaml found in package"
-            )
+            console.print("[red]Error:[/] No dumpty.package.yaml found in package")
             sys.exit(1)
 
         manifest = PackageManifest.from_file(manifest_path)
@@ -109,9 +103,7 @@ def install(package_url: str, agent: str, pkg_version: str):
 
             # Install artifacts
             artifacts = manifest.agents[agent_name]
-            console.print(
-                f"\n[cyan]{target_agent.display_name}[/] ({len(artifacts)} artifacts):"
-            )
+            console.print(f"\n[cyan]{target_agent.display_name}[/] ({len(artifacts)} artifacts):")
 
             agent_files = []
             for artifact in artifacts:
@@ -163,9 +155,7 @@ def install(package_url: str, agent: str, pkg_version: str):
 
         lockfile.add_package(installed_package)
 
-        console.print(
-            f"\n[green]✓ Installation complete![/] {total_installed} files installed."
-        )
+        console.print(f"\n[green]✓ Installation complete![/] {total_installed} files installed.")
 
     except Exception as e:
         console.print(f"[red]Error:[/] {e}")
@@ -193,7 +183,7 @@ def list(verbose: bool):
                 console.print(f"  Source: {pkg.source}")
                 console.print(f"  Installed: {pkg.installed_at}")
                 console.print(f"  Agents: {', '.join(pkg.installed_for)}")
-                console.print(f"  Files:")
+                console.print("  Files:")
                 for agent, files in pkg.files.items():
                     console.print(f"    {agent}: {len(files)} files")
                     for f in files:
@@ -260,9 +250,7 @@ def init(agent: str):
             console.print("\nSupported agents:")
             for a in Agent:
                 console.print(f"  - {a.display_name}: {a.directory}/")
-            console.print(
-                "\nOr use: [cyan]dumpty init --agent <agent-name>[/] to create one"
-            )
+            console.print("\nOr use: [cyan]dumpty init --agent <agent-name>[/] to create one")
             return
 
         # Create lockfile if it doesn't exist
@@ -270,14 +258,12 @@ def init(agent: str):
         if not lockfile_path.exists():
             lockfile = LockfileManager()
             lockfile._save()
-            console.print(f"[green]✓[/] Created dumpty.lock")
+            console.print("[green]✓[/] Created dumpty.lock")
         else:
             console.print("[yellow]dumpty.lock already exists[/]")
 
         console.print("\n[green]✓ Initialization complete![/]")
-        console.print(
-            "\nYou can now install packages with: [cyan]dumpty install <package-url>[/]"
-        )
+        console.print("\nYou can now install packages with: [cyan]dumpty install <package-url>[/]")
 
     except Exception as e:
         console.print(f"[red]Error:[/] {e}")
