@@ -19,19 +19,19 @@ PromptyDumpty lets you install and manage prompt packages across different AI co
 
 ```bash
 # Initialize in your project
-prompty-dumpty init
+dumpty init
 
 # Install a package
-prompty-dumpty install https://github.com/org/my-prompts
+dumpty install https://github.com/org/my-prompts
 
 # List installed packages
-prompty-dumpty list
+dumpty list
 
 # Update packages
-prompty-dumpty update --all
+dumpty update --all
 
 # Remove a package
-prompty-dumpty uninstall my-prompts
+dumpty uninstall my-prompts
 ```
 
 ## How it works
@@ -43,38 +43,51 @@ prompty-dumpty uninstall my-prompts
 
 ## Package Structure
 
+Organize your files however you want! The manifest defines everything:
+
 ```
 my-package/
-├── prompty-dumpty.yaml    # Package manifest
+├── dumpty.package.yaml  # Package manifest
 ├── README.md
-└── artifacts/             # Your prompts, rules, etc.
-    ├── commands/
-    ├── rules/
-    └── workflows/
+└── src/                 # Any structure you prefer
+    ├── planning.md
+    ├── review.md
+    └── standards.md
 ```
 
 ## Creating Packages
 
-Define what your package provides in `prompty-dumpty.yaml`:
+Define what your package provides in `dumpty.package.yaml` - organized by agent:
 
 ```yaml
 name: my-workflows
 version: 1.0.0
 description: Custom development workflows
-agents:
-  - copilot
-  - claude
-  - cursor
 
-artifacts:
-  - name: code-review
-    source: artifacts/commands/code-review.md
-    target: prompts/
+agents:
+  copilot:
+    artifacts:
+      - name: code-review
+        description: Code review workflow
+        file: src/review.md
+        installed_path: prompts/code-review.prompt.md
+      
+      - name: standards
+        file: src/standards.md
+        installed_path: rules/standards.md
   
-  - name: testing-guide
-    source: artifacts/rules/testing.md
-    target: rules/
+  claude:
+    artifacts:
+      - name: code-review
+        file: src/review.md
+        installed_path: commands/review.md
 ```
+
+**Key Features:**
+- Organize files however makes sense to you
+- Explicitly map each file to its install location per agent
+- Reuse the same source file for multiple agents
+- Full control over installed paths and filenames
 
 ## Documentation
 

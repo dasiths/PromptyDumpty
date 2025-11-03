@@ -1,4 +1,4 @@
-# PromptyDumpty Package Manager - Requirements
+# Dumpty Package Manager - Requirements
 
 ## Overview
 
@@ -26,10 +26,10 @@ A lightweight, universal package manager CLI for installing and managing AI agen
 ### 1. Package Installation
 
 ```bash
-prompty-dumpty install <package-url>
-prompty-dumpty install <package-url>@v1.2.0
-prompty-dumpty install <package-url> --agent copilot
-prompty-dumpty install <package-url> --agent all
+dumpty install <package-url>
+dumpty install <package-url>@v1.2.0
+dumpty install <package-url> --agent copilot
+dumpty install <package-url> --agent all
 ```
 
 **Behavior:**
@@ -42,8 +42,8 @@ prompty-dumpty install <package-url> --agent all
 ### 2. Package Removal
 
 ```bash
-prompty-dumpty uninstall <package-name>
-prompty-dumpty uninstall <package-name> --agent copilot
+dumpty uninstall <package-name>
+dumpty uninstall <package-name> --agent copilot
 ```
 
 **Behavior:**
@@ -54,8 +54,8 @@ prompty-dumpty uninstall <package-name> --agent copilot
 ### 3. Package Listing
 
 ```bash
-prompty-dumpty list
-prompty-dumpty list --verbose
+dumpty list
+dumpty list --verbose
 ```
 
 **Output:**
@@ -66,8 +66,8 @@ prompty-dumpty list --verbose
 ### 4. Package Updates
 
 ```bash
-prompty-dumpty update <package-name>
-prompty-dumpty update --all
+dumpty update <package-name>
+dumpty update --all
 ```
 
 **Behavior:**
@@ -96,56 +96,42 @@ prompty-dumpty update --all
 
 ## Package Structure
 
-### Minimal Package Structure
+### Package Structure Philosophy
+
+**Physical structure doesn't matter.** Package creators organize their files however they want. The `dumpty.package.yaml` manifest explicitly defines which files go where for each agent.
+
+### Example Package Structure
 
 ```
 my-package/
-├── prompty-dumpty.yaml              # Package manifest (required)
+├── dumpty.package.yaml  # Package manifest (required)
 ├── README.md                 # Documentation (recommended)
-└── artifacts/                # Source artifacts (any structure)
-    ├── commands/
-    │   ├── command1.md
-    │   └── command2.md
-    ├── memory/
-    │   └── context.md
-    ├── rules/
-    │   └── coding-standards.md
-    └── workflows/
-        └── review-process.md
+└── src/                      # Any structure you want
+    ├── planning.md
+    ├── review/
+    │   └── code-review.md
+    ├── workflows/
+    │   ├── tdd.md
+    │   └── refactor.md
+    └── shared/
+        └── coding-standards.md
 ```
 
-**Note:** The folder structure under `artifacts/` is completely flexible. Package creators define their own organization.
-
-### Enhanced Package Structure (with pre-built variants)
-
-```
-my-package/
-├── prompty-dumpty.yaml              # Package manifest
-├── README.md
-├── artifacts/                # Generic source artifacts (any structure)
-│   ├── commands/
-│   ├── memory/
-│   ├── rules/
-│   └── workflows/
-└── agents/                   # Pre-built agent-specific variants (optional)
-    ├── copilot/
-    │   ├── prompts/
-    │   └── instructions/
-    ├── claude/
-    │   ├── commands/
-    │   └── context/
-    ├── cursor/
-    │   ├── commands/
-    │   └── rules/
-    └── gemini/
-        └── commands/
-```
-
-**Note:** Agent-specific structures mirror whatever directory structure the agent expects.
+**Key Points:**
+- Organize source files however makes sense for your package
+- Use any folder names, any nesting depth
+- The manifest (`dumpty.package.yaml`) maps source files to agent-specific install locations
+- Same source file can be installed to multiple agents with different paths
 
 ## Package Manifest
 
-**File:** `prompty-dumpty.yaml`
+**File:** `dumpty.package.yaml`
+
+The manifest is organized by agent, with each agent defining its own artifacts. Each artifact specifies:
+- `name`: Display name/identifier
+- `description`: What this artifact does
+- `file`: Source file path (relative to package root)
+- `installed_path`: Where to install (relative to agent's root directory)
 
 ```yaml
 name: bdd-workflows
@@ -155,105 +141,134 @@ author: your-org
 homepage: https://github.com/org/my-package
 license: MIT
 
-# Minimum compatible prompty-dumpty version
-prompty_dumpty_version: ">=0.1.0"
+# Minimum compatible dumpty version
+dumpty_version: ">=0.1.0"
 
-# Which agents this package supports
+# Artifacts organized by agent
 agents:
-  - copilot
-  - claude
-  - cursor
-  - gemini
-  # or use "*" for all agents
-
-# What artifacts this package provides
-# Flat list - organize however you want
-artifacts:
-  - name: given-when-then
-    description: Generate Given-When-Then scenarios
-    source: artifacts/commands/given-when-then.md
-    target: prompts/  # Relative path within agent directory
+  copilot:
+    artifacts:
+      - name: planning-prompt
+        description: Generate Given-When-Then scenarios
+        file: src/planning.md
+        installed_path: prompts/planning.prompt.md
+      
+      - name: code-review
+        description: Code review workflow
+        file: src/review/code-review.md
+        installed_path: prompts/code-review.prompt.md
+      
+      - name: tdd-workflow
+        description: Test-driven development workflow
+        file: src/workflows/tdd.md
+        installed_path: context/tdd-workflow.md
+      
+      - name: coding-standards
+        description: Coding standards and conventions
+        file: src/shared/coding-standards.md
+        installed_path: rules/coding-standards.md
   
-  - name: feature-spec
-    description: Create feature specifications
-    source: artifacts/commands/feature-spec.md
-    target: prompts/
+  claude:
+    artifacts:
+      - name: planning-command
+        description: Generate Given-When-Then scenarios
+        file: src/planning.md
+        installed_path: commands/planning.md
+      
+      - name: code-review
+        description: Code review workflow
+        file: src/review/code-review.md
+        installed_path: commands/code-review.md
+      
+      - name: coding-standards
+        description: Coding standards and conventions
+        file: src/shared/coding-standards.md
+        installed_path: context/coding-standards.md
   
-  - name: bdd-guidelines
-    description: BDD best practices and patterns
-    source: artifacts/memory/bdd-guidelines.md
-    target: context/
-  
-  - name: coding-standards
-    description: Coding standards and conventions
-    source: artifacts/rules/coding-standards.md
-    target: rules/
-  
-  - name: review-process
-    description: Code review workflow
-    source: artifacts/workflows/review-process.md
-    target: workflows/
-
-# Optional: Pre-built agent-specific variants
-# If provided, these will be used instead of converting from source
-prebuilt:
-  copilot: agents/copilot/
-  claude: agents/claude/
-  cursor: agents/cursor/
-  gemini: agents/gemini/
-
-# Optional: Dependencies on other packages
-dependencies:
-  - name: core-workflows
-    source: https://github.com/org/core-workflows
-    version: "^1.0.0"
-
-# Optional: Configuration options
-config:
-  default_language: typescript
-  use_strict_mode: true
+  cursor:
+    artifacts:
+      - name: planning
+        description: Generate Given-When-Then scenarios
+        file: src/planning.md
+        installed_path: commands/planning.md
+      
+      - name: cursor-rules
+        description: Coding standards for Cursor
+        file: src/shared/coding-standards.md
+        installed_path: .cursorrules
 ```
+
+**Key Features:**
+- **Agent-first organization**: Each agent section is independent
+- **Explicit mappings**: No assumptions about file structure
+- **File reuse**: Same source file (`src/shared/coding-standards.md`) can be installed to different locations for different agents
+- **Flexible paths**: `installed_path` can use any subdirectory structure the agent supports
+- **Different filenames**: Source filename doesn't have to match installed filename
 
 ## File Naming Convention
 
-To ensure clear ownership and enable safe removal, installed files are organized by package:
+To ensure clear ownership and enable safe removal, all installed files are placed within a package-specific directory:
 
-### General Pattern
+### Installation Pattern
 ```
-<agent-directory>/<package-name>/<original-filename>
+<agent-directory>/<package-name>/<installed_path-from-manifest>
+```
 
-Examples:
-.github/prompts/bdd/given-when-then.prompt.md
-.github/prompts/bdd/scenario.prompt.md
-.github/context/bdd/guidelines.md
-.github/rules/bdd/acceptance-criteria.md
+### Examples
 
-.claude/commands/bdd/given-when-then.md
-.claude/commands/bdd/scenario.md
-.claude/context/bdd/guidelines.md
+**Manifest snippet:**
+```yaml
+agents:
+  copilot:
+    artifacts:
+      - name: planning-prompt
+        file: src/planning.md
+        installed_path: prompts/planning.prompt.md
+      
+      - name: coding-standards
+        file: src/shared/standards.md
+        installed_path: rules/coding-standards.md
+```
 
-.cursor/rules/security/coding-standards.md
-.cursor/workflows/security/review-process.md
+**Installed locations:**
+```
+.github/bdd-workflows/prompts/planning.prompt.md
+.github/bdd-workflows/rules/coding-standards.md
+```
+
+**More examples across agents:**
+```
+.github/bdd-workflows/prompts/planning.prompt.md
+.github/bdd-workflows/prompts/scenario.prompt.md
+.github/bdd-workflows/context/guidelines.md
+
+.claude/bdd-workflows/commands/planning.md
+.claude/bdd-workflows/commands/scenario.md
+.claude/bdd-workflows/context/guidelines.md
+
+.cursor/security-pack/rules/coding-standards.md
+.cursor/security-pack/commands/review.md
+.cursor/security-pack/.cursorrules
 ```
 
 **Pattern Explanation:**
 - `<agent-directory>` - The agent's root directory (e.g., `.github/`, `.claude/`)
-- `<package-name>` - Package identifier as a subdirectory for isolation
-- `<original-filename>` - The artifact's original filename from the package
+- `<package-name>` - Package identifier from manifest, used as isolation directory
+- `<installed_path>` - Path specified in manifest's `installed_path` field (can include subdirectories)
 
 **Benefits:**
-- Clean directory-based organization (no filename mangling)
-- Easy to identify which package owns which files
-- Simple removal: delete the package directory
-- Prevents naming conflicts between packages
-- Original filenames preserved for readability
+- **Complete isolation**: All package files under one directory
+- **Simple removal**: Delete `<agent-directory>/<package-name>/` to remove entire package
+- **Prevents conflicts**: Different packages can't overwrite each other's files
+- **Flexible organization**: `installed_path` can use any subdirectory structure
+- **Clear ownership**: Easy to see which package owns which files
 
 ## Installation Tracking
 
-**File:** `prompty-dumpty.lock`
+**File:** `dumpty.lock`
 
 ```yaml
-# PromptyDumpty lockfile
+# Dumpty lockfile
 # This file is auto-generated. Do not edit manually.
 
 version: 1
@@ -270,50 +285,65 @@ packages:
     source: https://github.com/org/prompty-bdd
     source_type: git
     resolved: https://github.com/org/prompty-bdd/commit/abc123def
-    installed_at: "2025-10-31T10:30:00Z"
+    installed_at: "2025-11-04T10:30:00Z"
     installed_for:
       - copilot
       - claude
     
+    # Installed files mapped from manifest
     files:
       copilot:
-        - .github/prompts/bdd-workflows/given-when-then.prompt.md
-        - .github/prompts/bdd-workflows/scenario.prompt.md
-        - .github/context/bdd-workflows/guidelines.md
-        - .github/rules/bdd-workflows/acceptance-criteria.md
+        - source: src/planning.md
+          installed: .github/bdd-workflows/prompts/planning.prompt.md
+          checksum: sha256:abc123...
+        
+        - source: src/review/code-review.md
+          installed: .github/bdd-workflows/prompts/code-review.prompt.md
+          checksum: sha256:def456...
+        
+        - source: src/workflows/tdd.md
+          installed: .github/bdd-workflows/context/tdd-workflow.md
+          checksum: sha256:789abc...
       
       claude:
-        - .claude/commands/bdd-workflows/given-when-then.md
-        - .claude/commands/bdd-workflows/scenario.md
-        - .claude/context/bdd-workflows/guidelines.md
-        - .claude/rules/bdd-workflows/acceptance-criteria.md
+        - source: src/planning.md
+          installed: .claude/bdd-workflows/commands/planning.md
+          checksum: sha256:abc123...
+        
+        - source: src/review/code-review.md
+          installed: .claude/bdd-workflows/commands/code-review.md
+          checksum: sha256:def456...
     
-    checksum: sha256:1234567890abcdef...
+    manifest_checksum: sha256:1234567890abcdef...
   
   - name: security-audit
     version: 2.1.0
     source: https://github.com/org/prompty-security
     source_type: git
     resolved: https://github.com/org/prompty-security/commit/def456abc
-    installed_at: "2025-10-31T11:15:00Z"
+    installed_at: "2025-11-04T11:15:00Z"
     installed_for:
       - copilot
     
     files:
       copilot:
-        - .github/prompts/security-audit/security-scan.prompt.md
-        - .github/workflows/security-audit/security-review.md
-        - .github/checklists/security-audit/security-checklist.md
+        - source: prompts/security-scan.md
+          installed: .github/security-audit/prompts/security-scan.prompt.md
+          checksum: sha256:111222...
+        
+        - source: workflows/review.md
+          installed: .github/security-audit/workflows/security-review.md
+          checksum: sha256:333444...
     
-    checksum: sha256:abcdef1234567890...
+    manifest_checksum: sha256:abcdef1234567890...
 ```
 
 ## Configuration File
 
-**File:** `prompty-dumpty.yaml` (project-level config)
+**File:** `dumpty.yaml` (project-level config)
 
 ```yaml
-# PromptyDumpty configuration
+# Dumpty configuration
 
 # Specify which agents to use (overrides auto-detection)
 agents:
@@ -349,22 +379,24 @@ auto_update:
 ## Installation Flow
 
 1. **Parse command:** Extract package URL, version, agent preference
-2. **Validate environment:** Check for existing prompty-dumpty.lock, detect agents
+2. **Validate environment:** Check for existing dumpty.lock, detect agents
 3. **Download package:** Clone/download from source (GitHub, Git, HTTP)
-4. **Validate package:** Check prompty-dumpty.yaml schema, verify compatibility
-5. **Resolve installation targets:**
-   - Check for pre-built agent variants (agents/copilot/, etc.)
-   - If not found, use generic artifacts and convert format if needed
-   - Determine target directories based on agent
-6. **Install files:**
-   - Copy/convert artifacts to agent-specific directories based on manifest
-   - Install into package subdirectory: `<agent-dir>/<target>/<package-name>/`
-   - Preserve original filenames from package
-   - Create necessary subdirectories as needed
-   - Respect target paths defined in package manifest
-   - Create necessary subdirectories as needed
-7. **Update lockfile:** Record installation details in prompty-dumpty.lock
-8. **Verify installation:** Validate files exist, run optional post-install checks
+4. **Validate package:** Check dumpty.package.yaml schema, verify compatibility
+5. **Determine target agents:**
+   - Use `--agent` flag if specified
+   - Otherwise, use detected agents
+   - Verify package supports requested agents (check manifest has agent section)
+6. **Resolve artifacts for each agent:**
+   - Read agent's `artifacts` array from manifest
+   - For each artifact, get `file` (source) and `installed_path` (destination)
+   - Validate source files exist in package
+7. **Install files:**
+   - For each agent's artifacts:
+     - Copy file from `file` path to `<agent-root>/<package-name>/<installed_path>`
+     - Create necessary subdirectories as needed
+     - Preserve file permissions
+8. **Update lockfile:** Record installation details in dumpty.lock
+9. **Verify installation:** Validate all files exist at expected locations
 
 ## Conflict Resolution
 
@@ -394,80 +426,89 @@ Support multiple version specifiers:
 - **Commit:** `abc123def` (SHA)
 - **Tag:** `v1.2.3`
 
-## Format Conversion
+## Format Handling
 
-Since different agents use different file formats, support basic conversion:
+**No automatic conversion.** Package authors explicitly provide files for each agent they support.
 
-### Generic Markdown → Agent-Specific
+### Multi-Agent Support Strategies
 
-**Input:** `artifacts/commands/my-command.md`
-```markdown
----
-name: my-command
-description: Does something useful
-arguments:
-  - name: arg1
-    description: First argument
----
-
-# My Command
-
-Do something with {arg1}.
+**Option 1: Shared Source File**
+When the same content works for multiple agents (e.g., plain markdown):
+```yaml
+agents:
+  copilot:
+    artifacts:
+      - file: src/shared-prompt.md
+        installed_path: prompts/shared.prompt.md
+  
+  claude:
+    artifacts:
+      - file: src/shared-prompt.md  # Same source file
+        installed_path: commands/shared.md
 ```
 
-**Output for Copilot:** `.github/prompts/my-package/my-command.prompt.md`
-```markdown
-# My Command
-
-Do something with $ARG1.
+**Option 2: Agent-Specific Files**
+When agents need different formats or content:
+```yaml
+agents:
+  copilot:
+    artifacts:
+      - file: src/copilot-version.md
+        installed_path: prompts/command.prompt.md
+  
+  gemini:
+    artifacts:
+      - file: src/gemini-version.toml  # Different format
+        installed_path: commands/command.toml
 ```
 
-**Output for Gemini:** `.gemini/commands/my-package/my-command.toml`
-```toml
-[command]
-name = "my-command"
-description = "Does something useful"
-
-[arguments.arg1]
-description = "First argument"
-
-[script]
-content = """
-Do something with {arg1}.
-"""
+**Package Structure Example:**
 ```
+my-package/
+├── dumpty.package.yaml
+├── src/
+│   ├── shared-prompt.md          # Used by multiple agents
+│   ├── copilot-specific.md       # Copilot only
+│   └── gemini-specific.toml      # Gemini only
+```
+
+**Benefits:**
+- **No magic**: What you define is what gets installed
+- **Full control**: Package authors decide format and content
+- **Explicit**: Clear what file goes where
+- **Flexible**: Mix and match strategies per artifact
 
 ## CLI Commands Summary
 
 ```bash
 # Installation
-prompty-dumpty install <package-url>[@version]
-prompty-dumpty install <package-url> --agent <agent>
-prompty-dumpty install --file prompty-dumpty.yaml  # Install dependencies
+dumpty install <package-url>[@version]
+dumpty install <package-url> --agent <agent>
+dumpty install --file dumpty.yaml  # Install dependencies
 
 # Removal
-prompty-dumpty uninstall <package-name>
-prompty-dumpty uninstall <package-name> --agent <agent>
+dumpty uninstall <package-name>
+dumpty uninstall <package-name> --agent <agent>
 
 # Information
-prompty-dumpty list [--verbose]
+dumpty list [--verbose]
 
 # Updates
-prompty-dumpty update <package-name>
-prompty-dumpty update --all
-prompty-dumpty outdated
+dumpty update <package-name>
+dumpty update --all
+dumpty outdated
 
 # Initialization
-prompty-dumpty init                          # Create prompty-dumpty.yaml
-prompty-dumpty init --agent copilot          # Create with specific agent
+dumpty init                          # Create dumpty.yaml
+dumpty init --agent copilot          # Create with specific agent
 
 # Verification
-prompty-dumpty verify                        # Check lockfile vs installed files
-prompty-dumpty doctor                        # Diagnose issues
+dumpty verify                        # Check lockfile vs installed files
+dumpty doctor                        # Diagnose issues
 
 # Package Creation
-prompty-dumpty create <package-name>         # Scaffold new package
-prompty-dumpty validate                      # Validate package manifest
+dumpty create <package-name>         # Scaffold new package
+dumpty validate                      # Validate package manifest
 ```
 
 ## Key Design Decisions
@@ -500,10 +541,10 @@ prompty-dumpty validate                      # Validate package manifest
 - Easy removal: delete package directory
 
 ### 6. Directory Structure
-- Use `.prompty-dumpty/` for package manager metadata:
-  - `.prompty-dumpty/cache/` - Downloaded packages cache
-  - `prompty-dumpty.lock` - Installation tracking (at project root)
-  - `prompty-dumpty.yaml` - Configuration (at project root)
+- Use `.dumpty/` for package manager metadata:
+  - `.dumpty/cache/` - Downloaded packages cache
+  - `dumpty.lock` - Installation tracking (at project root)
+  - `dumpty.yaml` - Configuration (at project root)
 - Agent-specific directories determined by agent detection
 - Subdirectories within agent directories determined by package manifest
 
@@ -540,46 +581,52 @@ prompty-dumpty validate                      # Validate package manifest
 
 ```bash
 # Initialize a new project
-prompty-dumpty init
+dumpty init
 > Detected agents: copilot, claude
-> Created prompty-dumpty.yaml
+> Created dumpty.yaml
 
 # Install a package
-prompty-dumpty install https://github.com/org/prompty-bdd
-> Installing bdd-workflows v1.0.0
+dumpty install https://github.com/org/prompty-bdd
+> Downloading bdd-workflows v1.0.0
+> Reading manifest...
 > Detected agents: copilot, claude
 > Installing for: copilot, claude
 > 
-> Copilot:
->   ✓ .github/prompts/bdd-workflows/given-when-then.prompt.md
->   ✓ .github/prompts/bdd-workflows/scenario.prompt.md
->   ✓ .github/context/bdd-workflows/guidelines.md
->   ✓ .github/rules/bdd-workflows/acceptance-criteria.md
+> Copilot (4 artifacts):
+>   ✓ src/planning.md → .github/bdd-workflows/prompts/planning.prompt.md
+>   ✓ src/review/code-review.md → .github/bdd-workflows/prompts/code-review.prompt.md
+>   ✓ src/workflows/tdd.md → .github/bdd-workflows/context/tdd-workflow.md
+>   ✓ src/shared/coding-standards.md → .github/bdd-workflows/rules/coding-standards.md
 > 
-> Claude:
->   ✓ .claude/commands/bdd-workflows/given-when-then.md
->   ✓ .claude/commands/bdd-workflows/scenario.md
->   ✓ .claude/context/bdd-workflows/guidelines.md
->   ✓ .claude/rules/bdd-workflows/acceptance-criteria.md
+> Claude (3 artifacts):
+>   ✓ src/planning.md → .claude/bdd-workflows/commands/planning.md
+>   ✓ src/review/code-review.md → .claude/bdd-workflows/commands/code-review.md
+>   ✓ src/shared/coding-standards.md → .claude/bdd-workflows/context/coding-standards.md
 > 
-> Installation complete! 8 files installed.
+> Installation complete! 7 files installed from 5 sources.
 
 # List installed packages
-prompty-dumpty list
+dumpty list
 > Installed packages:
 >   bdd-workflows v1.0.0 (copilot, claude)
+>     - 4 artifacts for copilot
+>     - 3 artifacts for claude
 
 # Update a package
-prompty-dumpty update bdd-workflows
+dumpty update bdd-workflows
 > Checking for updates...
 > New version available: v1.1.0
+> Changes: +2 artifacts, 1 updated
 > Update? [y/N] y
 > Updated bdd-workflows to v1.1.0
 
 # Remove a package
-prompty-dumpty uninstall bdd-workflows
+dumpty uninstall bdd-workflows
 > Removing bdd-workflows v1.1.0
-> Will remove 5 files. Continue? [y/N] y
+> Will remove:
+>   - .github/bdd-workflows/ (4 files)
+>   - .claude/bdd-workflows/ (3 files)
+> Continue? [y/N] y
 > Removed successfully.
 ```
 
@@ -587,7 +634,7 @@ prompty-dumpty uninstall bdd-workflows
 
 ## Summary
 
-PromptyDumpty provides a lightweight, universal package manager for AI agent artifacts. It focuses on:
+Dumpty provides a lightweight, universal package manager for AI agent artifacts. It focuses on:
 
 - **Simplicity:** Minimal configuration, intuitive commands
 - **Universality:** Works across multiple AI agents
