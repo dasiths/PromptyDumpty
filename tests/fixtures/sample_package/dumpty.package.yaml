@@ -1,0 +1,20 @@
+name: sample-package
+version: 1.0.0
+description: Sample package for testing
+author: Test Author
+license: MIT
+
+agents:
+  copilot:
+    artifacts:
+      - name: planning
+        description: Planning prompt
+        file: src/planning.md
+        installed_path: prompts/planning.prompt.md
+  
+  claude:
+    artifacts:
+      - name: planning
+        description: Planning command
+        file: src/planning.md
+        installed_path: commands/planning.md
