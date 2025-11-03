@@ -1,4 +1,4 @@
-# Dumpty Package Manager - Requirements
+# PromptyDumpty Package Manager - Requirements
 
 ## Overview
 
