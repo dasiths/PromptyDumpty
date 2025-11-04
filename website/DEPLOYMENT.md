@@ -38,13 +38,13 @@ Since `dumpty.dev` is registered with Cloudflare, your domain is already configu
    - Select the **PromptyDumpty** repository
 
 3. **Configure Build Settings**
-   - Project name: `promptydumpty-website` (or your preference)
-   - Production branch: `main`
-   - Build settings:
-     - **Framework preset:** Vite
-     - **Build command:** `cd website && npm install && npm run build`
-     - **Build output directory:** `website/dist`
-     - **Root directory:** Leave empty (or set to `/`)
+   - **Project name:** `promptydumpty-website` (or your preference)
+   - **Production branch:** `main`
+   - **Build command:** `cd website && npm install && npm run build`
+   - **Build output directory:** `website/dist`
+   - **Root directory (Path):** `/` (leave as default)
+   - **Deploy command:** Leave empty or clear this field (not needed for static sites)
+   - **Framework preset:** Vite (optional, auto-detected)
 
 4. **Environment Variables** (if needed)
    - Click **Add variable** if you need any environment variables
@@ -423,9 +423,12 @@ Cloudflare Pages automatically handles SPA routing for React apps. If you see 40
 
 ### Build Settings
 ```
+Project name: promptydumpty-website
+Production branch: main
 Build command: cd website && npm install && npm run build
 Build output directory: website/dist
-Root directory: (leave empty)
+Root directory (Path): / (default)
+Deploy command: (leave empty)
 Framework preset: Vite
 Node version: 18 (default)
 ```
