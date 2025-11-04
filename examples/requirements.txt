@@ -1,0 +1,2 @@
+# Install prompty-dumpty from PyPI
+prompty-dumpty

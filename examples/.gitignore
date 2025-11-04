@@ -1,0 +1,10 @@
+# Virtual environment
+venv/
+
+# Test directories
+test-project/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
