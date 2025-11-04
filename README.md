@@ -93,9 +93,175 @@ agents:
 
 See [REQUIREMENTS.md](REQUIREMENTS.md) for detailed specifications.
 
-## Status
+## Installation
 
-⚠️ **In Development** - Requirements phase. Not yet implemented.
+### From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/dasiths/PromptyDumpty.git
+cd PromptyDumpty
+
+# Install in development mode (recommended for contributors)
+make install-dev
+
+# Or install in production mode
+make install
+```
+
+### Using pip (when published)
+
+```bash
+pip install prompty-dumpty
+```
+
+### Verify Installation
+
+```bash
+dumpty --version
+```
+
+## Development
+
+### Prerequisites
+
+- Python 3.8 or higher
+- Git
+- Make (optional, for using Makefile commands)
+
+### Setup Development Environment
+
+```bash
+# Clone and navigate to repository
+git clone https://github.com/dasiths/PromptyDumpty.git
+cd PromptyDumpty
+
+# Install in development mode with all dependencies
+make install-dev
+```
+
+### Available Make Commands
+
+```bash
+make help          # Show all available commands
+make test          # Run tests
+make test-cov      # Run tests with coverage report
+make lint          # Run linters (ruff and black)
+make format        # Format code with black
+make build         # Build distribution packages
+make clean         # Remove build artifacts
+make run ARGS='...'  # Run dumpty CLI
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run tests with coverage
+make test-cov
+
+# Run specific test file
+pytest tests/test_models.py -v
+```
+
+### Code Quality
+
+```bash
+# Check code formatting and linting
+make lint
+
+# Auto-format code
+make format
+```
+
+## Usage Examples
+
+### Initialize a Project
+
+```bash
+# Auto-detect agents in current directory
+dumpty init
+
+# Initialize with specific agent
+dumpty init --agent copilot
+dumpty init --agent claude
+```
+
+### Install Packages
+
+```bash
+# Install from GitHub repository
+dumpty install https://github.com/org/my-prompts
+
+# Install specific version
+dumpty install https://github.com/org/my-prompts --version v1.0.0
+
+# Install for specific agent
+dumpty install https://github.com/org/my-prompts --agent copilot
+```
+
+### List Installed Packages
+
+```bash
+# Show installed packages (table view)
+dumpty list
+
+# Show detailed information
+dumpty list --verbose
+```
+
+### Using the Makefile
+
+```bash
+# Run CLI commands using make
+make run ARGS='--version'
+make run ARGS='init --agent copilot'
+make run ARGS='list'
+make run ARGS='install https://github.com/org/my-prompts'
+```
+
+## Supported AI Agents
+
+- **GitHub Copilot** (`.github/`)
+- **Claude** (`.claude/`)
+- **Cursor** (`.cursor/`)
+- **Gemini** (`.gemini/`)
+- **Windsurf** (`.windsurf/`)
+- **Cline** (`.cline/`)
+- **Aider** (`.aider/`)
+- **Continue** (`.continue/`)
+
+## Project Structure
+
+```
+PromptyDumpty/
+├── dumpty/              # Main package
+│   ├── cli.py          # CLI entry point
+│   ├── models.py       # Data models
+│   ├── agent_detector.py  # Agent detection
+│   ├── downloader.py   # Package downloading
+│   ├── installer.py    # File installation
+│   ├── lockfile.py     # Lockfile management
+│   └── utils.py        # Utilities
+├── tests/              # Test suite
+├── pyproject.toml      # Project configuration
+├── Makefile           # Build and development tasks
+└── README.md          # This file
+```
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests: `make test`
+5. Format code: `make format`
+6. Check linting: `make lint`
+7. Submit a pull request
 
 ## License
 
