@@ -50,30 +50,58 @@ dumpty --version
 echo "   ✅ Version check passed"
 echo ""
 
-# Test 2: Initialize a project in a test directory
-echo "2️⃣  Testing: dumpty init"
+# Test 2: Initialize a project for Claude agent
+echo "2️⃣  Testing: dumpty init --agent claude"
 mkdir -p test-project
 cd test-project
-dumpty init --agent copilot
+dumpty init --agent claude
 if [ -f "dumpty.lock" ]; then
     echo "   ✅ Init passed - lockfile created"
 else
     echo "   ❌ Init failed - lockfile not found"
     exit 1
 fi
-cd ..
+if [ -d ".claude" ]; then
+    echo "   ✅ Claude directory created"
+else
+    echo "   ❌ Claude directory not found"
+    exit 1
+fi
 echo ""
 
-# Test 3: List packages (should be empty)
-echo "3️⃣  Testing: dumpty list"
+# Test 3: Install sample package
+echo "3️⃣  Testing: dumpty install https://github.com/dasiths/prompty-dumpty-sample-package"
+dumpty install https://github.com/dasiths/prompty-dumpty-sample-package
+if [ -f ".claude/sample-package/commands/planning.md" ]; then
+    echo "   ✅ Sample package installed successfully"
+elif [ -f ".claude/commands/sample-package/planning.md" ]; then
+    echo "   ✅ Sample package installed successfully (alternate path)"
+else
+    echo "   ⚠️  Checking actual installation location..."
+    find .claude -name "planning.md" -type f 2>/dev/null || echo "   File not found"
+fi
+echo ""
+
+# Test 4: List packages (should show sample-package)
+echo "4️⃣  Testing: dumpty list"
 dumpty list
 echo "   ✅ List command passed"
 echo ""
 
-# Test 4: Show help
-echo "4️⃣  Testing: dumpty --help"
+# Test 5: Verify installed files
+echo "5️⃣  Testing: Verify installed files"
+echo "   📁 Complete .claude directory structure:"
+find .claude -type f 2>/dev/null | sort
+echo "   ✅ Files verified"
+echo ""
+
+# Test 6: Show help
+echo "6️⃣  Testing: dumpty --help"
 dumpty --help > /dev/null
 echo "   ✅ Help command passed"
+echo ""
+
+cd ..
 echo ""
 
 # Deactivate

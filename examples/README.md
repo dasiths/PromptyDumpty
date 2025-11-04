@@ -1,94 +1,68 @@
 # Examples - Using prompty-dumpty from PyPI
 
-This folder demonstrates how to install and use `prompty-dumpty` from PyPI.
+## Quick Start
 
-## Installation
+### Run Automated Test
+```bash
+./test-install.sh
+```
+Creates a virtual environment, installs prompty-dumpty from PyPI, sets up Claude agent, and installs the [sample package](https://github.com/dasiths/prompty-dumpty-sample-package).
 
-### Option 1: Using pip directly
+### Run Interactive Demo
+```bash
+./demo.sh
+```
+Creates a demo project showing the complete setup.
+
+## Manual Installation
+
 ```bash
 pip install prompty-dumpty
 ```
 
-### Option 2: Using requirements.txt
+Or with virtual environment:
 ```bash
-pip install -r requirements.txt
-```
-
-### Option 3: Using a virtual environment (recommended)
-```bash
-# Create a virtual environment
 python -m venv venv
-
-# Activate it
-source venv/bin/activate  # On Linux/Mac
-# or
-venv\Scripts\activate  # On Windows
-
-# Install from requirements.txt
+source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-## Usage Examples
+## Basic Usage
 
-Once installed, you can use the `dumpty` command:
-
-### Initialize a new project
 ```bash
-dumpty init
-```
+# Initialize for Claude agent
+dumpty init --agent claude
 
-### Install a package
-```bash
-dumpty install https://github.com/org/my-prompts
-```
+# Install a package
+dumpty install https://github.com/dasiths/prompty-dumpty-sample-package
 
-### List installed packages
-```bash
+# List packages
 dumpty list
-```
 
-### Update all packages
-```bash
-dumpty update --all
-```
-
-### Uninstall a package
-```bash
-dumpty uninstall my-prompts
-```
-
-### Show version
-```bash
-dumpty --version
-```
-
-### Get help
-```bash
-dumpty --help
-```
-
-## Testing the Installation
-
-To verify that prompty-dumpty was installed correctly:
-
-```bash
 # Check version
 dumpty --version
-
-# Initialize in a test directory
-mkdir test-project
-cd test-project
-dumpty init --agent copilot
-
-# You should see .prompty-dumpty-lock.yaml created
-ls -la
 ```
 
-## Clean Up
+## What Gets Installed
 
-If you created a virtual environment, deactivate and remove it:
+After running `test-install.sh`, you'll have:
+```
+test-project/
+├── .claude/
+│   └── sample-package/
+│       └── commands/
+│           └── planning.md
+└── dumpty.lock
+```
+
+## Files
+
+- `test-install.sh` - Full automated test (creates venv, installs package, runs 6 tests)
+- `demo.sh` - Interactive demo showing complete setup
+- `requirements.txt` - For pip installation
+
+## Cleanup
 
 ```bash
-deactivate
-rm -rf venv
+rm -rf venv test-project
 ```
