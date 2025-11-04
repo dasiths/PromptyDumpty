@@ -93,7 +93,11 @@ agents:
 
 ## Documentation
 
-See [REQUIREMENTS.md](REQUIREMENTS.md) for detailed specifications.
+📚 **Full documentation available at [dumpty.dev](https://dumpty.dev)**
+
+- [Getting Started Guide](https://dumpty.dev/getting-started)
+- [Creating Packages](https://dumpty.dev/creating-packages)
+- [Full Documentation](https://dumpty.dev/docs)
 
 ## Installation
 
@@ -144,6 +148,7 @@ make install-dev
 
 ### Available Make Commands
 
+**Python/CLI Commands:**
 ```bash
 make help          # Show all available commands
 make test          # Run tests
@@ -153,6 +158,15 @@ make format        # Format code with black
 make build         # Build distribution packages
 make clean         # Remove build artifacts
 make run ARGS='...'  # Run dumpty CLI
+```
+
+**Website Commands:**
+```bash
+make website-install  # Install website dependencies
+make website-dev      # Start dev server with hot reload
+make website-build    # Build website for production
+make website-preview  # Preview production build
+make website-clean    # Remove website build artifacts
 ```
 
 ### Running Tests
@@ -248,10 +262,44 @@ PromptyDumpty/
 │   ├── lockfile.py     # Lockfile management
 │   └── utils.py        # Utilities
 ├── tests/              # Test suite
-├── pyproject.toml      # Project configuration
-├── Makefile           # Build and development tasks
-└── README.md          # This file
+├── website/            # Documentation website (dumpty.dev)
+│   ├── src/           # React source files
+│   ├── public/        # Static assets
+│   └── README.md      # Website development guide
+├── docs/              # Documentation and planning
+├── examples/          # Example packages and demos
+├── pyproject.toml     # Project configuration
+├── Makefile          # Build and development tasks
+└── README.md         # This file
 ```
+
+## Website Development
+
+The project website is built with Vite + React and deployed at [dumpty.dev](https://dumpty.dev).
+
+### Running the Website Locally
+
+```bash
+# Install dependencies
+make website-install
+
+# Start dev server (with hot reload)
+make website-dev
+```
+
+Visit `http://localhost:5173` in your browser.
+
+### Building for Production
+
+```bash
+# Build the website
+make website-build
+
+# Preview production build
+make website-preview
+```
+
+See [website/README.md](website/README.md) for more details and [website/DEPLOYMENT.md](website/DEPLOYMENT.md) for deployment instructions.
 
 ## Contributing
 

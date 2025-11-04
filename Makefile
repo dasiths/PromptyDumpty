@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test test-cov lint format clean build run
+.PHONY: help install install-dev test test-cov lint format clean build run website-install website-dev website-build website-preview website-clean
 
 # Default target
 help:
@@ -14,6 +14,13 @@ help:
 	@echo "  make clean        - Remove build artifacts and cache"
 	@echo "  make build        - Build distribution packages"
 	@echo "  make run          - Run dumpty CLI (use ARGS='your arguments')"
+	@echo ""
+	@echo "Website targets:"
+	@echo "  make website-install  - Install website dependencies"
+	@echo "  make website-dev      - Start website dev server (with hot reload)"
+	@echo "  make website-build    - Build website for production"
+	@echo "  make website-preview  - Preview production build locally"
+	@echo "  make website-clean    - Remove website build artifacts"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make run ARGS='--version'"
@@ -68,3 +75,21 @@ build: clean
 # Usage: make run ARGS='init --agent copilot'
 run:
 	dumpty $(ARGS)
+
+# Website targets
+website-install:
+	cd website && npm install
+
+website-dev:
+	cd website && npm run dev -- --host
+
+website-build:
+	cd website && npm run build
+
+website-preview:
+	cd website && npm run preview -- --host
+
+website-clean:
+	rm -rf website/node_modules
+	rm -rf website/dist
+	rm -rf website/.vite

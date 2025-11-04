@@ -25,6 +25,11 @@ npm run dev
 
 The site will be available at `http://localhost:5173`
 
+**Note:** If running in a dev container, use the `--host` flag:
+```bash
+npm run dev -- --host
+```
+
 ## Build
 
 Build for production:
@@ -39,6 +44,11 @@ Preview the production build:
 
 ```bash
 npm run preview
+```
+
+**Note:** If running in a dev container, use the `--host` flag:
+```bash
+npm run preview -- --host
 ```
 
 ## Deployment
