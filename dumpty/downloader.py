@@ -87,13 +87,13 @@ class ShellGitOperations:
         )
         if result.returncode != 0:
             raise RuntimeError(f"Git ls-remote failed: {result.stderr}")
-        
+
         # Parse output: each line is "<hash> refs/tags/<tag>"
         tags = []
-        for line in result.stdout.strip().split('\n'):
+        for line in result.stdout.strip().split("\n"):
             if line:
-                parts = line.split('\t')
-                if len(parts) == 2 and parts[1].startswith('refs/tags/'):
+                parts = line.split("\t")
+                if len(parts) == 2 and parts[1].startswith("refs/tags/"):
                     tags.append(parts[1])
         return tags
         if result.returncode != 0:

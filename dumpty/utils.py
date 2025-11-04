@@ -39,17 +39,17 @@ def parse_git_tags(tags: List[str]) -> List[tuple[str, Version]]:
     for tag in tags:
         # Extract version from refs/tags/vX.Y.Z
         # Match both v-prefixed and non-prefixed versions
-        match = re.match(r'refs/tags/v?(\d+\.\d+\.\d+.*?)(?:\^\{\})?$', tag)
+        match = re.match(r"refs/tags/v?(\d+\.\d+\.\d+.*?)(?:\^\{\})?$", tag)
         if match:
             version_str = match.group(1)
             try:
                 version = Version(version_str)
                 # Store the full tag for reference
-                tag_name = tag.replace('refs/tags/', '')
+                tag_name = tag.replace("refs/tags/", "")
                 versions.append((tag_name, version))
             except InvalidVersion:
                 continue
-    
+
     # Sort by version (newest first)
     versions.sort(key=lambda x: x[1], reverse=True)
     return versions
@@ -84,10 +84,9 @@ def compare_versions(current: str, available: str) -> bool:
     """
     try:
         # Remove 'v' prefix if present
-        current_clean = current.lstrip('v')
-        available_clean = available.lstrip('v')
-        
+        current_clean = current.lstrip("v")
+        available_clean = available.lstrip("v")
+
         return Version(available_clean) > Version(current_clean)
     except InvalidVersion:
         return False
-
