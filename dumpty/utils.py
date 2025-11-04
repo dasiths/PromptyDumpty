@@ -3,7 +3,7 @@
 import hashlib
 import re
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from packaging.version import Version, InvalidVersion
 
 
@@ -25,7 +25,7 @@ def calculate_checksum(file_path: Path) -> str:
     return f"sha256:{sha256_hash.hexdigest()}"
 
 
-def parse_git_tags(tags: List[str]) -> List[tuple[str, Version]]:
+def parse_git_tags(tags: List[str]) -> List[Tuple[str, Version]]:
     """
     Parse git tags and return sorted versions.
 

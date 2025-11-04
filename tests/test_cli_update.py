@@ -16,6 +16,7 @@ def cli_runner():
 @pytest.fixture
 def mock_git_ops():
     """Mock git operations for testing."""
+    from typing import List
 
     class MockGitOps:
         def __init__(self):
@@ -39,7 +40,7 @@ def mock_git_ops():
         def pull(self, cwd):
             pass
 
-        def fetch_tags(self, url):
+        def fetch_tags(self, url: str) -> List[str]:
             return self.tags
 
     return MockGitOps()
@@ -367,8 +368,10 @@ agents:
         lockfile.add_package(package)
 
         # Mock git ops to return no tags
+        from typing import List
+
         class MockGitOps:
-            def fetch_tags(self, url):
+            def fetch_tags(self, url: str) -> List[str]:
                 return []
 
         import dumpty.downloader

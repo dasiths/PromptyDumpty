@@ -3,7 +3,7 @@
 import subprocess
 import shutil
 from pathlib import Path
-from typing import Optional, Protocol
+from typing import List, Optional, Protocol
 
 
 class GitOperations(Protocol):
@@ -25,7 +25,7 @@ class GitOperations(Protocol):
         """Pull latest changes."""
         ...
 
-    def fetch_tags(self, url: str) -> list[str]:
+    def fetch_tags(self, url: str) -> List[str]:
         """Fetch available tags from remote repository."""
         ...
 
@@ -77,7 +77,7 @@ class ShellGitOperations:
         if result.returncode != 0:
             raise RuntimeError(f"Git pull failed: {result.stderr}")
 
-    def fetch_tags(self, url: str) -> list[str]:
+    def fetch_tags(self, url: str) -> List[str]:
         """Fetch available tags from remote repository."""
         result = subprocess.run(
             ["git", "ls-remote", "--tags", url],
@@ -96,8 +96,6 @@ class ShellGitOperations:
                 if len(parts) == 2 and parts[1].startswith("refs/tags/"):
                     tags.append(parts[1])
         return tags
-        if result.returncode != 0:
-            raise RuntimeError(f"Git pull failed: {result.stderr}")
 
 
 class FileSystemGitOperations:
@@ -139,7 +137,7 @@ class FileSystemGitOperations:
         """Simulate pull (no-op in mock)."""
         pass
 
-    def fetch_tags(self, url: str) -> list[str]:
+    def fetch_tags(self, url: str) -> List[str]:
         """Return mock tags for testing."""
         # Return some test tags
         return [
