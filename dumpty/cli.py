@@ -270,5 +270,95 @@ def init(agent: str):
         sys.exit(1)
 
 
+@cli.command()
+@click.argument("package_name")
+@click.option(
+    "--agent",
+    help="Uninstall from specific agent only (copilot, claude, etc.). Otherwise uninstall from all agents.",
+)
+def uninstall(package_name: str, agent: str):
+    """Uninstall a package."""
+    try:
+        # Load lockfile
+        lockfile = LockfileManager()
+        
+        # Check if package exists
+        package = lockfile.get_package(package_name)
+        if not package:
+            console.print(f"[red]Error:[/] Package '{package_name}' is not installed")
+            sys.exit(1)
+        
+        # Determine target agents
+        if agent:
+            # Validate agent name
+            target_agent = Agent.from_name(agent)
+            if not target_agent:
+                console.print(
+                    f"[red]Error:[/] Unknown agent '{agent}'. "
+                    f"Valid options: {', '.join(Agent.all_names())}"
+                )
+                sys.exit(1)
+            
+            agent_name = target_agent.name.lower()
+            
+            # Check if package is installed for this agent
+            if agent_name not in package.installed_for:
+                console.print(
+                    f"[yellow]Warning:[/] Package '{package_name}' is not installed for {target_agent.display_name}"
+                )
+                sys.exit(0)
+            
+            target_agents = [target_agent]
+        else:
+            # Uninstall from all agents
+            target_agents = [Agent.from_name(a) for a in package.installed_for]
+        
+        # Uninstall files for each agent
+        installer = FileInstaller()
+        total_removed = 0
+        
+        console.print(f"\n[blue]Uninstalling {package_name} v{package.version}[/]")
+        
+        for target_agent in target_agents:
+            agent_name = target_agent.name.lower()
+            
+            # Count files for this agent
+            files_count = len(package.files.get(agent_name, []))
+            
+            # Uninstall package directory for this agent
+            installer.uninstall_package(target_agent, package_name)
+            
+            console.print(f"  [green]✓[/] Removed from {target_agent.display_name} ({files_count} files)")
+            total_removed += files_count
+        
+        # Update lockfile
+        if agent:
+            # Partial uninstall - update installed_for list
+            remaining_agents = [a for a in package.installed_for if a != agent_name]
+            
+            if remaining_agents:
+                # Update package with remaining agents
+                package.installed_for = remaining_agents
+                
+                # Remove files for uninstalled agent
+                if agent_name in package.files:
+                    del package.files[agent_name]
+                
+                lockfile.add_package(package)
+                console.print(f"\n[yellow]Package still installed for: {', '.join(remaining_agents)}[/]")
+            else:
+                # No agents left, remove completely
+                lockfile.remove_package(package_name)
+        else:
+            # Full uninstall - remove from lockfile
+            lockfile.remove_package(package_name)
+        
+        console.print(f"\n[green]✓ Uninstallation complete![/] {total_removed} files removed.")
+    
+    except Exception as e:
+        console.print(f"[red]Error:[/] {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     cli()
