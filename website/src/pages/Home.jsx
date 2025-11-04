@@ -6,7 +6,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <div className="text-8xl mb-6">🥚</div>
+          <img src="/logo.png" alt="PromptyDumpty Logo" className="w-48 h-48 mx-auto mb-6" />
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
             PromptyDumpty
           </h1>
