@@ -15,7 +15,7 @@ export default function Documentation() {
 
           <CommandDoc
             command="dumpty install PACKAGE_URL"
-            description="Install a package from a Git repository."
+            description="Install a package from a Git repository. Use the full repository URL for installation."
             options={[
               { flag: "--agent", description: "Install for specific agent (copilot, claude, etc.)" },
               { flag: "--version", description: "Install specific version (tag, branch, or commit)" }
@@ -33,13 +33,13 @@ dumpty install https://github.com/org/my-prompts --agent copilot`}
 
           <CommandDoc
             command="dumpty show PACKAGE_NAME"
-            description="Display detailed information about an installed package."
+            description="Display detailed information about an installed package. Use the package name from the manifest (not the URL)."
             example="dumpty show my-prompts"
           />
 
           <CommandDoc
             command="dumpty update PACKAGE_NAME"
-            description="Update a package to the latest version."
+            description="Update a package to the latest version. Use the package name from the manifest (not the URL)."
             options={[
               { flag: "--all", description: "Update all installed packages" }
             ]}
@@ -49,7 +49,7 @@ dumpty update --all`}
 
           <CommandDoc
             command="dumpty uninstall PACKAGE_NAME"
-            description="Remove a package and all its installed files."
+            description="Remove a package and all its installed files. Use the package name from the manifest (not the URL)."
             example="dumpty uninstall my-prompts"
           />
         </div>
@@ -146,25 +146,8 @@ packages:
       </section>
 
       <section className="mb-12">
-        <h2 className="text-3xl font-semibold mb-4">Configuration</h2>
-        <p className="text-slate-300 mb-4">
-          While PromptyDumpty works with auto-detection, you can create a <code>dumpty.config.yaml</code> file for custom settings:
-        </p>
-        <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-4">
-          <pre><code>{`# Force a specific agent (skip detection)
-agent: copilot
-
-# Custom installation paths (advanced)
-custom_paths:
-  copilot:
-    prompts: .github/custom-prompts
-    rules: .github/custom-rules`}</code></pre>
-        </div>
-      </section>
-
-      <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Troubleshooting</h2>
-        
+
         <div className="space-y-6">
           <TroubleshootingItem
             question="Agent not detected?"
