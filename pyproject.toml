@@ -44,7 +44,8 @@ dev = [
 dumpty = "dumpty.cli:cli"
 
 [project.urls]
-Homepage = "https://github.com/dasiths/PromptyDumpty"
+Homepage = "https://dumpty.dev"
+Documentation = "https://dumpty.dev/docs"
 Repository = "https://github.com/dasiths/PromptyDumpty"
 Issues = "https://github.com/dasiths/PromptyDumpty/issues"
 
