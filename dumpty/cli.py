@@ -13,7 +13,7 @@ from dumpty.downloader import PackageDownloader
 from dumpty.installer import FileInstaller
 from dumpty.lockfile import LockfileManager
 from dumpty.models import PackageManifest, InstalledPackage, InstalledFile
-from dumpty.utils import calculate_checksum
+from dumpty.utils import calculate_checksum, parse_git_tags, compare_versions
 
 console = Console()
 
@@ -354,6 +354,199 @@ def uninstall(package_name: str, agent: str):
             lockfile.remove_package(package_name)
         
         console.print(f"\n[green]✓ Uninstallation complete![/] {total_removed} files removed.")
+    
+    except Exception as e:
+        console.print(f"[red]Error:[/] {e}")
+        sys.exit(1)
+
+
+@cli.command()
+@click.argument("package_name", required=False)
+@click.option("--all", "update_all", is_flag=True, help="Update all installed packages")
+@click.option("--version", "target_version", help="Update to specific version")
+def update(package_name: str, update_all: bool, target_version: str):
+    """Update installed packages to newer versions."""
+    try:
+        # Load lockfile
+        lockfile = LockfileManager()
+        packages = lockfile.list_packages()
+        
+        if not packages:
+            console.print("[yellow]No packages installed.[/]")
+            return
+        
+        # Determine which packages to update
+        if update_all:
+            packages_to_update = packages
+        elif package_name:
+            pkg = lockfile.get_package(package_name)
+            if not pkg:
+                console.print(f"[red]Error:[/] Package '{package_name}' is not installed")
+                sys.exit(1)
+            packages_to_update = [pkg]
+        else:
+            console.print("[red]Error:[/] Please specify a package name or use --all flag")
+            sys.exit(1)
+        
+        # Initialize downloader
+        downloader = PackageDownloader()
+        installer = FileInstaller()
+        detector = AgentDetector()
+        
+        updated_count = 0
+        
+        for package in packages_to_update:
+            console.print(f"\n[blue]Checking {package.name} v{package.version}...[/]")
+            
+            try:
+                # Fetch available tags
+                tags = downloader.git_ops.fetch_tags(package.source)
+                
+                if not tags:
+                    console.print(f"  [yellow]No version tags found in repository[/]")
+                    continue
+                
+                # Parse versions
+                versions = parse_git_tags(tags)
+                
+                if not versions:
+                    console.print(f"  [yellow]No valid semantic versions found[/]")
+                    continue
+                
+                # Determine target version
+                if target_version:
+                    # Use specified version
+                    target_tag = None
+                    target_ver = None
+                    
+                    # Find the matching version
+                    for tag_name, ver in versions:
+                        if tag_name == target_version or tag_name == f"v{target_version}":
+                            target_tag = tag_name
+                            target_ver = ver
+                            break
+                    
+                    if not target_tag:
+                        console.print(f"  [red]Version {target_version} not found[/]")
+                        continue
+                else:
+                    # Use latest version
+                    target_tag, target_ver = versions[0]
+                
+                # Compare versions
+                current_version = package.version
+                target_version_str = str(target_ver)
+                
+                if not compare_versions(current_version, target_version_str):
+                    console.print(f"  [green]Already up to date[/] (v{current_version})")
+                    continue
+                
+                console.print(f"  [cyan]Update available:[/] v{current_version} → v{target_version_str}")
+                
+                # Download new version
+                console.print(f"  [blue]Downloading v{target_version_str}...[/]")
+                package_dir = downloader.download(package.source, target_tag)
+                
+                # Load manifest
+                manifest_path = package_dir / "dumpty.package.yaml"
+                if not manifest_path.exists():
+                    console.print(f"  [red]Error:[/] No dumpty.package.yaml found in package")
+                    continue
+                
+                manifest = PackageManifest.from_file(manifest_path)
+                
+                # Validate files exist
+                missing_files = manifest.validate_files_exist(package_dir)
+                if missing_files:
+                    console.print(f"  [red]Error:[/] Package manifest references missing files:")
+                    for missing in missing_files:
+                        console.print(f"    - {missing}")
+                    continue
+                
+                # Uninstall old version
+                console.print(f"  [blue]Removing old version...[/]")
+                for agent_name in package.installed_for:
+                    agent = Agent.from_name(agent_name)
+                    if agent:
+                        installer.uninstall_package(agent, package.name)
+                
+                # Install new version
+                console.print(f"  [blue]Installing v{target_version_str}...[/]")
+                
+                installed_files = {}
+                total_installed = 0
+                
+                for agent_name in package.installed_for:
+                    agent = Agent.from_name(agent_name)
+                    if not agent:
+                        continue
+                    
+                    # Check if package supports this agent
+                    if agent_name not in manifest.agents:
+                        console.print(
+                            f"    [yellow]Warning:[/] New version doesn't support {agent.display_name}, skipping"
+                        )
+                        continue
+                    
+                    # Ensure agent directory exists
+                    detector.ensure_agent_directory(agent)
+                    
+                    # Install artifacts
+                    artifacts = manifest.agents[agent_name]
+                    agent_files = []
+                    
+                    for artifact in artifacts:
+                        source_file = package_dir / artifact.file
+                        dest_path, checksum = installer.install_file(
+                            source_file, agent, manifest.name, artifact.installed_path
+                        )
+                        
+                        # Make path relative to project root for lockfile
+                        try:
+                            rel_path = dest_path.relative_to(Path.cwd())
+                        except ValueError:
+                            rel_path = dest_path
+                        
+                        agent_files.append(
+                            InstalledFile(
+                                source=artifact.file,
+                                installed=str(rel_path),
+                                checksum=checksum,
+                            )
+                        )
+                        total_installed += 1
+                    
+                    installed_files[agent_name] = agent_files
+                
+                # Update lockfile
+                commit_hash = downloader.get_resolved_commit(package_dir)
+                manifest_checksum = calculate_checksum(manifest_path)
+                
+                updated_package = InstalledPackage(
+                    name=manifest.name,
+                    version=manifest.version,
+                    source=package.source,
+                    source_type="git",
+                    resolved=commit_hash,
+                    installed_at=datetime.utcnow().isoformat() + "Z",
+                    installed_for=package.installed_for,
+                    files=installed_files,
+                    manifest_checksum=manifest_checksum,
+                )
+                
+                lockfile.add_package(updated_package)
+                
+                console.print(f"  [green]✓ Updated to v{target_version_str}[/] ({total_installed} files)")
+                updated_count += 1
+                
+            except Exception as e:
+                console.print(f"  [red]Error updating {package.name}:[/] {e}")
+                continue
+        
+        if updated_count > 0:
+            console.print(f"\n[green]✓ Update complete![/] {updated_count} package(s) updated.")
+        else:
+            console.print(f"\n[yellow]No packages were updated.[/]")
     
     except Exception as e:
         console.print(f"[red]Error:[/] {e}")
