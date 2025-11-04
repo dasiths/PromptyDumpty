@@ -66,7 +66,7 @@ See `DEPLOYMENT.md` for detailed instructions.
 
 This static site can also be deployed to:
 - Netlify
-- Vercel  
+- Vercel
 - GitHub Pages
 - AWS S3 + CloudFront
 
