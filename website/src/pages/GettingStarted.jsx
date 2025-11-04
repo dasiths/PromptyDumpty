@@ -38,13 +38,13 @@ dumpty init</code></pre>
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Installing Packages</h2>
         <p className="text-slate-300 mb-4">
-          Install a package from a Git repository:
+          Install a package from a Git repository using the full URL:
         </p>
         <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
           <pre><code>dumpty install https://github.com/org/my-prompts</code></pre>
         </div>
         <p className="text-slate-300 mb-4">
-          Install a specific version:
+          Install a specific version (tag, branch, or commit):
         </p>
         <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
           <pre><code>dumpty install https://github.com/org/my-prompts --version v1.2.0</code></pre>
@@ -52,13 +52,21 @@ dumpty init</code></pre>
         <p className="text-slate-300 mb-4">
           Install for a specific agent:
         </p>
-        <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
+        <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
           <pre><code>dumpty install https://github.com/org/my-prompts --agent copilot</code></pre>
+        </div>
+        <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-4">
+          <p className="text-blue-200 text-sm">
+            <strong>Note:</strong> After installation, use the package name from the manifest (e.g., <code>my-prompts</code>) for managing the package with <code>update</code>, <code>uninstall</code>, and <code>show</code> commands.
+          </p>
         </div>
       </section>
 
       <section className="mb-12">
         <h2 className="text-3xl font-semibold mb-4">Managing Packages</h2>
+        <p className="text-slate-300 mb-6">
+          After installation, manage packages using their name from the manifest (not the full URL).
+        </p>
         
         <h3 className="text-2xl font-semibold mb-3 mt-6">List Installed Packages</h3>
         <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
@@ -66,8 +74,11 @@ dumpty init</code></pre>
         </div>
 
         <h3 className="text-2xl font-semibold mb-3">Update Packages</h3>
+        <p className="text-slate-300 mb-3 text-sm">
+          Use the package name from the manifest:
+        </p>
         <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
-          <pre><code>{`# Update a specific package
+          <pre><code>{`# Update a specific package by name
 dumpty update my-prompts
 
 # Update all packages
@@ -75,11 +86,17 @@ dumpty update --all`}</code></pre>
         </div>
 
         <h3 className="text-2xl font-semibold mb-3">Uninstall Packages</h3>
+        <p className="text-slate-300 mb-3 text-sm">
+          Use the package name from the manifest:
+        </p>
         <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
           <pre><code>dumpty uninstall my-prompts</code></pre>
         </div>
 
         <h3 className="text-2xl font-semibold mb-3">Show Package Info</h3>
+        <p className="text-slate-300 mb-3 text-sm">
+          View details about an installed package:
+        </p>
         <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
           <pre><code>dumpty show my-prompts</code></pre>
         </div>
