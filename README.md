@@ -4,6 +4,8 @@
 
 A lightweight, universal package manager for AI agent artifacts (prompts, instructions, rules, workflows, etc.).
 
+🌐 **Visit [dumpty.dev](https://dumpty.dev)** for full documentation and guides.
+
 ## What is it?
 
 PromptyDumpty lets you install and manage prompt packages across different AI coding assistants like GitHub Copilot, Claude, Cursor, Gemini, Windsurf, and more.
