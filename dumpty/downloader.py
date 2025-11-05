@@ -3,7 +3,7 @@
 import subprocess
 import shutil
 from pathlib import Path
-from typing import Optional, Protocol
+from typing import List, Optional, Protocol
 
 
 class GitOperations(Protocol):
@@ -23,6 +23,10 @@ class GitOperations(Protocol):
 
     def pull(self, cwd: Path) -> None:
         """Pull latest changes."""
+        ...
+
+    def fetch_tags(self, url: str) -> List[str]:
+        """Fetch available tags from remote repository."""
         ...
 
 
@@ -73,6 +77,26 @@ class ShellGitOperations:
         if result.returncode != 0:
             raise RuntimeError(f"Git pull failed: {result.stderr}")
 
+    def fetch_tags(self, url: str) -> List[str]:
+        """Fetch available tags from remote repository."""
+        result = subprocess.run(
+            ["git", "ls-remote", "--tags", url],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"Git ls-remote failed: {result.stderr}")
+
+        # Parse output: each line is "<hash> refs/tags/<tag>"
+        tags = []
+        for line in result.stdout.strip().split("\n"):
+            if line:
+                parts = line.split("\t")
+                if len(parts) == 2 and parts[1].startswith("refs/tags/"):
+                    tags.append(parts[1])
+        return tags
+
 
 class FileSystemGitOperations:
     """Mock git operations using file system copy (for testing)."""
@@ -112,6 +136,16 @@ class FileSystemGitOperations:
     def pull(self, cwd: Path) -> None:
         """Simulate pull (no-op in mock)."""
         pass
+
+    def fetch_tags(self, url: str) -> List[str]:
+        """Return mock tags for testing."""
+        # Return some test tags
+        return [
+            "refs/tags/v0.1.0",
+            "refs/tags/v0.2.0",
+            "refs/tags/v1.0.0",
+            "refs/tags/v1.1.0",
+        ]
 
 
 class PackageDownloader:
