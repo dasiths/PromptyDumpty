@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import TerminalBlock from '../components/TerminalBlock'
 
 export default function Home() {
   return (
@@ -7,7 +8,7 @@ export default function Home() {
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <img src="/logo.png" alt="PromptyDumpty Logo" className="w-48 h-48 mx-auto mb-6" />
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent min-h-[80px] flex items-center justify-center">
             PromptyDumpty
           </h1>
           <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
@@ -39,9 +40,8 @@ export default function Home() {
       <section className="py-16 px-4 bg-slate-800/30">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 text-center">Quick Start</h2>
-          <div className="bg-slate-900/50 rounded-lg p-6 border border-slate-700">
-            <pre className="text-slate-300 text-sm md:text-base overflow-x-auto">
-              <code>{`# Install PromptyDumpty
+          <TerminalBlock>
+{`# Install PromptyDumpty
 pip install prompty-dumpty
 
 # Initialize in your project
@@ -51,9 +51,8 @@ dumpty init
 dumpty install https://github.com/org/my-prompts
 
 # List installed packages
-dumpty list`}</code>
-            </pre>
-          </div>
+dumpty list`}
+          </TerminalBlock>
         </div>
       </section>
 

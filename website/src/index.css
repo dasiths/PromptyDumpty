@@ -36,6 +36,20 @@ code {
   font-size: 0.9em;
 }
 
+.code-block code {
+  font-family: "Monaco", "Courier New", monospace !important;
+  font-size: 1.125rem !important;
+  background-color: transparent;
+  padding: 0;
+}
+
+.terminal-block code {
+  font-family: "Monaco", "Courier New", monospace !important;
+  font-size: 1.125rem !important;
+  background-color: transparent;
+  padding: 0;
+}
+
 pre {
   background-color: #1e293b;
   padding: 1rem;

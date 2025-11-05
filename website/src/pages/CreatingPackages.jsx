@@ -1,3 +1,5 @@
+import CodeBlock from '../components/CodeBlock'
+
 export default function CreatingPackages() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 text-white">
@@ -8,14 +10,16 @@ export default function CreatingPackages() {
         <p className="text-slate-300 mb-4">
           A PromptyDumpty package is simply a Git repository with a <code>dumpty.package.yaml</code> manifest file. You can organize your files however you want!
         </p>
-        <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
-          <pre><code>{`my-package/
+        <div className="border border-slate-700 mb-6">
+          <CodeBlock language="bash">
+{`my-package/
 ├── dumpty.package.yaml  # Package manifest
 ├── README.md
 └── src/                 # Any structure you prefer
     ├── planning.md
     ├── review.md
-    └── standards.md`}</code></pre>
+    └── standards.md`}
+          </CodeBlock>
         </div>
       </section>
 
@@ -24,8 +28,9 @@ export default function CreatingPackages() {
         <p className="text-slate-300 mb-4">
           The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent:
         </p>
-        <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
-          <pre><code>{`name: my-workflows
+        <div className="border border-slate-700 mb-6">
+          <CodeBlock language="yaml">
+{`name: my-workflows
 version: 1.0.0
 description: Custom development workflows
 author: Your Name
@@ -49,7 +54,8 @@ agents:
       - name: code-review
         description: Code review workflow
         file: src/review.md
-        installed_path: commands/review.md`}</code></pre>
+        installed_path: commands/review.md`}
+          </CodeBlock>
         </div>
       </section>
 
@@ -128,19 +134,22 @@ agents:
         </p>
         
         <h3 className="text-xl font-semibold mb-3">Directory Structure</h3>
-        <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
-          <pre><code>{`code-review-workflow/
+        <div className="border border-slate-700 mb-6">
+          <CodeBlock language="bash">
+{`code-review-workflow/
 ├── dumpty.package.yaml
 ├── README.md
 └── prompts/
     ├── review-checklist.md
     ├── security-audit.md
-    └── performance-tips.md`}</code></pre>
+    └── performance-tips.md`}
+          </CodeBlock>
         </div>
 
         <h3 className="text-xl font-semibold mb-3">Manifest</h3>
-        <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-6">
-          <pre><code>{`name: code-review-workflow
+        <div className="border border-slate-700 mb-6">
+          <CodeBlock language="yaml">
+{`name: code-review-workflow
 version: 1.0.0
 description: Comprehensive code review prompts
 author: Development Team
@@ -172,7 +181,8 @@ agents:
       
       - name: security-audit
         file: prompts/security-audit.md
-        installed_path: commands/security-audit.md`}</code></pre>
+        installed_path: commands/security-audit.md`}
+          </CodeBlock>
         </div>
       </section>
 

@@ -1,3 +1,6 @@
+import CodeBlock from '../components/CodeBlock'
+import TerminalBlock from '../components/TerminalBlock'
+
 export default function Documentation() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 text-white">
@@ -103,8 +106,9 @@ dumpty update --all`}
         <p className="text-slate-300 mb-4">
           PromptyDumpty maintains a <code>dumpty.lock</code> file to track installed packages:
         </p>
-        <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-4">
-          <pre><code>{`version: "1.0"
+        <div className="border border-slate-700 mb-4">
+          <CodeBlock language="yaml">
+{`version: "1.0"
 packages:
   - name: my-workflows
     version: 1.0.0
@@ -118,7 +122,8 @@ packages:
         checksum: sha256:abc...
       - installed_path: .github/rules/my-workflows/standards.md
         source_path: src/standards.md
-        checksum: sha256:def...`}</code></pre>
+        checksum: sha256:def...`}
+          </CodeBlock>
         </div>
         <p className="text-slate-300">
           This file ensures clean updates and removals, and helps track what's installed in your project.
@@ -130,15 +135,17 @@ packages:
         <p className="text-slate-300 mb-4">
           Packages are installed with a clear namespace to avoid conflicts:
         </p>
-        <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 mb-4">
-          <pre><code>{`.github/
+        <div className="border border-slate-700 mb-4">
+          <CodeBlock language="bash">
+{`.github/
 └── prompts/
     └── my-workflows/              # Package namespace
         ├── review.prompt.md
         └── planning.prompt.md
 └── rules/
     └── my-workflows/              # Same namespace
-        └── standards.md`}</code></pre>
+        └── standards.md`}
+          </CodeBlock>
         </div>
         <p className="text-slate-300">
           Each package gets its own subdirectory within the agent's paths, making it easy to identify and remove packages cleanly.
@@ -249,9 +256,9 @@ function CommandDoc({ command, description, options, example }) {
         </div>
       )}
       
-      <div className="bg-slate-900/50 rounded p-3 border border-slate-700/50">
+      <div>
         <p className="text-xs text-slate-400 mb-1">Example:</p>
-        <pre className="text-sm"><code>{example}</code></pre>
+        <TerminalBlock>{example}</TerminalBlock>
       </div>
     </div>
   )
