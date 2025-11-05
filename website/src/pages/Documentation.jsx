@@ -21,10 +21,12 @@ export default function Documentation() {
             description="Install a package from a Git repository. Use the full repository URL for installation."
             options={[
               { flag: "--agent", description: "Install for specific agent (copilot, claude, etc.)" },
-              { flag: "--version", description: "Install specific version (tag, branch, or commit)" }
+              { flag: "--version", description: "Install specific version tag (e.g., 1.2.0 or v1.2.0)" },
+              { flag: "--commit", description: "Install from specific commit hash (skips version validation)" }
             ]}
             example={`dumpty install https://github.com/org/my-prompts
-dumpty install https://github.com/org/my-prompts --version v1.2.0
+dumpty install https://github.com/org/my-prompts --version 1.2.0
+dumpty install https://github.com/org/my-prompts --commit abc123def
 dumpty install https://github.com/org/my-prompts --agent copilot`}
           />
 
@@ -44,9 +46,13 @@ dumpty install https://github.com/org/my-prompts --agent copilot`}
             command="dumpty update PACKAGE_NAME"
             description="Update a package to the latest version. Use the package name from the manifest (not the URL)."
             options={[
-              { flag: "--all", description: "Update all installed packages" }
+              { flag: "--all", description: "Update all installed packages" },
+              { flag: "--version", description: "Update to specific version tag (e.g., 2.0.0 or v2.0.0)" },
+              { flag: "--commit", description: "Update to specific commit hash (skips version validation)" }
             ]}
             example={`dumpty update my-prompts
+dumpty update my-prompts --version 2.0.0
+dumpty update my-prompts --commit abc123def
 dumpty update --all`}
           />
 

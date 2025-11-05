@@ -232,3 +232,27 @@ def test_multiple_packages(tmp_path, test_package):
     assert any(p.name == "package-0" for p in packages)
     assert any(p.name == "package-1" for p in packages)
     assert any(p.name == "package-2" for p in packages)
+
+
+def test_version_mismatch_on_install(tmp_path, test_package):
+    """Test that version mismatch is caught during installation workflow."""
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+
+    # Create .github directory (copilot agent)
+    (project_dir / ".github").mkdir()
+
+    # Setup git operations with test repos
+    repos_dir = tmp_path / "test-repo"
+    git_ops = FileSystemGitOperations(repos_dir)
+
+    # Setup downloader
+    cache_dir = tmp_path / "cache"
+    downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
+
+    # Try to download with version that doesn't match manifest (manifest has 1.0.0)
+    with pytest.raises(
+        ValueError,
+        match="Version mismatch: requested 'v2.0.0' but manifest declares version '1.0.0'",
+    ):
+        downloader.download("https://github.com/org/my-package", version="v2.0.0")

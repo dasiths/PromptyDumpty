@@ -48,10 +48,10 @@ dumpty init`}
           <TerminalBlock>dumpty install https://github.com/org/my-prompts</TerminalBlock>
         </div>
         <p className="text-slate-300 mb-4">
-          Install a specific version (tag, branch, or commit):
+          Install a specific version tag:
         </p>
         <div className="mb-6">
-          <TerminalBlock>dumpty install https://github.com/org/my-prompts --version v1.2.0</TerminalBlock>
+          <TerminalBlock>dumpty install https://github.com/org/my-prompts --version 1.2.0</TerminalBlock>
         </div>
         <p className="text-slate-300 mb-4">
           Install for a specific agent:

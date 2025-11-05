@@ -87,7 +87,7 @@ def test_package_downloader_download_with_version(test_repos_dir, tmp_path):
 
 
 def test_package_downloader_download_existing_package(test_repos_dir, tmp_path):
-    """Test downloading package that already exists (should update)."""
+    """Test downloading package that already exists (should clone fresh)."""
     cache_dir = tmp_path / "cache"
     git_ops = FileSystemGitOperations(test_repos_dir)
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
@@ -99,11 +99,13 @@ def test_package_downloader_download_existing_package(test_repos_dir, tmp_path):
     # Modify a file to simulate local changes
     (package_dir1 / "test.txt").write_text("test")
 
-    # Second download (should pull)
+    # Second download (should remove and clone fresh)
     package_dir2 = downloader.download("https://github.com/org/sample-package")
     assert package_dir2 == package_dir1
-    # In FileSystemGitOperations, pull is a no-op, so test.txt should still exist
-    assert (package_dir2 / "test.txt").exists()
+    # Cache is removed and cloned fresh, so test.txt should NOT exist
+    assert not (package_dir2 / "test.txt").exists()
+    # But original files should exist
+    assert (package_dir2 / "dumpty.package.yaml").exists()
 
 
 def test_package_downloader_get_resolved_commit(test_repos_dir, tmp_path):
@@ -143,3 +145,53 @@ def test_package_downloader_extract_repo_name():
     # Test with trailing slash
     dir3 = downloader.cache_dir / "repo"
     assert "repo" in str(dir3)
+
+
+def test_package_downloader_version_mismatch(test_repos_dir, tmp_path):
+    """Test that version mismatch raises ValueError."""
+    cache_dir = tmp_path / "cache"
+    git_ops = FileSystemGitOperations(test_repos_dir)
+    downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
+
+    # Try to download with mismatched version (manifest has 1.0.0)
+    with pytest.raises(
+        ValueError,
+        match="Version mismatch: requested 'v2.0.0' but manifest declares version '1.0.0'",
+    ):
+        downloader.download("https://github.com/org/sample-package", version="v2.0.0")
+
+
+def test_package_downloader_version_match(test_repos_dir, tmp_path):
+    """Test that matching version succeeds."""
+    cache_dir = tmp_path / "cache"
+    git_ops = FileSystemGitOperations(test_repos_dir)
+    downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
+
+    # Download with matching version (manifest has 1.0.0)
+    package_dir = downloader.download("https://github.com/org/sample-package", version="v1.0.0")
+    assert package_dir.exists()
+    assert (package_dir / "dumpty.package.yaml").exists()
+
+
+def test_package_downloader_version_match_without_v_prefix(test_repos_dir, tmp_path):
+    """Test that version matching works without 'v' prefix."""
+    cache_dir = tmp_path / "cache"
+    git_ops = FileSystemGitOperations(test_repos_dir)
+    downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
+
+    # Download with version without 'v' prefix (manifest has 1.0.0)
+    package_dir = downloader.download("https://github.com/org/sample-package", version="1.0.0")
+    assert package_dir.exists()
+    assert (package_dir / "dumpty.package.yaml").exists()
+
+
+def test_package_downloader_no_version_no_validation(test_repos_dir, tmp_path):
+    """Test that no validation happens when version is not specified."""
+    cache_dir = tmp_path / "cache"
+    git_ops = FileSystemGitOperations(test_repos_dir)
+    downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
+
+    # Download without specifying version - should succeed regardless of manifest version
+    package_dir = downloader.download("https://github.com/org/sample-package")
+    assert package_dir.exists()
+    assert (package_dir / "dumpty.package.yaml").exists()

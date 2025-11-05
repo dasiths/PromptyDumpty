@@ -236,7 +236,7 @@ class TestInstallCommand:
         package_dir.mkdir(parents=True)
 
         # Mock the downloader to use our test package
-        def mock_download(self, url, version=None):
+        def mock_download(self, url, version=None, validate_version=True):
             return package_dir
 
         import dumpty.downloader
@@ -277,7 +277,7 @@ agents:
         (package_dir / "dumpty.package.yaml").write_text(manifest_content)
 
         # Mock the downloader
-        def mock_download(self, url, version=None):
+        def mock_download(self, url, version=None, validate_version=True):
             return package_dir
 
         import dumpty.downloader
@@ -307,7 +307,7 @@ agents:
         monkeypatch.chdir(tmp_path)
 
         # Mock the downloader
-        def mock_download(self, url, version=None):
+        def mock_download(self, url, version=None, validate_version=True):
             return sample_package_dir
 
         def mock_get_commit(self, package_dir):
@@ -349,7 +349,7 @@ agents:
         (tmp_path / ".claude").mkdir()  # Create Claude agent dir, but package only supports copilot
 
         # Mock the downloader
-        def mock_download(self, url, version=None):
+        def mock_download(self, url, version=None, validate_version=True):
             return sample_package_dir
 
         import dumpty.downloader
@@ -364,6 +364,157 @@ agents:
             assert "No files were installed" in result.output
         finally:
             dumpty.downloader.PackageDownloader.download = original_download
+
+    def test_install_package_already_installed(self, cli_runner, tmp_path, monkeypatch):
+        """Test install warns when package is already installed."""
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / ".github").mkdir()
+
+        # Create existing lockfile with package
+        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        existing_package = InstalledPackage(
+            name="test-package",
+            version="1.0.0",
+            source="https://github.com/test/old",
+            source_type="git",
+            resolved="old_commit",
+            installed_at="2025-11-04T10:00:00Z",
+            installed_for=["copilot"],
+            files={},
+            manifest_checksum="sha256:old",
+        )
+        lockfile.add_package(existing_package)
+
+        # Create new package
+        package_dir = tmp_path / "packages" / "test-package"
+        package_dir.mkdir(parents=True)
+
+        manifest_content = """
+name: test-package
+version: 2.0.0
+description: Test package
+
+agents:
+  copilot:
+    artifacts:
+      - name: test
+        description: Test file
+        file: src/test.md
+        installed_path: test.md
+"""
+        (package_dir / "dumpty.package.yaml").write_text(manifest_content)
+        (package_dir / "src").mkdir()
+        (package_dir / "src" / "test.md").write_text("# Test")
+
+        # Mock the downloader
+        def mock_download(self, url, version=None, validate_version=True):
+            return package_dir
+
+        def mock_get_commit(self, package_dir):
+            return "new_commit_hash"
+
+        import dumpty.downloader
+
+        original_download = dumpty.downloader.PackageDownloader.download
+        original_get_commit = dumpty.downloader.PackageDownloader.get_resolved_commit
+        dumpty.downloader.PackageDownloader.download = mock_download
+        dumpty.downloader.PackageDownloader.get_resolved_commit = mock_get_commit
+
+        try:
+            # Test with user rejection (simulate 'n' response)
+            result = cli_runner.invoke(cli, ["install", "test-url"], input="n\n")
+
+            assert result.exit_code == 0
+            assert "Installation cancelled" in result.output
+            assert "already installed" in result.output
+            assert "v1.0.0" in result.output
+            assert "v2.0.0" in result.output
+
+            # Test with user confirmation (simulate 'y' response)
+            result = cli_runner.invoke(cli, ["install", "test-url"], input="y\n")
+
+            assert result.exit_code == 0
+            assert "already installed" in result.output
+            assert "replace the existing installation" in result.output
+
+            # Verify package was updated in lockfile
+            updated_lockfile = LockfileManager(tmp_path / "dumpty.lock")
+            updated_package = updated_lockfile.get_package("test-package")
+            assert updated_package.version == "2.0.0"
+        finally:
+            dumpty.downloader.PackageDownloader.download = original_download
+            dumpty.downloader.PackageDownloader.get_resolved_commit = original_get_commit
+
+    def test_install_same_package_name_different_source(self, cli_runner, tmp_path, monkeypatch):
+        """Test install warns about different source for same package name."""
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / ".github").mkdir()
+
+        # Create existing lockfile with package from different source
+        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        existing_package = InstalledPackage(
+            name="test-package",
+            version="1.0.0",
+            source="https://github.com/original/repo",
+            source_type="git",
+            resolved="old_commit",
+            installed_at="2025-11-04T10:00:00Z",
+            installed_for=["copilot"],
+            files={},
+            manifest_checksum="sha256:old",
+        )
+        lockfile.add_package(existing_package)
+
+        # Create new package from different source
+        package_dir = tmp_path / "packages" / "test-package"
+        package_dir.mkdir(parents=True)
+
+        manifest_content = """
+name: test-package
+version: 2.0.0
+description: Test package
+
+agents:
+  copilot:
+    artifacts:
+      - name: test
+        description: Test file
+        file: src/test.md
+        installed_path: test.md
+"""
+        (package_dir / "dumpty.package.yaml").write_text(manifest_content)
+        (package_dir / "src").mkdir()
+        (package_dir / "src" / "test.md").write_text("# Test")
+
+        # Mock the downloader
+        def mock_download(self, url, version=None, validate_version=True):
+            return package_dir
+
+        def mock_get_commit(self, package_dir):
+            return "new_commit_hash"
+
+        import dumpty.downloader
+
+        original_download = dumpty.downloader.PackageDownloader.download
+        original_get_commit = dumpty.downloader.PackageDownloader.get_resolved_commit
+        dumpty.downloader.PackageDownloader.download = mock_download
+        dumpty.downloader.PackageDownloader.get_resolved_commit = mock_get_commit
+
+        try:
+            # Should show warning about different source and require confirmation
+            result = cli_runner.invoke(
+                cli, ["install", "https://github.com/different/fork"], input="n\n"  # User declines
+            )
+
+            assert result.exit_code == 0
+            assert "Installation cancelled" in result.output
+            assert "already installed" in result.output
+            assert "Different source detected" in result.output
+            assert "https://github.com/original/repo" in result.output
+            assert "https://github.com/different/fork" in result.output
+        finally:
+            dumpty.downloader.PackageDownloader.download = original_download
+            dumpty.downloader.PackageDownloader.get_resolved_commit = original_get_commit
 
 
 class TestVersionCommand:

@@ -211,8 +211,8 @@ dumpty init --agent claude
 # Install from GitHub repository
 dumpty install https://github.com/org/my-prompts
 
-# Install specific version
-dumpty install https://github.com/org/my-prompts --version v1.0.0
+# Install specific version tag
+dumpty install https://github.com/org/my-prompts --version 1.0.0
 
 # Install for specific agent
 dumpty install https://github.com/org/my-prompts --agent copilot

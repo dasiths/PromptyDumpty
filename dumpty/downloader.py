@@ -4,6 +4,7 @@ import subprocess
 import shutil
 from pathlib import Path
 from typing import List, Optional, Protocol
+from dumpty.models import PackageManifest
 
 
 class GitOperations(Protocol):
@@ -167,34 +168,65 @@ class PackageDownloader:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.git_ops = git_ops or ShellGitOperations()
 
-    def download(self, url: str, version: Optional[str] = None) -> Path:
+    def download(self, url: str, version: Optional[str] = None, validate_version: bool = True) -> Path:
         """
         Download package from URL.
 
         Args:
             url: Git repository URL
-            version: Optional version (tag, branch, commit hash)
+            version: Optional version (semantic version tag like "1.0.0" or commit hash)
+            validate_version: Whether to validate version matches manifest (default True)
 
         Returns:
             Path to downloaded package directory
+
+        Raises:
+            ValueError: If validate_version is True and version doesn't match manifest
+            RuntimeError: If manifest file is missing or invalid
         """
         # Extract package name from URL
         repo_name = url.rstrip("/").split("/")[-1].replace(".git", "")
         target_dir = self.cache_dir / repo_name
 
-        # Clone or update repository
+        # Always clone fresh - remove existing cache if present
         if target_dir.exists():
-            # Update existing repository
-            self.git_ops.pull(target_dir)
-        else:
-            # Clone new repository
-            self.git_ops.clone(url, target_dir)
+            shutil.rmtree(target_dir)
+
+        # Clone repository
+        self.git_ops.clone(url, target_dir)
 
         # Checkout specific version if provided
         if version:
             self.git_ops.checkout(version, target_dir)
 
+        # Validate manifest version matches requested version (only for semantic versions)
+        if version and validate_version:
+            manifest_path = target_dir / "dumpty.package.yaml"
+            if not manifest_path.exists():
+                raise RuntimeError(f"No dumpty.package.yaml found in package at {url}")
+
+            manifest = PackageManifest.from_file(manifest_path)
+
+            # Normalize version strings for comparison (remove 'v' prefix if present)
+            requested_version = version.lstrip("v")
+            manifest_version = manifest.version.lstrip("v")
+
+            if requested_version != manifest_version:
+                raise ValueError(
+                    f"Version mismatch: requested '{version}' but manifest declares version '{manifest.version}'"
+                )
+
         return target_dir
+
+    def cleanup_cache(self, package_dir: Path) -> None:
+        """
+        Clean up cached package directory after installation.
+
+        Args:
+            package_dir: Path to package directory to remove
+        """
+        if package_dir.exists() and package_dir.is_relative_to(self.cache_dir):
+            shutil.rmtree(package_dir)
 
     def get_resolved_commit(self, package_dir: Path) -> str:
         """

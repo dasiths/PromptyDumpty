@@ -178,7 +178,7 @@ class TestUpdateCommand:
         monkeypatch.chdir(tmp_path)
 
         # Mock the downloader
-        def mock_download(self, url, version=None):
+        def mock_download(self, url, version=None, validate_version=True):
             return new_pkg_dir
 
         import dumpty.downloader
@@ -237,7 +237,7 @@ agents:
         (src_dir / "test.md").write_text("# Test v1.1.0")
 
         # Mock the downloader
-        def mock_download(self, url, version=None):
+        def mock_download(self, url, version=None, validate_version=True):
             if version == "v1.1.0":
                 return v110_dir
             return new_pkg_dir
@@ -429,3 +429,153 @@ agents:
             assert "not found" in result.output
         finally:
             dumpty.downloader.PackageDownloader.__init__ = original_init
+
+    def test_update_version_with_all_flag_error(self, cli_runner, tmp_path, monkeypatch):
+        """Test that --version cannot be used with --all flag."""
+        monkeypatch.chdir(tmp_path)
+
+        # Create lockfile
+        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        package = InstalledPackage(
+            name="test-package",
+            version="1.0.0",
+            source="https://github.com/test/package",
+            source_type="git",
+            resolved="commit",
+            installed_at="2025-11-04T10:00:00Z",
+            installed_for=["copilot"],
+            files={},
+            manifest_checksum="sha256:abc",
+        )
+        lockfile.add_package(package)
+
+        result = cli_runner.invoke(cli, ["update", "--all", "--version", "v2.0.0"])
+
+        assert result.exit_code == 1
+        assert "Cannot use --version or --commit with --all flag" in result.output
+
+    def test_update_version_without_package_name_error(self, cli_runner, tmp_path, monkeypatch):
+        """Test that --version requires a package name."""
+        monkeypatch.chdir(tmp_path)
+
+        # Create lockfile
+        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        package = InstalledPackage(
+            name="test-package",
+            version="1.0.0",
+            source="https://github.com/test/package",
+            source_type="git",
+            resolved="commit",
+            installed_at="2025-11-04T10:00:00Z",
+            installed_for=["copilot"],
+            files={},
+            manifest_checksum="sha256:abc",
+        )
+        lockfile.add_package(package)
+
+        result = cli_runner.invoke(cli, ["update", "--version", "v2.0.0"])
+
+        assert result.exit_code == 1
+        assert "--version requires a package name" in result.output
+
+    def test_update_removes_old_files_before_installing_new(
+        self, cli_runner, tmp_path, monkeypatch, mock_git_ops
+    ):
+        """Test that old files are fully removed before installing new version."""
+        monkeypatch.chdir(tmp_path)
+
+        # Create agent directory with old files
+        old_package_dir = tmp_path / ".github" / "test-package"
+        old_package_dir.mkdir(parents=True)
+        old_file = old_package_dir / "old-file.md"
+        old_file.write_text("# Old content")
+
+        # Create lockfile with old version
+        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        package = InstalledPackage(
+            name="test-package",
+            version="1.0.0",
+            source="https://github.com/test/package",
+            source_type="git",
+            resolved="old_commit",
+            installed_at="2025-11-04T10:00:00Z",
+            installed_for=["copilot"],
+            files={
+                "copilot": [
+                    InstalledFile(
+                        source="src/old-file.md",
+                        installed=".github/test-package/old-file.md",
+                        checksum="sha256:old",
+                    )
+                ]
+            },
+            manifest_checksum="sha256:old_manifest",
+        )
+        lockfile.add_package(package)
+
+        # Create new version package with different files
+        new_pkg_dir = tmp_path / "cache" / "test-package"
+        new_pkg_dir.mkdir(parents=True)
+
+        manifest_content = """
+name: test-package
+version: 2.0.0
+description: Test package
+author: Test
+license: MIT
+
+agents:
+  copilot:
+    artifacts:
+      - name: new-file
+        description: New file
+        file: src/new-file.md
+        installed_path: new-file.md
+"""
+        (new_pkg_dir / "dumpty.package.yaml").write_text(manifest_content)
+        (new_pkg_dir / "src").mkdir()
+        (new_pkg_dir / "src" / "new-file.md").write_text("# New content")
+
+        # Mock downloader
+        import dumpty.downloader
+
+        original_init = dumpty.downloader.PackageDownloader.__init__
+
+        def mock_init(self, cache_dir=None, git_ops=None):
+            original_init(self, cache_dir, git_ops)
+            self.git_ops = mock_git_ops
+
+        original_download = dumpty.downloader.PackageDownloader.download
+
+        def mock_download(self, url, version=None, validate_version=True):
+            return new_pkg_dir
+
+        dumpty.downloader.PackageDownloader.__init__ = mock_init
+        dumpty.downloader.PackageDownloader.download = mock_download
+
+        try:
+            # Verify old file exists
+            assert old_file.exists()
+
+            result = cli_runner.invoke(cli, ["update", "test-package"])
+
+            assert result.exit_code == 0
+
+            # Verify old file was removed
+            assert not old_file.exists()
+
+            # Verify new file was installed
+            new_file = tmp_path / ".github" / "test-package" / "new-file.md"
+            assert new_file.exists()
+            assert "New content" in new_file.read_text()
+
+            # Verify lockfile was updated
+            updated_lockfile = LockfileManager(tmp_path / "dumpty.lock")
+            updated_package = updated_lockfile.get_package("test-package")
+            assert updated_package.version == "2.0.0"
+            assert len(updated_package.files["copilot"]) == 1
+            assert "new-file.md" in updated_package.files["copilot"][0].installed
+
+        finally:
+            dumpty.downloader.PackageDownloader.__init__ = original_init
+            dumpty.downloader.PackageDownloader.download = original_download

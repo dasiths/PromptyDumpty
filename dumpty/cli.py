@@ -31,10 +31,16 @@ def cli():
     "--agent",
     help="Install for specific agent (copilot, claude, etc.). Defaults to auto-detect.",
 )
-@click.option("--version", "pkg_version", help="Package version (tag, branch, or commit)")
-def install(package_url: str, agent: str, pkg_version: str):
+@click.option("--version", "pkg_version", help="Semantic version tag (e.g., 1.0.0 or v1.0.0)")
+@click.option("--commit", "pkg_commit", help="Specific commit hash to install")
+def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str):
     """Install a package from a Git repository."""
     try:
+        # Validate mutually exclusive options
+        if pkg_version and pkg_commit:
+            console.print("[red]Error:[/] Cannot use both --version and --commit")
+            console.print("Use either --version for tagged releases or --commit for specific commits")
+            sys.exit(1)
         # Detect agents
         detector = AgentDetector()
         detected_agents = detector.detect_agents()
@@ -62,7 +68,11 @@ def install(package_url: str, agent: str, pkg_version: str):
         # Download package
         console.print(f"[blue]Downloading package from {package_url}...[/]")
         downloader = PackageDownloader()
-        package_dir = downloader.download(package_url, pkg_version)
+        # Use commit if specified, otherwise use version (or None for latest)
+        ref = pkg_commit if pkg_commit else pkg_version
+        # Skip version validation for commits
+        validate_version = not bool(pkg_commit)
+        package_dir = downloader.download(package_url, ref, validate_version=validate_version)
 
         # Load manifest
         manifest_path = package_dir / "dumpty.package.yaml"
@@ -83,6 +93,40 @@ def install(package_url: str, agent: str, pkg_version: str):
         # Install files for each agent
         installer = FileInstaller()
         lockfile = LockfileManager()
+
+        # Check if package is already installed
+        existing_package = lockfile.get_package(manifest.name)
+        if existing_package:
+            console.print(
+                f"\n[yellow]⚠️  Warning:[/] Package '{manifest.name}' is already installed"
+            )
+            console.print(
+                f"  [dim]Current:[/] v{existing_package.version} from [cyan]{existing_package.source}[/]"
+            )
+            console.print(f"  [dim]New:[/]     v{manifest.version} from [cyan]{package_url}[/]")
+
+            # Check if sources are different
+            if existing_package.source != package_url:
+                console.print(
+                    f"\n[red]⚠️  Different source detected![/] The package name is the same but from a different repository."
+                )
+
+            # Ask for confirmation
+            console.print()
+            try:
+                from rich.prompt import Confirm
+
+                if not Confirm.ask(
+                    "Do you want to replace the existing installation?", default=False
+                ):
+                    console.print("[yellow]Installation cancelled[/]")
+                    sys.exit(0)
+            except (KeyboardInterrupt, EOFError):
+                console.print("\n[yellow]Installation cancelled[/]")
+                sys.exit(0)
+
+            console.print()
+
         installed_files = {}
         total_installed = 0
 
@@ -160,6 +204,9 @@ def install(package_url: str, agent: str, pkg_version: str):
         lockfile.add_package(installed_package)
 
         console.print(f"\n[green]✓ Installation complete![/] {total_installed} files installed.")
+
+        # Clean up cache after successful installation
+        downloader.cleanup_cache(package_dir)
 
     except Exception as e:
         console.print(f"[red]Error:[/] {e}")
@@ -371,10 +418,31 @@ def uninstall(package_name: str, agent: str):
 @cli.command()
 @click.argument("package_name", required=False)
 @click.option("--all", "update_all", is_flag=True, help="Update all installed packages")
-@click.option("--version", "target_version", help="Update to specific version")
-def update(package_name: str, update_all: bool, target_version: str):
+@click.option("--version", "target_version", help="Semantic version tag (e.g., 2.0.0 or v2.0.0)")
+@click.option("--commit", "target_commit", help="Specific commit hash to update to")
+def update(package_name: str, update_all: bool, target_version: str, target_commit: str):
     """Update installed packages to newer versions."""
     try:
+        # Validate options
+        if target_version and target_commit:
+            console.print("[red]Error:[/] Cannot use both --version and --commit")
+            console.print("Use either --version for tagged releases or --commit for specific commits")
+            sys.exit(1)
+        if update_all and (target_version or target_commit):
+            console.print("[red]Error:[/] Cannot use --version or --commit with --all flag")
+            console.print("Specify a package name when updating to a specific version or commit")
+            sys.exit(1)
+
+        if target_version and not package_name:
+            console.print("[red]Error:[/] --version requires a package name")
+            console.print("Use: dumpty update <package-name> --version 1.0.0")
+            sys.exit(1)
+
+        if target_commit and not package_name:
+            console.print("[red]Error:[/] --commit requires a package name")
+            console.print("Use: dumpty update <package-name> --commit <hash>")
+            sys.exit(1)
+
         # Load lockfile
         lockfile = LockfileManager()
         packages = lockfile.list_packages()
@@ -407,22 +475,42 @@ def update(package_name: str, update_all: bool, target_version: str):
             console.print(f"\n[blue]Checking {package.name} v{package.version}...[/]")
 
             try:
-                # Fetch available tags
-                tags = downloader.git_ops.fetch_tags(package.source)
+                # Handle commit-based update (skip version checking)
+                if target_commit:
+                    console.print(f"  [cyan]Updating to commit:[/] {target_commit[:8]}...")
+                    
+                    # Download at specific commit
+                    package_dir = downloader.download(package.source, target_commit, validate_version=False)
+                    
+                    # Load manifest (without version validation)
+                    manifest_path = package_dir / "dumpty.package.yaml"
+                    if not manifest_path.exists():
+                        console.print("  [red]Error:[/] No dumpty.package.yaml found in package")
+                        continue
 
-                if not tags:
-                    console.print("  [yellow]No version tags found in repository[/]")
-                    continue
+                    manifest = PackageManifest.from_file(manifest_path)
+                    
+                    # Continue with installation logic (skip to uninstall/install section)
+                    target_version_str = manifest.version
+                    target_tag = target_commit
+                else:
+                    # Version-based update (existing logic)
+                    # Fetch available tags
+                    tags = downloader.git_ops.fetch_tags(package.source)
 
-                # Parse versions
-                versions = parse_git_tags(tags)
+                    if not tags:
+                        console.print("  [yellow]No version tags found in repository[/]")
+                        continue
 
-                if not versions:
-                    console.print("  [yellow]No valid semantic versions found[/]")
-                    continue
+                    # Parse versions
+                    versions = parse_git_tags(tags)
+
+                    if not versions:
+                        console.print("  [yellow]No valid semantic versions found[/]")
+                        continue
 
                 # Determine target version
-                if target_version:
+                if target_version and not target_commit:
                     # Use specified version
                     target_tag = None
                     target_ver = None
@@ -437,33 +525,60 @@ def update(package_name: str, update_all: bool, target_version: str):
                     if not target_tag:
                         console.print(f"  [red]Version {target_version} not found[/]")
                         continue
-                else:
-                    # Use latest version
+                    
+                    # Set target_version_str for later use
+                    target_version_str = str(target_ver)
+                elif not target_commit:
+                    # Use latest version (only if not using commit)
                     target_tag, target_ver = versions[0]
+                    target_version_str = str(target_ver)
 
-                # Compare versions
-                current_version = package.version
-                target_version_str = str(target_ver)
+                # Version comparison and messaging (skip for commits)
+                if not target_commit:
+                    # Compare versions
+                    current_version = package.version
 
-                if not compare_versions(current_version, target_version_str):
-                    console.print(f"  [green]Already up to date[/] (v{current_version})")
-                    continue
+                    # Skip if same version (unless explicit version specified)
+                    if current_version == target_version_str and not target_version:
+                        console.print(f"  [green]Already up to date[/] (v{current_version})")
+                        continue
 
-                console.print(
-                    f"  [cyan]Update available:[/] v{current_version} → v{target_version_str}"
-                )
+                    # Check if it's an upgrade, downgrade, or reinstall
+                    if target_version:
+                        # Explicit version requested - allow any change
+                        if current_version == target_version_str:
+                            console.print(f"  [cyan]Reinstalling:[/] v{target_version_str}")
+                        elif compare_versions(current_version, target_version_str):
+                            console.print(
+                                f"  [cyan]Updating:[/] v{current_version} → v{target_version_str}"
+                            )
+                        else:
+                            console.print(
+                                f"  [yellow]Downgrading:[/] v{current_version} → v{target_version_str}"
+                            )
+                    else:
+                        # Auto-update to latest - only upgrade
+                        if not compare_versions(current_version, target_version_str):
+                            console.print(f"  [green]Already up to date[/] (v{current_version})")
+                            continue
+                        console.print(
+                            f"  [cyan]Update available:[/] v{current_version} → v{target_version_str}"
+                        )
 
-                # Download new version
-                console.print(f"  [blue]Downloading v{target_version_str}...[/]")
-                package_dir = downloader.download(package.source, target_tag)
+                    # Download new version
+                    console.print(f"  [blue]Downloading v{target_version_str}...[/]")
+                    package_dir = downloader.download(package.source, target_tag)
+                
+                # For commits, package_dir was already downloaded above
 
-                # Load manifest
-                manifest_path = package_dir / "dumpty.package.yaml"
-                if not manifest_path.exists():
-                    console.print("  [red]Error:[/] No dumpty.package.yaml found in package")
-                    continue
+                # Load manifest (only if not already loaded for commit)
+                if not target_commit:
+                    manifest_path = package_dir / "dumpty.package.yaml"
+                    if not manifest_path.exists():
+                        console.print("  [red]Error:[/] No dumpty.package.yaml found in package")
+                        continue
 
-                manifest = PackageManifest.from_file(manifest_path)
+                    manifest = PackageManifest.from_file(manifest_path)
 
                 # Validate files exist
                 missing_files = manifest.validate_files_exist(package_dir)
@@ -554,6 +669,9 @@ def update(package_name: str, update_all: bool, target_version: str):
                     f"  [green]✓ Updated to v{target_version_str}[/] ({total_installed} files)"
                 )
                 updated_count += 1
+
+                # Clean up cache after successful update
+                downloader.cleanup_cache(package_dir)
 
             except Exception as e:
                 console.print(f"  [red]Error updating {package.name}:[/] {e}")
