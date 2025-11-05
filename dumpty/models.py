@@ -108,10 +108,14 @@ class InstalledPackage:
     installed_for: List[str]  # List of agent names
     files: Dict[str, List[InstalledFile]]  # agent_name -> files
     manifest_checksum: str
+    description: Optional[str] = None
+    author: Optional[str] = None
+    homepage: Optional[str] = None
+    license: Optional[str] = None
 
     def to_dict(self) -> dict:
         """Convert to dictionary for YAML serialization."""
-        return {
+        result = {
             "name": self.name,
             "version": self.version,
             "source": self.source,
@@ -133,6 +137,18 @@ class InstalledPackage:
             "manifest_checksum": self.manifest_checksum,
         }
 
+        # Add optional fields if present
+        if self.description:
+            result["description"] = self.description
+        if self.author:
+            result["author"] = self.author
+        if self.homepage:
+            result["homepage"] = self.homepage
+        if self.license:
+            result["license"] = self.license
+
+        return result
+
     @classmethod
     def from_dict(cls, data: dict) -> "InstalledPackage":
         """Create from dictionary (loaded from YAML)."""
@@ -153,4 +169,8 @@ class InstalledPackage:
             installed_for=data["installed_for"],
             files=files,
             manifest_checksum=data["manifest_checksum"],
+            description=data.get("description"),
+            author=data.get("author"),
+            homepage=data.get("homepage"),
+            license=data.get("license"),
         )
