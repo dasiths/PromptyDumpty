@@ -68,8 +68,7 @@ agents:
 
     try:
         result = cli_runner.invoke(
-            cli,
-            ["install", "https://github.com/test/package", "--commit", "abc123def456"]
+            cli, ["install", "https://github.com/test/package", "--commit", "abc123def456"]
         )
 
         assert result.exit_code == 0, f"Install failed: {result.output}"
@@ -101,7 +100,7 @@ def test_install_cannot_use_both_version_and_commit(cli_runner, tmp_path, monkey
 
     result = cli_runner.invoke(
         cli,
-        ["install", "https://github.com/test/package", "--version", "1.0.0", "--commit", "abc123"]
+        ["install", "https://github.com/test/package", "--version", "1.0.0", "--commit", "abc123"],
     )
 
     assert result.exit_code == 1
@@ -169,6 +168,7 @@ agents:
 
     def mock_init(self, cache_dir=None):
         from unittest.mock import MagicMock
+
         self.git_ops = MagicMock()
         self.cache_dir = Path(cache_dir) if cache_dir else Path.home() / ".dumpty" / "cache"
 
@@ -186,10 +186,7 @@ agents:
     dumpty.downloader.PackageDownloader.get_resolved_commit = mock_get_commit
 
     try:
-        result = cli_runner.invoke(
-            cli,
-            ["update", "test-package", "--commit", "def789abc012"]
-        )
+        result = cli_runner.invoke(cli, ["update", "test-package", "--commit", "def789abc012"])
 
         assert result.exit_code == 0, f"Update failed: {result.output}"
         assert "Updating to commit: def789ab" in result.output
@@ -234,8 +231,7 @@ def test_update_cannot_use_both_version_and_commit(cli_runner, tmp_path, monkeyp
     lockfile.add_package(package)
 
     result = cli_runner.invoke(
-        cli,
-        ["update", "test-package", "--version", "2.0.0", "--commit", "abc123"]
+        cli, ["update", "test-package", "--version", "2.0.0", "--commit", "abc123"]
     )
 
     assert result.exit_code == 1
@@ -261,10 +257,7 @@ def test_update_commit_requires_package_name(cli_runner, tmp_path, monkeypatch):
     )
     lockfile.add_package(package)
 
-    result = cli_runner.invoke(
-        cli,
-        ["update", "--commit", "abc123"]
-    )
+    result = cli_runner.invoke(cli, ["update", "--commit", "abc123"])
 
     assert result.exit_code == 1
     assert "--commit requires a package name" in result.output
@@ -274,10 +267,7 @@ def test_update_cannot_use_commit_with_all(cli_runner, tmp_path, monkeypatch):
     """Test that --commit cannot be used with --all."""
     monkeypatch.chdir(tmp_path)
 
-    result = cli_runner.invoke(
-        cli,
-        ["update", "--all", "--commit", "abc123"]
-    )
+    result = cli_runner.invoke(cli, ["update", "--all", "--commit", "abc123"])
 
     assert result.exit_code == 1
     assert "Cannot use --version or --commit with --all flag" in result.output

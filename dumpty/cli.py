@@ -39,7 +39,9 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str):
         # Validate mutually exclusive options
         if pkg_version and pkg_commit:
             console.print("[red]Error:[/] Cannot use both --version and --commit")
-            console.print("Use either --version for tagged releases or --commit for specific commits")
+            console.print(
+                "Use either --version for tagged releases or --commit for specific commits"
+            )
             sys.exit(1)
         # Detect agents
         detector = AgentDetector()
@@ -426,7 +428,9 @@ def update(package_name: str, update_all: bool, target_version: str, target_comm
         # Validate options
         if target_version and target_commit:
             console.print("[red]Error:[/] Cannot use both --version and --commit")
-            console.print("Use either --version for tagged releases or --commit for specific commits")
+            console.print(
+                "Use either --version for tagged releases or --commit for specific commits"
+            )
             sys.exit(1)
         if update_all and (target_version or target_commit):
             console.print("[red]Error:[/] Cannot use --version or --commit with --all flag")
@@ -478,10 +482,12 @@ def update(package_name: str, update_all: bool, target_version: str, target_comm
                 # Handle commit-based update (skip version checking)
                 if target_commit:
                     console.print(f"  [cyan]Updating to commit:[/] {target_commit[:8]}...")
-                    
+
                     # Download at specific commit
-                    package_dir = downloader.download(package.source, target_commit, validate_version=False)
-                    
+                    package_dir = downloader.download(
+                        package.source, target_commit, validate_version=False
+                    )
+
                     # Load manifest (without version validation)
                     manifest_path = package_dir / "dumpty.package.yaml"
                     if not manifest_path.exists():
@@ -489,7 +495,7 @@ def update(package_name: str, update_all: bool, target_version: str, target_comm
                         continue
 
                     manifest = PackageManifest.from_file(manifest_path)
-                    
+
                     # Continue with installation logic (skip to uninstall/install section)
                     target_version_str = manifest.version
                     target_tag = target_commit
@@ -525,7 +531,7 @@ def update(package_name: str, update_all: bool, target_version: str, target_comm
                     if not target_tag:
                         console.print(f"  [red]Version {target_version} not found[/]")
                         continue
-                    
+
                     # Set target_version_str for later use
                     target_version_str = str(target_ver)
                 elif not target_commit:
@@ -568,7 +574,7 @@ def update(package_name: str, update_all: bool, target_version: str, target_comm
                     # Download new version
                     console.print(f"  [blue]Downloading v{target_version_str}...[/]")
                     package_dir = downloader.download(package.source, target_tag)
-                
+
                 # For commits, package_dir was already downloaded above
 
                 # Load manifest (only if not already loaded for commit)

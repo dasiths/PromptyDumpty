@@ -168,7 +168,9 @@ class PackageDownloader:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.git_ops = git_ops or ShellGitOperations()
 
-    def download(self, url: str, version: Optional[str] = None, validate_version: bool = True) -> Path:
+    def download(
+        self, url: str, version: Optional[str] = None, validate_version: bool = True
+    ) -> Path:
         """
         Download package from URL.
 
@@ -197,7 +199,19 @@ class PackageDownloader:
 
         # Checkout specific version if provided
         if version:
-            self.git_ops.checkout(version, target_dir)
+            # Try to checkout - if it fails and doesn't have 'v' prefix, try with 'v'
+            try:
+                self.git_ops.checkout(version, target_dir)
+            except RuntimeError as e:
+                # If checkout failed and version doesn't start with 'v', try adding it
+                if not version.startswith("v") and "did not match any file(s)" in str(e):
+                    try:
+                        self.git_ops.checkout(f"v{version}", target_dir)
+                    except RuntimeError:
+                        # If that also fails, raise the original error
+                        raise e
+                else:
+                    raise
 
         # Validate manifest version matches requested version (only for semantic versions)
         if version and validate_version:

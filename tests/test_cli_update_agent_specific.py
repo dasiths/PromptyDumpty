@@ -94,6 +94,7 @@ agents:
 
     def mock_init(self, cache_dir=None):
         from unittest.mock import MagicMock
+
         self.git_ops = MagicMock()
         self.git_ops.fetch_tags.return_value = [
             "refs/tags/v1.0.0",
@@ -122,23 +123,25 @@ agents:
 
         assert updated_package is not None
         assert updated_package.version == "2.0.0"
-        assert updated_package.installed_for == ["copilot"], \
-            f"Expected only copilot, got: {updated_package.installed_for}"
+        assert updated_package.installed_for == [
+            "copilot"
+        ], f"Expected only copilot, got: {updated_package.installed_for}"
 
         # Verify only copilot files were installed
         assert "copilot" in updated_package.files
-        assert "cursor" not in updated_package.files, \
-            "Cursor files should not be installed"
-        assert "continue" not in updated_package.files, \
-            "Continue files should not be installed"
+        assert "cursor" not in updated_package.files, "Cursor files should not be installed"
+        assert "continue" not in updated_package.files, "Continue files should not be installed"
 
         # Verify files on disk
-        assert (tmp_path / ".github" / "test-package" / "test.md").exists(), \
-            "Copilot file should be updated"
-        assert not (tmp_path / ".cursor" / "test-package" / "cursor.md").exists(), \
-            "Cursor file should not be created"
-        assert not (tmp_path / ".continue" / "test-package" / "continue.md").exists(), \
-            "Continue file should not be created"
+        assert (
+            tmp_path / ".github" / "test-package" / "test.md"
+        ).exists(), "Copilot file should be updated"
+        assert not (
+            tmp_path / ".cursor" / "test-package" / "cursor.md"
+        ).exists(), "Cursor file should not be created"
+        assert not (
+            tmp_path / ".continue" / "test-package" / "continue.md"
+        ).exists(), "Continue file should not be created"
 
         # Verify content was updated
         copilot_content = (tmp_path / ".github" / "test-package" / "test.md").read_text()
@@ -234,6 +237,7 @@ agents:
 
     def mock_init(self, cache_dir=None):
         from unittest.mock import MagicMock
+
         self.git_ops = MagicMock()
         self.git_ops.fetch_tags.return_value = [
             "refs/tags/v1.0.0",
@@ -261,14 +265,17 @@ agents:
         updated_package = updated_lockfile.get_package("test-package")
 
         assert updated_package.version == "2.0.0"
-        assert sorted(updated_package.installed_for) == ["copilot", "cursor"], \
-            f"Expected copilot and cursor, got: {updated_package.installed_for}"
+        assert sorted(updated_package.installed_for) == [
+            "copilot",
+            "cursor",
+        ], f"Expected copilot and cursor, got: {updated_package.installed_for}"
 
         # Verify both agents' files were updated
         assert "copilot" in updated_package.files
         assert "cursor" in updated_package.files
-        assert "continue" not in updated_package.files, \
-            "Continue should not be installed (wasn't in original)"
+        assert (
+            "continue" not in updated_package.files
+        ), "Continue should not be installed (wasn't in original)"
 
         # Verify files on disk
         copilot_file = tmp_path / ".github" / "test-package" / "test.md"
