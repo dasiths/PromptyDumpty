@@ -151,6 +151,10 @@ def install(package_url: str, agent: str, pkg_version: str):
             installed_for=[a.name.lower() for a in target_agents],
             files=installed_files,
             manifest_checksum=manifest_checksum,
+            description=manifest.description,
+            author=manifest.author,
+            homepage=manifest.homepage,
+            license=manifest.license,
         )
 
         lockfile.add_package(installed_package)
@@ -538,6 +542,10 @@ def update(package_name: str, update_all: bool, target_version: str):
                     installed_for=package.installed_for,
                     files=installed_files,
                     manifest_checksum=manifest_checksum,
+                    description=manifest.description,
+                    author=manifest.author,
+                    homepage=manifest.homepage,
+                    license=manifest.license,
                 )
 
                 lockfile.add_package(updated_package)
@@ -559,6 +567,84 @@ def update(package_name: str, update_all: bool, target_version: str):
     except Exception as e:
         console.print(f"[red]Error:[/] {e}")
         sys.exit(1)
+
+
+@cli.command()
+@click.argument("package_name")
+def show(package_name: str):
+    """Display detailed information about an installed package."""
+    try:
+        # Load lockfile
+        lockfile = LockfileManager()
+
+        # Find package in lockfile
+        package = lockfile.get_package(package_name)
+        if not package:
+            console.print(f"[red]Error:[/] Package '{package_name}' is not installed")
+            console.print("\nRun [cyan]dumpty list[/] to see installed packages")
+            sys.exit(1)
+
+        # Display package information
+        _display_package_info(package)
+
+    except Exception as e:
+        console.print(f"[red]Error:[/] {e}")
+        sys.exit(1)
+
+
+def _display_package_info(package: InstalledPackage):
+    """Display formatted package information using Rich."""
+
+    # Header section
+    console.print(f"\n[bold cyan]{package.name}[/] [dim]v{package.version}[/]")
+    console.print()
+
+    # Metadata section
+    console.print("[bold]Package Information[/]")
+    console.print(f"  Description: {package.description or '[dim]N/A[/]'}")
+    console.print(f"  Author:      {package.author or '[dim]N/A[/]'}")
+    console.print(f"  License:     {package.license or '[dim]N/A[/]'}")
+    console.print(f"  Homepage:    {package.homepage or '[dim]N/A[/]'}")
+    console.print()
+
+    # Installation details
+    console.print("[bold]Installation Details[/]")
+    console.print(f"  Source:      {package.source}")
+    console.print(f"  Version:     {package.resolved}")
+    console.print(f"  Installed:   {package.installed_at}")
+    console.print()
+
+    # Installed files grouped by agent
+    console.print("[bold]Installed Files[/]")
+
+    # Group files by agent
+    files_by_agent = {}
+    for agent_name in package.installed_for:
+        if agent_name in package.files:
+            files_by_agent[agent_name] = package.files[agent_name]
+
+    # Display each agent's files
+    for agent_name, files in sorted(files_by_agent.items()):
+        console.print(f"\n  [cyan]{agent_name.upper()}[/] ({len(files)} files)")
+
+        # Create table for files
+        table = Table(
+            show_header=True,
+            header_style="bold",
+            box=None,
+            padding=(0, 2),
+        )
+        table.add_column("Artifact", style="dim")
+        table.add_column("Path")
+
+        for file in sorted(files, key=lambda f: f.installed):
+            # Extract artifact name from source file (if available)
+            artifact_name = Path(file.source).stem if file.source else "-"
+            table.add_row(artifact_name, file.installed)
+
+        console.print(table)
+
+    console.print()
 
 
 if __name__ == "__main__":
