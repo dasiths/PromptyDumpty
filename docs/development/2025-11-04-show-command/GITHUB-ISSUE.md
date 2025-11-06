@@ -83,7 +83,6 @@ Create `tests/test_cli_show.py` using `click.testing.CliRunner`:
 ---
 
 ## **Priority:** High
-**Estimated Effort:** 4-6 hours
 **Target Version:** v0.2.0
 
 ---

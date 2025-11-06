@@ -1,8 +1,7 @@
 # Implementation Plan - Missing Features & Fixes
 
 **Date:** November 4, 2025  
-**Priority:** Critical for v0.1.0 → v0.2.0  
-**Estimated Effort:** 2-3 days
+**Priority:** Critical for v0.1.0 → v0.2.0
 
 ---
 
@@ -430,22 +429,20 @@ pytest tests/test_cli.py --cov=dumpty.cli --cov-report=term-missing
 
 ## Implementation Order
 
-**Phase 1: Critical** (Target: 1 day)
-1. ✅ Implement `uninstall` command (2-3 hours)
-2. ✅ Add CLI tests for existing commands (3-4 hours)
-3. ✅ Test uninstall command (1 hour)
+**Phase 1: Critical**
+1. ✅ Implement `uninstall` command
+2. ✅ Add CLI tests for existing commands
+3. ✅ Test uninstall command
 
-**Phase 2: Important** (Target: 1 day)
-4. ✅ Implement `update` command with git tag support (4-5 hours)
-5. ✅ Add update command tests (2-3 hours)
-6. ✅ Version compatibility checking (1 hour)
+**Phase 2: Important**
+4. ✅ Implement `update` command with git tag support
+5. ✅ Add update command tests
+6. ✅ Version compatibility checking
 
-**Phase 3: Polish** (Target: 0.5 day)
-7. ✅ Improve error handling across modules (2 hours)
-8. ✅ Add logging support (1-2 hours)
-9. ✅ Dry-run mode (1 hour)
-
-**Total Estimated Time:** 2-3 days for one developer
+**Phase 3: Polish**
+7. ✅ Improve error handling across modules
+8. ✅ Add logging support
+9. ✅ Dry-run mode
 
 ---
 

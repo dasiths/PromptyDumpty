@@ -1,8 +1,7 @@
 # Implementation Plan - Show Command
 
 **Date:** November 4, 2025  
-**Priority:** High for v0.2.0  
-**Estimated Effort:** 4-6 hours
+**Priority:** High for v0.2.0
 
 ---
 
@@ -364,21 +363,7 @@ Potential additions for future versions:
 
 ---
 
-## 12. Time Estimates
-
-| Task | Estimated Time |
-|------|----------------|
-| Implement `get_package()` | 30 minutes |
-| Implement `show` command | 1.5 hours |
-| Implement output formatting | 1 hour |
-| Write tests | 1.5 hours |
-| Test coverage and debugging | 30 minutes |
-| Documentation updates | 30 minutes |
-| **Total** | **4-6 hours** |
-
----
-
-## 13. Risk Assessment
+## 12. Risk Assessment
 
 ### Low Risk
 - Well-defined requirements

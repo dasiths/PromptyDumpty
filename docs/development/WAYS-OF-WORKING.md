@@ -9,6 +9,7 @@ This document outlines the structured approach for development sessions with AI 
     - [Phase 2: Define](#phase-2-define)
     - [Phase 3: Execute](#phase-3-execute)
   - [Document Organization](#document-organization)
+    - [Document Templates](#document-templates)
   - [Principles](#principles)
     - [1. Phase Discipline](#1-phase-discipline)
     - [2. Documentation as Communication](#2-documentation-as-communication)
@@ -143,6 +144,18 @@ This structure:
 - Provides context for future AI agents joining development
 - Creates an audit trail of decisions and rationale
 - Enables quick onboarding and context recovery
+
+### Document Templates
+
+Templates for each document type are available in [templates/](./templates/):
+- [REQUIREMENTS.md](./templates/REQUIREMENTS.md) - Problem statement and requirements
+- [FEASIBILITY.md](./templates/FEASIBILITY.md) - Technical feasibility analysis
+- [PRD.md](./templates/PRD.md) - Product requirements document
+- [SPEC.md](./templates/SPEC.md) - Technical specifications
+- [IMPLEMENTATION-PLAN.md](./templates/IMPLEMENTATION-PLAN.md) - Implementation roadmap
+- [GITHUB-ISSUE.md](./templates/GITHUB-ISSUE.md) - Issue for GitHub Copilot agent
+
+These templates are **intentionally flexible** - use what's helpful, skip what isn't. See [templates/README.md](./templates/README.md) for usage guidance.
 
 ## Principles
 
