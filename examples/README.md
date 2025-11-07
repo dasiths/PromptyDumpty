@@ -1,6 +1,29 @@
 # Examples - Using prompty-dumpty
 
-## Quick Start
+- [Examples - Using prompty-dumpty](#examples---using-prompty-dumpty)
+  - [Quick Start Examples](#quick-start-examples)
+    - [Install a Real Package (jordans\_tools)](#install-a-real-package-jordans_tools)
+    - [Run Automated Test](#run-automated-test)
+    - [Run Interactive Demo](#run-interactive-demo)
+  - [Manual Installation](#manual-installation)
+  - [Basic Usage](#basic-usage)
+  - [What Gets Installed](#what-gets-installed)
+  - [Files](#files)
+  - [Cleanup](#cleanup)
+
+
+## Quick Start Examples
+
+### Install a Real Package (jordans_tools)
+```bash
+./install-jordans-tools.sh
+```
+Demonstrates installing an actual dumpty package from GitHub:
+- **Package**: jk-tools-commands v1.0.0
+- **Repository**: https://github.com/dasiths/jordans_tools
+- **Contains**: Comprehensive workflow commands for planning, architecture, and code review
+- Shows real-world package installation
+- Displays installed artifacts
 
 ### Run Automated Test
 ```bash
