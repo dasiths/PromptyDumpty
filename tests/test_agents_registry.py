@@ -34,8 +34,17 @@ class MockAgent(BaseAgent):
 def registry():
     """Create fresh registry for each test."""
     reg = AgentRegistry()
-    reg.clear()  # Clear any existing agents
-    return reg
+    # Save existing agents
+    saved_agents = dict(reg._agents)
+    # Clear for test
+    reg.clear()
+    
+    yield reg
+    
+    # Restore original agents after test
+    reg.clear()
+    for name, agent in saved_agents.items():
+        reg._agents[name] = agent
 
 
 def test_registry_singleton():
