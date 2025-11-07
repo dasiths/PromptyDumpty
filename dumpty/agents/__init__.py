@@ -3,14 +3,26 @@
 from .base import BaseAgent
 from .registry import AgentRegistry
 
-# Import implemented agents
+# Import all agent implementations
 from .copilot import CopilotAgent
 from .claude import ClaudeAgent
+from .cursor import CursorAgent
+from .gemini import GeminiAgent
+from .windsurf import WindsurfAgent
+from .cline import ClineAgent
+from .aider import AiderAgent
+from .continue_agent import ContinueAgent
 
-# Initialize registry and register agents
+# Initialize registry and register all agents
 _registry = AgentRegistry()
 _registry.register(CopilotAgent())
 _registry.register(ClaudeAgent())
+_registry.register(CursorAgent())
+_registry.register(GeminiAgent())
+_registry.register(WindsurfAgent())
+_registry.register(ClineAgent())
+_registry.register(AiderAgent())
+_registry.register(ContinueAgent())
 
 # Public exports
 __all__ = [
@@ -18,4 +30,10 @@ __all__ = [
     "AgentRegistry",
     "CopilotAgent",
     "ClaudeAgent",
+    "CursorAgent",
+    "GeminiAgent",
+    "WindsurfAgent",
+    "ClineAgent",
+    "AiderAgent",
+    "ContinueAgent",
 ]

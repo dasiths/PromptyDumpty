@@ -4,6 +4,12 @@ import pytest
 from pathlib import Path
 from dumpty.agents.copilot import CopilotAgent
 from dumpty.agents.claude import ClaudeAgent
+from dumpty.agents.cursor import CursorAgent
+from dumpty.agents.gemini import GeminiAgent
+from dumpty.agents.windsurf import WindsurfAgent
+from dumpty.agents.cline import ClineAgent
+from dumpty.agents.aider import AiderAgent
+from dumpty.agents.continue_agent import ContinueAgent
 
 
 class TestCopilotAgent:
@@ -76,3 +82,141 @@ class TestClaudeAgent:
         agent = ClaudeAgent()
         expected = tmp_path / ".claude"
         assert agent.get_directory(tmp_path) == expected
+
+
+class TestCursorAgent:
+    """Tests for CursorAgent."""
+    
+    def test_properties(self):
+        """Test agent properties."""
+        agent = CursorAgent()
+        assert agent.name == "cursor"
+        assert agent.display_name == "Cursor"
+        assert agent.directory == ".cursor"
+    
+    def test_detection_when_configured(self, tmp_path):
+        """Test detection when directory exists."""
+        (tmp_path / ".cursor").mkdir()
+        
+        agent = CursorAgent()
+        assert agent.is_configured(tmp_path) is True
+    
+    def test_detection_when_not_configured(self, tmp_path):
+        """Test detection when directory missing."""
+        agent = CursorAgent()
+        assert agent.is_configured(tmp_path) is False
+
+
+class TestGeminiAgent:
+    """Tests for GeminiAgent."""
+    
+    def test_properties(self):
+        """Test agent properties."""
+        agent = GeminiAgent()
+        assert agent.name == "gemini"
+        assert agent.display_name == "Gemini"
+        assert agent.directory == ".gemini"
+    
+    def test_detection_when_configured(self, tmp_path):
+        """Test detection when directory exists."""
+        (tmp_path / ".gemini").mkdir()
+        
+        agent = GeminiAgent()
+        assert agent.is_configured(tmp_path) is True
+    
+    def test_detection_when_not_configured(self, tmp_path):
+        """Test detection when directory missing."""
+        agent = GeminiAgent()
+        assert agent.is_configured(tmp_path) is False
+
+
+class TestWindsurfAgent:
+    """Tests for WindsurfAgent."""
+    
+    def test_properties(self):
+        """Test agent properties."""
+        agent = WindsurfAgent()
+        assert agent.name == "windsurf"
+        assert agent.display_name == "Windsurf"
+        assert agent.directory == ".windsurf"
+    
+    def test_detection_when_configured(self, tmp_path):
+        """Test detection when directory exists."""
+        (tmp_path / ".windsurf").mkdir()
+        
+        agent = WindsurfAgent()
+        assert agent.is_configured(tmp_path) is True
+    
+    def test_detection_when_not_configured(self, tmp_path):
+        """Test detection when directory missing."""
+        agent = WindsurfAgent()
+        assert agent.is_configured(tmp_path) is False
+
+
+class TestClineAgent:
+    """Tests for ClineAgent."""
+    
+    def test_properties(self):
+        """Test agent properties."""
+        agent = ClineAgent()
+        assert agent.name == "cline"
+        assert agent.display_name == "Cline"
+        assert agent.directory == ".cline"
+    
+    def test_detection_when_configured(self, tmp_path):
+        """Test detection when directory exists."""
+        (tmp_path / ".cline").mkdir()
+        
+        agent = ClineAgent()
+        assert agent.is_configured(tmp_path) is True
+    
+    def test_detection_when_not_configured(self, tmp_path):
+        """Test detection when directory missing."""
+        agent = ClineAgent()
+        assert agent.is_configured(tmp_path) is False
+
+
+class TestAiderAgent:
+    """Tests for AiderAgent."""
+    
+    def test_properties(self):
+        """Test agent properties."""
+        agent = AiderAgent()
+        assert agent.name == "aider"
+        assert agent.display_name == "Aider"
+        assert agent.directory == ".aider"
+    
+    def test_detection_when_configured(self, tmp_path):
+        """Test detection when directory exists."""
+        (tmp_path / ".aider").mkdir()
+        
+        agent = AiderAgent()
+        assert agent.is_configured(tmp_path) is True
+    
+    def test_detection_when_not_configured(self, tmp_path):
+        """Test detection when directory missing."""
+        agent = AiderAgent()
+        assert agent.is_configured(tmp_path) is False
+
+
+class TestContinueAgent:
+    """Tests for ContinueAgent."""
+    
+    def test_properties(self):
+        """Test agent properties."""
+        agent = ContinueAgent()
+        assert agent.name == "continue"
+        assert agent.display_name == "Continue"
+        assert agent.directory == ".continue"
+    
+    def test_detection_when_configured(self, tmp_path):
+        """Test detection when directory exists."""
+        (tmp_path / ".continue").mkdir()
+        
+        agent = ContinueAgent()
+        assert agent.is_configured(tmp_path) is True
+    
+    def test_detection_when_not_configured(self, tmp_path):
+        """Test detection when directory missing."""
+        agent = ContinueAgent()
+        assert agent.is_configured(tmp_path) is False
