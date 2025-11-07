@@ -1,5 +1,5 @@
-# PromptyDumpty ![PyPI - Workflow](https://github.com/dasiths/PromptyDumpty/actions/workflows/publish-to-pypi.yml/badge.svg) ![PyPI - Version](https://img.shields.io/pypi/v/prompty-dumpty)
-
+# PromptyDumpty 
+![PyPI - Workflow](https://github.com/dasiths/PromptyDumpty/actions/workflows/publish-to-pypi.yml/badge.svg) [![PyPI - Version](https://img.shields.io/pypi/v/prompty-dumpty)](https://pypi.org/project/prompty-dumpty/) [![PyPI - Downloads](https://img.shields.io/pypi/dm/prompty-dumpty)](https://pypi.org/project/prompty-dumpty/)
 
 <img src="website/public/logo.png" width=200px />
 
