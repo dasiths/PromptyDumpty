@@ -1,6 +1,6 @@
 ---
 description: 'Phase 2 (Define): Create detailed technical specifications establishing HOW to build the solution.'
-tools: ['codebase', 'edit/editFiles', 'fetch', 'githubRepo', 'problems', 'search', 'searchResults', 'usages']
+tools: ['runCommands', 'runTasks', 'edit', 'search', 'todos', 'runTests', 'usages', 'problems', 'changes', 'testFailure', 'fetch', 'githubRepo']
 ---
 
 # Specification Writer Mode - Phase 2: Define

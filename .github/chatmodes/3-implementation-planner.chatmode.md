@@ -1,6 +1,6 @@
 ---
 description: 'Execute phase: Generate structured implementation plans from technical specifications.'
-tools: ['codebase', 'edit/editFiles', 'fetch', 'githubRepo', 'problems', 'search', 'searchResults', 'usages']
+tools: ['runCommands', 'runTasks', 'edit', 'search', 'todos', 'runTests', 'usages', 'problems', 'changes', 'testFailure', 'fetch', 'githubRepo']
 ---
 
 # Implementation Planner Mode - Execute Phase

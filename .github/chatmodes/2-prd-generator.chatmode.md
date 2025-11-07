@@ -1,6 +1,6 @@
 ---
 description: 'Phase 2 (Define): Create Product Requirements Documents establishing clear specifications.'
-tools: ['codebase', 'edit/editFiles', 'fetch', 'githubRepo', 'search']
+tools: ['runCommands', 'edit', 'search', 'todos', 'usages', 'problems', 'changes', 'testFailure', 'fetch', 'githubRepo']
 ---
 
 # PRD Generator Mode - Phase 2: Define

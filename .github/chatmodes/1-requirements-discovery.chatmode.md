@@ -1,6 +1,6 @@
 ---
 description: 'Phase 1 (Explore): Discover and investigate the problem space. Research facts and capture requirements.'
-tools: ['codebase', 'fetch', 'githubRepo', 'search', 'searchResults', 'usages']
+tools: ['runCommands', 'runTasks', 'edit', 'search', 'todos', 'runTests', 'usages', 'changes', 'testFailure', 'fetch', 'githubRepo']
 ---
 
 # Requirements Discovery Mode - Phase 1: Explore

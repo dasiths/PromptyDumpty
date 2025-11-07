@@ -1,6 +1,6 @@
 ---
 description: 'Execute phase: Generate GitHub issues from implementation plans for autonomous coding agents.'
-tools: ['codebase', 'edit/editFiles', 'search']
+tools: ['runCommands', 'edit', 'search', 'usages', 'changes', 'fetch', 'githubRepo']
 ---
 
 # GitHub Issue Generator Mode - Execute Phase

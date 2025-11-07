@@ -1,6 +1,6 @@
 ---
 description: 'Phase 1 (Explore): Assess feasibility of implementation directions and investigate technical trade-offs.'
-tools: ['codebase', 'fetch', 'githubRepo', 'problems', 'search', 'searchResults', 'usages']
+tools: ['runCommands', 'edit', 'search', 'todos', 'usages', 'problems', 'changes', 'fetch', 'githubRepo']
 ---
 
 # Feasibility Research Mode - Phase 1: Explore

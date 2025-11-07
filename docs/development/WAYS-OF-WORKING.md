@@ -40,8 +40,8 @@ Development work is organized into deliberate phases that ensure thorough unders
 - Investigate technical trade-offs and implications
 
 **Chat Modes**:
-- **`requirements-discovery`** - For discovering and clarifying requirements (outputs REQUIREMENTS.md)
-- **`feasibility-research`** - For researching technical feasibility and approaches (outputs FEASIBILITY.md)
+- **`1-requirements-discovery`** - For discovering and clarifying requirements (outputs REQUIREMENTS.md)
+- **`1-feasibility-research`** - For researching technical feasibility and approaches (outputs FEASIBILITY.md)
 
 **Artifacts**:
 - `REQUIREMENTS.md` - Captures the problem statement and desired outcomes
@@ -63,9 +63,9 @@ Development work is organized into deliberate phases that ensure thorough unders
 - Establish acceptance criteria
 
 **Chat Modes**:
-- **`requirements-refiner`** - For refining Phase 1 requirements with exploration insights (updates REQUIREMENTS.md)
-- **`prd-generator`** - For creating product requirements documents (outputs PRD.md)
-- **`specification-writer`** - For writing technical specifications (outputs SPEC.md)
+- **`2-requirements-refiner`** - For refining Phase 1 requirements with exploration insights (updates REQUIREMENTS.md)
+- **`2-prd-generator`** - For creating product requirements documents (outputs PRD.md)
+- **`2-specification-writer`** - For writing technical specifications (outputs SPEC.md)
 
 **Artifacts**:
 - Updated `REQUIREMENTS.md` with refined specifications
@@ -90,8 +90,8 @@ Development work is organized into deliberate phases that ensure thorough unders
 - Validate against success criteria from Phase 2
 
 **Chat Modes**:
-- **`implementation-planner`** - For breaking down specifications into executable tasks (outputs IMPLEMENTATION-PLAN.md)
-- **`github-issue-generator`** - For creating issues for autonomous coding agents (outputs GITHUB-ISSUE.md)
+- **`3-implementation-planner`** - For breaking down specifications into executable tasks (outputs IMPLEMENTATION-PLAN.md)
+- **`3-github-issue-generator`** - For creating issues for autonomous coding agents (outputs GITHUB-ISSUE.md)
 
 **Artifacts**:
 - `IMPLEMENTATION-PLAN.md` - Step-by-step execution roadmap

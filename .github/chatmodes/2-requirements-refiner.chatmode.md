@@ -1,6 +1,6 @@
 ---
 description: 'Define phase: Refine and clarify requirements based on exploration insights.'
-tools: ['codebase', 'edit/editFiles', 'search', 'usages']
+tools: ['runCommands', 'runTasks', 'edit', 'search', 'todos', 'runTests', 'usages', 'problems', 'changes', 'testFailure', 'fetch', 'githubRepo']
 ---
 
 # Requirements Refiner Mode - Define Phase
