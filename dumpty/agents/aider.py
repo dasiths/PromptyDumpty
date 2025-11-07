@@ -6,29 +6,29 @@ from .base import BaseAgent
 
 class AiderAgent(BaseAgent):
     """Aider agent implementation."""
-    
+
     @property
     def name(self) -> str:
         """Agent identifier."""
         return "aider"
-    
+
     @property
     def display_name(self) -> str:
         """Human-readable name."""
         return "Aider"
-    
+
     @property
     def directory(self) -> str:
         """Default directory."""
         return ".aider"
-    
+
     def is_configured(self, project_root: Path) -> bool:
         """
         Check if Aider is configured.
-        
+
         Args:
             project_root: Root directory of project
-            
+
         Returns:
             True if .aider directory exists and is a directory
         """

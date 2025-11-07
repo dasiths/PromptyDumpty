@@ -22,12 +22,11 @@ class Agent(Enum):
         # Import here to ensure registry is initialized
         import dumpty.agents  # noqa: F401
         from dumpty.agents.registry import AgentRegistry
+
         registry = AgentRegistry()
         impl = registry.get_agent(self.value)
         if impl is None:
-            raise RuntimeError(
-                f"Agent implementation not found: {self.value}"
-            )
+            raise RuntimeError(f"Agent implementation not found: {self.value}")
         return impl
 
     @property
@@ -77,10 +76,10 @@ class AgentDetector:
         # Import here to ensure registry is initialized
         import dumpty.agents  # noqa: F401
         from dumpty.agents.registry import AgentRegistry
-        
+
         registry = AgentRegistry()
         detected = []
-        
+
         # Iterate through registered agent implementations
         for agent_impl in registry.all_agents():
             if agent_impl.is_configured(self.project_root):
@@ -88,7 +87,7 @@ class AgentDetector:
                 agent_enum = Agent.from_name(agent_impl.name)
                 if agent_enum:
                     detected.append(agent_enum)
-        
+
         return detected
 
     def get_agent_directory(self, agent: Agent) -> Path:

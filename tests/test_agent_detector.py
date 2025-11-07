@@ -139,11 +139,11 @@ def test_agent_enum_backward_compatibility():
     assert Agent.CLINE
     assert Agent.AIDER
     assert Agent.CONTINUE
-    
+
     # Can iterate through enum
     agents = list(Agent)
     assert len(agents) == 8
-    
+
     # Enum comparison works
     assert Agent.COPILOT == Agent.COPILOT
     assert Agent.COPILOT != Agent.CLAUDE
@@ -154,25 +154,25 @@ def test_agent_property_delegation():
     # Test all agents
     assert Agent.COPILOT.directory == ".github"
     assert Agent.COPILOT.display_name == "GitHub Copilot"
-    
+
     assert Agent.CLAUDE.directory == ".claude"
     assert Agent.CLAUDE.display_name == "Claude"
-    
+
     assert Agent.CURSOR.directory == ".cursor"
     assert Agent.CURSOR.display_name == "Cursor"
-    
+
     assert Agent.GEMINI.directory == ".gemini"
     assert Agent.GEMINI.display_name == "Gemini"
-    
+
     assert Agent.WINDSURF.directory == ".windsurf"
     assert Agent.WINDSURF.display_name == "Windsurf"
-    
+
     assert Agent.CLINE.directory == ".cline"
     assert Agent.CLINE.display_name == "Cline"
-    
+
     assert Agent.AIDER.directory == ".aider"
     assert Agent.AIDER.display_name == "Aider"
-    
+
     assert Agent.CONTINUE.directory == ".continue"
     assert Agent.CONTINUE.display_name == "Continue"
 
@@ -183,11 +183,11 @@ def test_agent_from_name_backward_compatible():
     assert Agent.from_name("copilot") == Agent.COPILOT
     assert Agent.from_name("COPILOT") == Agent.COPILOT
     assert Agent.from_name("Copilot") == Agent.COPILOT
-    
+
     # All agents
     for name in ["copilot", "claude", "cursor", "gemini", "windsurf", "cline", "aider", "continue"]:
         assert Agent.from_name(name) is not None
-    
+
     # Invalid name
     assert Agent.from_name("invalid") is None
 
@@ -217,10 +217,10 @@ def test_agent_detector_detect_all_agents(tmp_path):
     (tmp_path / ".cline").mkdir()
     (tmp_path / ".aider").mkdir()
     (tmp_path / ".continue").mkdir()
-    
+
     detector = AgentDetector(tmp_path)
     detected = detector.detect_agents()
-    
+
     assert len(detected) == 8
     assert Agent.COPILOT in detected
     assert Agent.CLAUDE in detected
