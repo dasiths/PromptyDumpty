@@ -2,9 +2,13 @@
 
 import hashlib
 import re
+import subprocess
 from pathlib import Path
 from typing import List, Optional, Tuple
 from packaging.version import Version, InvalidVersion
+from rich.console import Console
+
+console = Console()
 
 
 def calculate_checksum(file_path: Path) -> str:
@@ -90,3 +94,77 @@ def compare_versions(current: str, available: str) -> bool:
         return Version(available_clean) > Version(current_clean)
     except InvalidVersion:
         return False
+
+
+def find_git_root(start_path: Optional[Path] = None) -> Optional[Path]:
+    """
+    Find the root of the git repository.
+
+    Args:
+        start_path: Path to start searching from. Defaults to current directory.
+
+    Returns:
+        Path to git repository root, or None if not in a git repository
+    """
+    search_path = start_path or Path.cwd()
+    
+    try:
+        # Use git to find the repository root
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=search_path,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        git_root = Path(result.stdout.strip())
+        return git_root
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Not a git repository or git not installed
+        return None
+
+
+def get_project_root(explicit_path: Optional[Path] = None, warn: bool = True) -> Path:
+    """
+    Determine the project root directory.
+
+    Priority:
+    1. Use explicit_path if provided
+    2. Find git repository root
+    3. Fall back to current working directory (with warning if warn=True)
+
+    Args:
+        explicit_path: Explicitly specified project root
+        warn: Whether to warn if falling back to CWD
+
+    Returns:
+        Path to project root directory
+    """
+    # If explicit path is provided, use it
+    if explicit_path:
+        if not explicit_path.exists():
+            console.print(f"[yellow]Warning:[/] Specified path does not exist: {explicit_path}")
+            console.print(f"[yellow]Using current directory instead[/]")
+            return Path.cwd()
+        if not explicit_path.is_dir():
+            console.print(f"[yellow]Warning:[/] Specified path is not a directory: {explicit_path}")
+            console.print(f"[yellow]Using current directory instead[/]")
+            return Path.cwd()
+        return explicit_path.resolve()
+    
+    # Try to find git repository root
+    git_root = find_git_root()
+    if git_root:
+        return git_root
+    
+    # Fall back to current working directory
+    if warn:
+        console.print(
+            "[yellow]Warning:[/] Not in a git repository. Using current directory as project root."
+        )
+        console.print(
+            "[dim]Tip: Run from git repository root or use --project-root to specify explicitly[/]"
+        )
+    
+    return Path.cwd()
+

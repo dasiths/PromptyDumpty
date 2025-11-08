@@ -126,7 +126,7 @@ def test_complete_installation_workflow(tmp_path, test_package):
     installed_files["claude"] = claude_files
 
     # Update lockfile
-    lockfile = LockfileManager(project_dir / "dumpty.lock")
+    lockfile = LockfileManager(project_dir)
     commit_hash = downloader.get_resolved_commit(package_dir)
     manifest_checksum = calculate_checksum(package_dir / "dumpty.package.yaml")
 
@@ -209,7 +209,7 @@ def test_multiple_packages(tmp_path, test_package):
     project_dir = tmp_path / "project"
     project_dir.mkdir()
 
-    lockfile = LockfileManager(project_dir / "dumpty.lock")
+    lockfile = LockfileManager(project_dir)
 
     # Add multiple packages
     for i in range(3):

@@ -62,7 +62,7 @@ class TestListCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-pkg",
             version="1.0.0",
@@ -95,7 +95,7 @@ class TestListCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-pkg",
             version="1.0.0",
@@ -131,7 +131,7 @@ class TestListCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with multiple packages
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
 
         for i in range(3):
             package = InstalledPackage(
@@ -371,7 +371,7 @@ agents:
         (tmp_path / ".github").mkdir()
 
         # Create existing lockfile with package
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         existing_package = InstalledPackage(
             name="test-package",
             version="1.0.0",
@@ -438,7 +438,7 @@ agents:
             assert "replace the existing installation" in result.output
 
             # Verify package was updated in lockfile
-            updated_lockfile = LockfileManager(tmp_path / "dumpty.lock")
+            updated_lockfile = LockfileManager(tmp_path)
             updated_package = updated_lockfile.get_package("test-package")
             assert updated_package.version == "2.0.0"
         finally:
@@ -451,7 +451,7 @@ agents:
         (tmp_path / ".github").mkdir()
 
         # Create existing lockfile with package from different source
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         existing_package = InstalledPackage(
             name="test-package",
             version="1.0.0",

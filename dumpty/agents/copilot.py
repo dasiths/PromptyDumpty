@@ -71,16 +71,17 @@ class CopilotAgent(BaseAgent):
             package_path = str(install_dir)
 
         # Add to promptFilesLocations if not already present
+        # Format: {"path": boolean} where boolean indicates if it's enabled
         if "chat.promptFilesLocations" not in settings:
-            settings["chat.promptFilesLocations"] = []
+            settings["chat.promptFilesLocations"] = {}
         if package_path not in settings["chat.promptFilesLocations"]:
-            settings["chat.promptFilesLocations"].append(package_path)
+            settings["chat.promptFilesLocations"][package_path] = True
 
         # Add to modeFilesLocations if not already present
         if "chat.modeFilesLocations" not in settings:
-            settings["chat.modeFilesLocations"] = []
+            settings["chat.modeFilesLocations"] = {}
         if package_path not in settings["chat.modeFilesLocations"]:
-            settings["chat.modeFilesLocations"].append(package_path)
+            settings["chat.modeFilesLocations"][package_path] = True
 
         # Save settings
         settings_file.parent.mkdir(parents=True, exist_ok=True)
@@ -122,12 +123,12 @@ class CopilotAgent(BaseAgent):
         # Remove from promptFilesLocations
         if "chat.promptFilesLocations" in settings:
             if package_path in settings["chat.promptFilesLocations"]:
-                settings["chat.promptFilesLocations"].remove(package_path)
+                del settings["chat.promptFilesLocations"][package_path]
 
         # Remove from modeFilesLocations
         if "chat.modeFilesLocations" in settings:
             if package_path in settings["chat.modeFilesLocations"]:
-                settings["chat.modeFilesLocations"].remove(package_path)
+                del settings["chat.modeFilesLocations"][package_path]
 
         # Save settings
         with open(settings_file, "w") as f:

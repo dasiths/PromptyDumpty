@@ -72,22 +72,23 @@ echo ""
 
 # Step 1: Init
 echo "================================"
-echo "1️⃣  $DUMPTY_CMD init --agent claude"
+echo "1️⃣  $DUMPTY_CMD init --agent claude --project-root ."
 echo "================================"
 echo ""
-$DUMPTY_CMD init --agent claude
+$DUMPTY_CMD init --agent claude --project-root .
 echo ""
 echo "📝 What happened:"
 echo "   • Created .claude/ directory for Claude agent"
 echo "   • Created dumpty.lock to track installations"
+echo "   • Used --project-root . to explicitly set current directory"
 wait_for_user
 
 # Step 2: Install specific version (1.0.0)
 echo "================================"
-echo "2️⃣  $DUMPTY_CMD install <package-url> --version 1.0.0"
+echo "2️⃣  $DUMPTY_CMD install <package-url> --version 1.0.0 --project-root ."
 echo "================================"
 echo ""
-$DUMPTY_CMD install https://github.com/dasiths/prompty-dumpty-sample-package --version 1.0.0
+$DUMPTY_CMD install https://github.com/dasiths/prompty-dumpty-sample-package --version 1.0.0 --project-root .
 echo ""
 echo "📝 What happened:"
 echo "   • Downloaded the sample package from GitHub"
@@ -98,10 +99,10 @@ wait_for_user
 
 # Step 3: List
 echo "================================"
-echo "3️⃣  $DUMPTY_CMD list"
+echo "3️⃣  $DUMPTY_CMD list --project-root ."
 echo "================================"
 echo ""
-$DUMPTY_CMD list
+$DUMPTY_CMD list --project-root .
 echo ""
 echo "📝 What happened:"
 echo "   • Shows all installed packages"
@@ -110,10 +111,10 @@ wait_for_user
 
 # Step 4: Show package details
 echo "================================"
-echo "4️⃣  $DUMPTY_CMD show sample-package"
+echo "4️⃣  $DUMPTY_CMD show sample-package --project-root ."
 echo "================================"
 echo ""
-$DUMPTY_CMD show sample-package
+$DUMPTY_CMD show sample-package --project-root .
 echo ""
 echo "📝 What happened:"
 echo "   • Shows detailed information about v1.0.0"
@@ -143,10 +144,10 @@ wait_for_user
 
 # Step 5: Update to 2.0.0 explicitly
 echo "================================"
-echo "5️⃣  $DUMPTY_CMD update sample-package --version 2.0.0"
+echo "5️⃣  $DUMPTY_CMD update sample-package --version 2.0.0 --project-root ."
 echo "================================"
 echo ""
-$DUMPTY_CMD update sample-package --version 2.0.0
+$DUMPTY_CMD update sample-package --version 2.0.0 --project-root .
 echo ""
 echo "📝 What happened:"
 echo "   • Updated from v1.0.0 to v2.0.0"
@@ -158,8 +159,8 @@ echo "================================"
 echo "6️⃣  Verify package is now v2.0.0"
 echo "================================"
 echo ""
-$DUMPTY_CMD list
-$DUMPTY_CMD show sample-package
+$DUMPTY_CMD list --project-root .
+$DUMPTY_CMD show sample-package --project-root .
 echo ""
 echo "📝 What happened:"
 echo "   • Package is now at v2.0.0"
@@ -167,10 +168,10 @@ wait_for_user
 
 # Step 7: Update without version (auto-detect latest)
 echo "================================"
-echo "7️⃣  $DUMPTY_CMD update sample-package (auto-detect latest)"
+echo "7️⃣  $DUMPTY_CMD update sample-package (auto-detect latest) --project-root ."
 echo "================================"
 echo ""
-$DUMPTY_CMD update sample-package
+$DUMPTY_CMD update sample-package --project-root .
 echo ""
 echo "📝 What happened:"
 echo "   • Automatically detected v3.0.0 as the latest version"
@@ -182,8 +183,8 @@ echo "================================"
 echo "8️⃣  Verify package is now v3.0.0"
 echo "================================"
 echo ""
-$DUMPTY_CMD list
-$DUMPTY_CMD show sample-package
+$DUMPTY_CMD list --project-root .
+$DUMPTY_CMD show sample-package --project-root .
 echo ""
 echo "📝 What happened:"
 echo "   • Package is now at the latest version v3.0.0"
@@ -191,10 +192,10 @@ wait_for_user
 
 # Step 9: Uninstall
 echo "================================"
-echo "9️⃣  $DUMPTY_CMD uninstall sample-package"
+echo "9️⃣  $DUMPTY_CMD uninstall sample-package --project-root ."
 echo "================================"
 echo ""
-$DUMPTY_CMD uninstall sample-package
+$DUMPTY_CMD uninstall sample-package --project-root .
 echo ""
 echo "📝 What happened:"
 echo "   • Removed all installed files"
@@ -208,7 +209,7 @@ echo "🔟 Verify Uninstallation"
 echo "================================"
 echo ""
 echo "Checking installed packages:"
-$DUMPTY_CMD list
+$DUMPTY_CMD list --project-root .
 echo ""
 echo "Project structure after uninstall:"
 tree -a -L 3 . 2>/dev/null || find . -maxdepth 3 -print | sed 's|[^/]*/| |g'

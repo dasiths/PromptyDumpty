@@ -56,7 +56,7 @@ def setup_package_for_update(tmp_path, mock_git_ops):
     (github_dir / "prompts" / "test.md").write_text("# Test v1.0.0")
 
     # Create lockfile with older version
-    lockfile = LockfileManager(tmp_path / "dumpty.lock")
+    lockfile = LockfileManager(tmp_path)
     package = InstalledPackage(
         name="test-package",
         version="1.0.0",
@@ -116,7 +116,7 @@ class TestUpdateCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create empty lockfile
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         lockfile._save()
 
         result = cli_runner.invoke(cli, ["update", "--all"])
@@ -129,7 +129,7 @@ class TestUpdateCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with one package
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="existing-package",
             version="1.0.0",
@@ -153,7 +153,7 @@ class TestUpdateCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-pkg",
             version="1.0.0",
@@ -202,7 +202,7 @@ class TestUpdateCommand:
             assert "Updated to v2.0.0" in result.output
 
             # Verify lockfile updated
-            lockfile = LockfileManager(tmp_path / "dumpty.lock")
+            lockfile = LockfileManager(tmp_path)
             package = lockfile.get_package("test-package")
             assert package is not None
             assert package.version == "2.0.0"
@@ -261,7 +261,7 @@ agents:
             assert "Updated to v1.1.0" in result.output
 
             # Verify lockfile updated to v1.1.0, not v2.0.0
-            lockfile = LockfileManager(tmp_path / "dumpty.lock")
+            lockfile = LockfileManager(tmp_path)
             package = lockfile.get_package("test-package")
             assert package is not None
             assert package.version == "1.1.0"
@@ -274,7 +274,7 @@ agents:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with latest version
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-package",
             version="2.0.0",
@@ -312,7 +312,7 @@ agents:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with multiple packages
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
 
         for i in range(2):
             package = InstalledPackage(
@@ -353,7 +353,7 @@ agents:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-package",
             version="1.0.0",
@@ -397,7 +397,7 @@ agents:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-package",
             version="1.0.0",
@@ -435,7 +435,7 @@ agents:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-package",
             version="1.0.0",
@@ -459,7 +459,7 @@ agents:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-package",
             version="1.0.0",
@@ -491,7 +491,7 @@ agents:
         old_file.write_text("# Old content")
 
         # Create lockfile with old version
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-package",
             version="1.0.0",
@@ -570,7 +570,7 @@ agents:
             assert "New content" in new_file.read_text()
 
             # Verify lockfile was updated
-            updated_lockfile = LockfileManager(tmp_path / "dumpty.lock")
+            updated_lockfile = LockfileManager(tmp_path)
             updated_package = updated_lockfile.get_package("test-package")
             assert updated_package.version == "2.0.0"
             assert len(updated_package.files["copilot"]) == 1

@@ -9,14 +9,16 @@ from dumpty.models import InstalledPackage
 class LockfileManager:
     """Manages the dumpty.lock file for tracking installations."""
 
-    def __init__(self, lockfile_path: Optional[Path] = None):
+    def __init__(self, project_root: Optional[Path] = None):
         """
         Initialize lockfile manager.
 
         Args:
-            lockfile_path: Path to lockfile. Defaults to dumpty.lock in current directory.
+            project_root: Root directory of project. Defaults to current directory.
+                         Lockfile will be at <project_root>/dumpty.lock
         """
-        self.lockfile_path = lockfile_path or Path.cwd() / "dumpty.lock"
+        self.project_root = project_root or Path.cwd()
+        self.lockfile_path = self.project_root / "dumpty.lock"
         self.data = self._load()
 
     def _load(self) -> dict:

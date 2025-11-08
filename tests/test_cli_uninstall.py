@@ -28,7 +28,7 @@ def setup_installed_package(tmp_path):
     (claude_dir / "prompts" / "test.md").write_text("# Test")
 
     # Create lockfile with package
-    lockfile = LockfileManager(tmp_path / "dumpty.lock")
+    lockfile = LockfileManager(tmp_path)
     package = InstalledPackage(
         name="test-package",
         version="1.0.0",
@@ -84,7 +84,7 @@ class TestUninstallCommand:
         assert not (tmp_path / ".claude" / "test-package").exists()
 
         # Verify removed from lockfile
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         assert lockfile.get_package("test-package") is None
 
     def test_uninstall_single_agent(self, cli_runner, setup_installed_package, monkeypatch):
@@ -104,7 +104,7 @@ class TestUninstallCommand:
         assert (tmp_path / ".claude" / "test-package").exists()
 
         # Verify lockfile updated
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = lockfile.get_package("test-package")
         assert package is not None
         assert package.installed_for == ["claude"]
@@ -125,7 +125,7 @@ class TestUninstallCommand:
         assert result.exit_code == 0
 
         # Verify completely removed from lockfile
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         assert lockfile.get_package("test-package") is None
 
     def test_uninstall_nonexistent_package(self, cli_runner, tmp_path, monkeypatch):
@@ -133,7 +133,7 @@ class TestUninstallCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create empty lockfile
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         lockfile._save()
 
         result = cli_runner.invoke(cli, ["uninstall", "nonexistent"])
@@ -182,7 +182,7 @@ class TestUninstallCommand:
         assert "Uninstallation complete" in result.output
 
         # Verify removed from lockfile
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         assert lockfile.get_package("test-package") is None
 
     def test_uninstall_multiple_files(self, cli_runner, tmp_path, monkeypatch):
@@ -198,7 +198,7 @@ class TestUninstallCommand:
         (github_dir / "subdir" / "file3.md").write_text("content3")
 
         # Create lockfile
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="multi-file",
             version="1.0.0",
@@ -246,7 +246,7 @@ class TestUninstallCommand:
         (pkg2_dir / "file.md").write_text("content")
 
         # Create lockfile with both packages
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
 
         for i in [1, 2]:
             package = InstalledPackage(
@@ -278,6 +278,6 @@ class TestUninstallCommand:
         assert not pkg1_dir.exists()
         assert pkg2_dir.exists()
 
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         assert lockfile.get_package("package1") is None
         assert lockfile.get_package("package2") is not None

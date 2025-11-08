@@ -80,10 +80,10 @@ echo "   ✅ Version check passed"
 echo ""
 
 # Test 2: Initialize a project for Claude agent
-echo "2️⃣  Testing: $DUMPTY_CMD init --agent claude"
+echo "2️⃣  Testing: $DUMPTY_CMD init --agent claude --project-root ."
 mkdir -p test-project
 cd test-project
-$DUMPTY_CMD init --agent claude
+$DUMPTY_CMD init --agent claude --project-root .
 if [ -f "dumpty.lock" ]; then
     echo "   ✅ Init passed - lockfile created"
 else
@@ -99,8 +99,8 @@ fi
 echo ""
 
 # Test 3: Install sample package 1.0.0 explicitly
-echo "3️⃣  Testing: $DUMPTY_CMD install https://github.com/dasiths/prompty-dumpty-sample-package --version 1.0.0"
-$DUMPTY_CMD install https://github.com/dasiths/prompty-dumpty-sample-package --version 1.0.0
+echo "3️⃣  Testing: $DUMPTY_CMD install https://github.com/dasiths/prompty-dumpty-sample-package --version 1.0.0 --project-root ."
+$DUMPTY_CMD install https://github.com/dasiths/prompty-dumpty-sample-package --version 1.0.0 --project-root .
 if [ -f ".claude/sample-package/commands/planning.md" ]; then
     echo "   ✅ Sample package v1.0.0 installed successfully"
 elif [ -f ".claude/commands/sample-package/planning.md" ]; then
@@ -112,8 +112,8 @@ fi
 echo ""
 
 # Test 4: List packages (should show sample-package v1.0.0)
-echo "4️⃣  Testing: $DUMPTY_CMD list"
-$DUMPTY_CMD list
+echo "4️⃣  Testing: $DUMPTY_CMD list --project-root ."
+$DUMPTY_CMD list --project-root .
 echo "   ✅ List command passed - showing v1.0.0"
 echo ""
 
@@ -125,39 +125,39 @@ echo "   ✅ Files verified"
 echo ""
 
 # Test 6: Show package details
-echo "6️⃣  Testing: $DUMPTY_CMD show sample-package"
-$DUMPTY_CMD show sample-package
+echo "6️⃣  Testing: $DUMPTY_CMD show sample-package --project-root ."
+$DUMPTY_CMD show sample-package --project-root .
 echo "   ✅ Show command passed - showing v1.0.0 details"
 echo ""
 
 # Test 7: Update to 2.0.0 explicitly
-echo "7️⃣  Testing: $DUMPTY_CMD update sample-package --version 2.0.0"
-$DUMPTY_CMD update sample-package --version 2.0.0
+echo "7️⃣  Testing: $DUMPTY_CMD update sample-package --version 2.0.0 --project-root ."
+$DUMPTY_CMD update sample-package --version 2.0.0 --project-root .
 echo "   ✅ Update to 2.0.0 passed"
 echo ""
 
 # Test 8: Verify update to v2.0.0
 echo "8️⃣  Testing: Verify package is now v2.0.0"
-$DUMPTY_CMD list
+$DUMPTY_CMD list --project-root .
 echo "   ✅ Package now at v2.0.0"
 echo ""
 
 # Test 9: Update without version (should pick latest v3.0.0)
-echo "9️⃣  Testing: $DUMPTY_CMD update sample-package (should auto-detect v3.0.0)"
-$DUMPTY_CMD update sample-package
+echo "9️⃣  Testing: $DUMPTY_CMD update sample-package (should auto-detect v3.0.0) --project-root ."
+$DUMPTY_CMD update sample-package --project-root .
 echo "   ✅ Update to latest version passed"
 echo ""
 
 # Test 10: Verify final version is v3.0.0
 echo "🔟 Testing: Verify package is now v3.0.0"
-$DUMPTY_CMD list
-$DUMPTY_CMD show sample-package
+$DUMPTY_CMD list --project-root .
+$DUMPTY_CMD show sample-package --project-root .
 echo "   ✅ Package now at v3.0.0"
 echo ""
 
 # Test 11: Uninstall package
-echo "1️⃣1️⃣  Testing: $DUMPTY_CMD uninstall sample-package"
-$DUMPTY_CMD uninstall sample-package
+echo "1️⃣1️⃣  Testing: $DUMPTY_CMD uninstall sample-package --project-root ."
+$DUMPTY_CMD uninstall sample-package --project-root .
 if [ ! -d ".claude/sample-package" ]; then
     echo "   ✅ Uninstall passed - package directory removed"
 else
@@ -168,7 +168,7 @@ echo ""
 
 # Test 12: Verify package removed from list
 echo "1️⃣2️⃣  Testing: Verify package removed from list"
-$DUMPTY_CMD list
+$DUMPTY_CMD list --project-root .
 echo "   ✅ Package no longer listed"
 echo ""
 
