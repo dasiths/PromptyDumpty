@@ -107,7 +107,7 @@ def find_git_root(start_path: Optional[Path] = None) -> Optional[Path]:
         Path to git repository root, or None if not in a git repository
     """
     search_path = start_path or Path.cwd()
-    
+
     try:
         # Use git to find the repository root
         result = subprocess.run(
@@ -139,7 +139,7 @@ def get_project_root(explicit_path: Optional[Path] = None, warn: bool = True) ->
 
     Returns:
         Path to project root directory
-    
+
     Raises:
         SystemExit: If explicit_path is provided but doesn't exist or isn't a directory
     """
@@ -149,15 +149,17 @@ def get_project_root(explicit_path: Optional[Path] = None, warn: bool = True) ->
             console.print(f"[red]Error:[/] Specified project root does not exist: {explicit_path}")
             raise SystemExit(1)
         if not explicit_path.is_dir():
-            console.print(f"[red]Error:[/] Specified project root is not a directory: {explicit_path}")
+            console.print(
+                f"[red]Error:[/] Specified project root is not a directory: {explicit_path}"
+            )
             raise SystemExit(1)
         return explicit_path.resolve()
-    
+
     # Try to find git repository root
     git_root = find_git_root()
     if git_root:
         return git_root
-    
+
     # Fall back to current working directory
     if warn:
         console.print(
@@ -166,6 +168,5 @@ def get_project_root(explicit_path: Optional[Path] = None, warn: bool = True) ->
         console.print(
             "[dim]Tip: Run from git repository root or use --project-root to specify explicitly[/]"
         )
-    
-    return Path.cwd()
 
+    return Path.cwd()

@@ -43,7 +43,7 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
     try:
         # Determine project root
         project_root = get_project_root(project_root)
-        
+
         # Validate mutually exclusive options
         if pkg_version and pkg_commit:
             console.print("[red]Error:[/] Cannot use both --version and --commit")
@@ -161,8 +161,7 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
 
             # Prepare source files list for install_package
             source_files = [
-                (package_dir / artifact.file, artifact.installed_path)
-                for artifact in artifacts
+                (package_dir / artifact.file, artifact.installed_path) for artifact in artifacts
             ]
 
             # Call install_package which will trigger pre/post install hooks
@@ -240,7 +239,7 @@ def list(verbose: bool, project_root: Path):
     try:
         # Determine project root
         project_root = get_project_root(project_root, warn=False)
-        
+
         lockfile = LockfileManager(project_root)
         packages = lockfile.list_packages()
 
@@ -302,7 +301,7 @@ def init(agent: str, project_root: Path):
     try:
         # Determine project root
         project_root = get_project_root(project_root)
-        
+
         # Detect or validate agents
         detector = AgentDetector(project_root)
         detected_agents = detector.detect_agents()
@@ -368,7 +367,7 @@ def uninstall(package_name: str, agent: str, project_root: Path):
     try:
         # Determine project root
         project_root = get_project_root(project_root, warn=False)
-        
+
         # Load lockfile
         lockfile = LockfileManager(project_root)
 
@@ -464,12 +463,14 @@ def uninstall(package_name: str, agent: str, project_root: Path):
     type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
     help="Project root directory. Defaults to git repository root or current directory.",
 )
-def update(package_name: str, update_all: bool, target_version: str, target_commit: str, project_root: Path):
+def update(
+    package_name: str, update_all: bool, target_version: str, target_commit: str, project_root: Path
+):
     """Update installed packages to newer versions."""
     try:
         # Determine project root
         project_root = get_project_root(project_root, warn=False)
-        
+
         # Validate options
         if target_version and target_commit:
             console.print("[red]Error:[/] Cannot use both --version and --commit")
@@ -755,7 +756,7 @@ def show(package_name: str, project_root: Path):
     try:
         # Determine project root
         project_root = get_project_root(project_root, warn=False)
-        
+
         # Load lockfile
         lockfile = LockfileManager(project_root)
 
