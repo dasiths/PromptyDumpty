@@ -59,30 +59,32 @@ class TestGetProjectRoot:
         assert result == explicit_path.resolve()
 
     def test_explicit_path_nonexistent(self, tmp_path, capsys):
-        """Test explicit path that doesn't exist falls back to CWD."""
+        """Test explicit path that doesn't exist exits with error."""
         nonexistent = tmp_path / "nonexistent"
         
-        result = get_project_root(nonexistent, warn=False)
+        with pytest.raises(SystemExit) as exc_info:
+            get_project_root(nonexistent, warn=False)
         
-        # Should fall back to CWD
-        assert result == Path.cwd()
+        assert exc_info.value.code == 1
         
-        # Should show warning
+        # Should show error message
         captured = capsys.readouterr()
+        assert "Error:" in captured.out
         assert "does not exist" in captured.out
 
     def test_explicit_path_not_directory(self, tmp_path, capsys):
-        """Test explicit path that is a file falls back to CWD."""
+        """Test explicit path that is a file exits with error."""
         file_path = tmp_path / "file.txt"
         file_path.write_text("test")
         
-        result = get_project_root(file_path, warn=False)
+        with pytest.raises(SystemExit) as exc_info:
+            get_project_root(file_path, warn=False)
         
-        # Should fall back to CWD
-        assert result == Path.cwd()
+        assert exc_info.value.code == 1
         
-        # Should show warning
+        # Should show error message
         captured = capsys.readouterr()
+        assert "Error:" in captured.out
         assert "not a directory" in captured.out
 
     def test_git_root_detected(self, tmp_path, monkeypatch):

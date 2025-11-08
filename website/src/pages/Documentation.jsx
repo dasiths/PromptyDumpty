@@ -13,6 +13,10 @@ export default function Documentation() {
           <CommandDoc
             command="dumpty init"
             description="Initialize PromptyDumpty in your project. Detects your AI agent and creates necessary configuration."
+            options={[
+              { flag: "--agent", description: "Initialize for specific agent. Defaults to auto-detect." },
+              { flag: "--project-root", description: "Project root directory. Defaults to git repository root or current directory." }
+            ]}
             example="dumpty init"
           />
 
@@ -22,7 +26,8 @@ export default function Documentation() {
             options={[
               { flag: "--agent", description: "Install for specific agent (copilot, claude, etc.)" },
               { flag: "--version", description: "Install specific version tag (e.g., 1.2.0 or v1.2.0)" },
-              { flag: "--commit", description: "Install from specific commit hash (skips version validation)" }
+              { flag: "--commit", description: "Install from specific commit hash (skips version validation)" },
+              { flag: "--project-root", description: "Project root directory. Defaults to git repository root or current directory." }
             ]}
             example={`dumpty install https://github.com/org/my-prompts
 dumpty install https://github.com/org/my-prompts --version 1.2.0
@@ -33,12 +38,18 @@ dumpty install https://github.com/org/my-prompts --agent copilot`}
           <CommandDoc
             command="dumpty list"
             description="List all installed packages with their versions and installed files."
+            options={[
+              { flag: "--project-root", description: "Project root directory. Defaults to git repository root or current directory." }
+            ]}
             example="dumpty list"
           />
 
           <CommandDoc
             command="dumpty show PACKAGE_NAME"
             description="Display detailed information about an installed package. Use the package name from the manifest (not the URL)."
+            options={[
+              { flag: "--project-root", description: "Project root directory. Defaults to git repository root or current directory." }
+            ]}
             example="dumpty show my-prompts"
           />
 
@@ -48,7 +59,8 @@ dumpty install https://github.com/org/my-prompts --agent copilot`}
             options={[
               { flag: "--all", description: "Update all installed packages" },
               { flag: "--version", description: "Update to specific version tag (e.g., 2.0.0 or v2.0.0)" },
-              { flag: "--commit", description: "Update to specific commit hash (skips version validation)" }
+              { flag: "--commit", description: "Update to specific commit hash (skips version validation)" },
+              { flag: "--project-root", description: "Project root directory. Defaults to git repository root or current directory." }
             ]}
             example={`dumpty update my-prompts
 dumpty update my-prompts --version 2.0.0
@@ -59,6 +71,9 @@ dumpty update --all`}
           <CommandDoc
             command="dumpty uninstall PACKAGE_NAME"
             description="Remove a package and all its installed files. Use the package name from the manifest (not the URL)."
+            options={[
+              { flag: "--project-root", description: "Project root directory. Defaults to git repository root or current directory." }
+            ]}
             example="dumpty uninstall my-prompts"
           />
         </div>

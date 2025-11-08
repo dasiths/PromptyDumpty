@@ -129,7 +129,7 @@ def get_project_root(explicit_path: Optional[Path] = None, warn: bool = True) ->
     Determine the project root directory.
 
     Priority:
-    1. Use explicit_path if provided
+    1. Use explicit_path if provided (must exist, or error)
     2. Find git repository root
     3. Fall back to current working directory (with warning if warn=True)
 
@@ -139,17 +139,18 @@ def get_project_root(explicit_path: Optional[Path] = None, warn: bool = True) ->
 
     Returns:
         Path to project root directory
+    
+    Raises:
+        SystemExit: If explicit_path is provided but doesn't exist or isn't a directory
     """
-    # If explicit path is provided, use it
+    # If explicit path is provided, validate it strictly
     if explicit_path:
         if not explicit_path.exists():
-            console.print(f"[yellow]Warning:[/] Specified path does not exist: {explicit_path}")
-            console.print(f"[yellow]Using current directory instead[/]")
-            return Path.cwd()
+            console.print(f"[red]Error:[/] Specified project root does not exist: {explicit_path}")
+            raise SystemExit(1)
         if not explicit_path.is_dir():
-            console.print(f"[yellow]Warning:[/] Specified path is not a directory: {explicit_path}")
-            console.print(f"[yellow]Using current directory instead[/]")
-            return Path.cwd()
+            console.print(f"[red]Error:[/] Specified project root is not a directory: {explicit_path}")
+            raise SystemExit(1)
         return explicit_path.resolve()
     
     # Try to find git repository root
