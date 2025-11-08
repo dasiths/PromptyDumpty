@@ -123,3 +123,110 @@ def test_detector_uses_current_directory_by_default():
     """Test that detector uses current directory if not specified."""
     detector = AgentDetector()
     assert detector.project_root == Path.cwd()
+
+
+# ===== Phase 5: Backward Compatibility Tests =====
+
+
+def test_agent_enum_backward_compatibility():
+    """Test that Agent enum maintains backward compatibility."""
+    # Enum members accessible
+    assert Agent.COPILOT
+    assert Agent.CLAUDE
+    assert Agent.CURSOR
+    assert Agent.GEMINI
+    assert Agent.WINDSURF
+    assert Agent.CLINE
+    assert Agent.AIDER
+    assert Agent.CONTINUE
+
+    # Can iterate through enum
+    agents = list(Agent)
+    assert len(agents) == 8
+
+    # Enum comparison works
+    assert Agent.COPILOT == Agent.COPILOT
+    assert Agent.COPILOT != Agent.CLAUDE
+
+
+def test_agent_property_delegation():
+    """Test that properties delegate correctly to implementations."""
+    # Test all agents
+    assert Agent.COPILOT.directory == ".github"
+    assert Agent.COPILOT.display_name == "GitHub Copilot"
+
+    assert Agent.CLAUDE.directory == ".claude"
+    assert Agent.CLAUDE.display_name == "Claude"
+
+    assert Agent.CURSOR.directory == ".cursor"
+    assert Agent.CURSOR.display_name == "Cursor"
+
+    assert Agent.GEMINI.directory == ".gemini"
+    assert Agent.GEMINI.display_name == "Gemini"
+
+    assert Agent.WINDSURF.directory == ".windsurf"
+    assert Agent.WINDSURF.display_name == "Windsurf"
+
+    assert Agent.CLINE.directory == ".cline"
+    assert Agent.CLINE.display_name == "Cline"
+
+    assert Agent.AIDER.directory == ".aider"
+    assert Agent.AIDER.display_name == "Aider"
+
+    assert Agent.CONTINUE.directory == ".continue"
+    assert Agent.CONTINUE.display_name == "Continue"
+
+
+def test_agent_from_name_backward_compatible():
+    """Test that from_name still works."""
+    # Case insensitive
+    assert Agent.from_name("copilot") == Agent.COPILOT
+    assert Agent.from_name("COPILOT") == Agent.COPILOT
+    assert Agent.from_name("Copilot") == Agent.COPILOT
+
+    # All agents
+    for name in ["copilot", "claude", "cursor", "gemini", "windsurf", "cline", "aider", "continue"]:
+        assert Agent.from_name(name) is not None
+
+    # Invalid name
+    assert Agent.from_name("invalid") is None
+
+
+def test_agent_all_names_backward_compatible():
+    """Test that all_names still works."""
+    names = Agent.all_names()
+    assert len(names) == 8
+    assert "copilot" in names
+    assert "claude" in names
+    assert "cursor" in names
+    assert "gemini" in names
+    assert "windsurf" in names
+    assert "cline" in names
+    assert "aider" in names
+    assert "continue" in names
+
+
+def test_agent_detector_detect_all_agents(tmp_path):
+    """Test that detector can find all 8 agents."""
+    # Create all agent directories
+    (tmp_path / ".github").mkdir()
+    (tmp_path / ".claude").mkdir()
+    (tmp_path / ".cursor").mkdir()
+    (tmp_path / ".gemini").mkdir()
+    (tmp_path / ".windsurf").mkdir()
+    (tmp_path / ".cline").mkdir()
+    (tmp_path / ".aider").mkdir()
+    (tmp_path / ".continue").mkdir()
+
+    detector = AgentDetector(tmp_path)
+    detected = detector.detect_agents()
+
+    assert len(detected) == 8
+    assert Agent.COPILOT in detected
+    assert Agent.CLAUDE in detected
+    assert Agent.CURSOR in detected
+    assert Agent.GEMINI in detected
+    assert Agent.WINDSURF in detected
+    assert Agent.CLINE in detected
+    assert Agent.AIDER in detected
+    assert Agent.CONTINUE in detected

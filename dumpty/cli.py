@@ -13,7 +13,7 @@ from dumpty.downloader import PackageDownloader
 from dumpty.installer import FileInstaller
 from dumpty.lockfile import LockfileManager
 from dumpty.models import PackageManifest, InstalledPackage, InstalledFile
-from dumpty.utils import calculate_checksum, parse_git_tags, compare_versions
+from dumpty.utils import calculate_checksum, parse_git_tags, compare_versions, get_project_root
 
 console = Console()
 
@@ -33,9 +33,17 @@ def cli():
 )
 @click.option("--version", "pkg_version", help="Semantic version tag (e.g., 1.0.0 or v1.0.0)")
 @click.option("--commit", "pkg_commit", help="Specific commit hash to install")
-def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str):
+@click.option(
+    "--project-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    help="Project root directory. Defaults to git repository root or current directory.",
+)
+def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, project_root: Path):
     """Install a package from a Git repository."""
     try:
+        # Determine project root
+        project_root = get_project_root(project_root)
+
         # Validate mutually exclusive options
         if pkg_version and pkg_commit:
             console.print("[red]Error:[/] Cannot use both --version and --commit")
@@ -44,7 +52,7 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str):
             )
             sys.exit(1)
         # Detect agents
-        detector = AgentDetector()
+        detector = AgentDetector(project_root)
         detected_agents = detector.detect_agents()
 
         # Determine target agents
@@ -93,8 +101,8 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str):
             sys.exit(1)
 
         # Install files for each agent
-        installer = FileInstaller()
-        lockfile = LockfileManager()
+        installer = FileInstaller(project_root)
+        lockfile = LockfileManager(project_root)
 
         # Check if package is already installed
         existing_package = lockfile.get_package(manifest.name)
@@ -147,20 +155,24 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str):
             # Ensure agent directory exists
             detector.ensure_agent_directory(target_agent)
 
-            # Install artifacts
+            # Install artifacts using install_package to trigger hooks
             artifacts = manifest.agents[agent_name]
             console.print(f"\n[cyan]{target_agent.display_name}[/] ({len(artifacts)} artifacts):")
 
-            agent_files = []
-            for artifact in artifacts:
-                source_file = package_dir / artifact.file
-                dest_path, checksum = installer.install_file(
-                    source_file, target_agent, manifest.name, artifact.installed_path
-                )
+            # Prepare source files list for install_package
+            source_files = [
+                (package_dir / artifact.file, artifact.installed_path) for artifact in artifacts
+            ]
 
+            # Call install_package which will trigger pre/post install hooks
+            results = installer.install_package(source_files, target_agent, manifest.name)
+
+            # Process results for lockfile
+            agent_files = []
+            for (dest_path, checksum), artifact in zip(results, artifacts):
                 # Make path relative to project root for lockfile
                 try:
-                    rel_path = dest_path.relative_to(Path.cwd())
+                    rel_path = dest_path.relative_to(project_root)
                 except ValueError:
                     rel_path = dest_path
 
@@ -217,10 +229,18 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str):
 
 @cli.command()
 @click.option("--verbose", "-v", is_flag=True, help="Show detailed information")
-def list(verbose: bool):
+@click.option(
+    "--project-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    help="Project root directory. Defaults to git repository root or current directory.",
+)
+def list(verbose: bool, project_root: Path):
     """List installed packages."""
     try:
-        lockfile = LockfileManager()
+        # Determine project root
+        project_root = get_project_root(project_root, warn=False)
+
+        lockfile = LockfileManager(project_root)
         packages = lockfile.list_packages()
 
         if not packages:
@@ -271,11 +291,19 @@ def list(verbose: bool):
     "--agent",
     help="Initialize for specific agent. Defaults to auto-detect.",
 )
-def init(agent: str):
+@click.option(
+    "--project-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    help="Project root directory. Defaults to git repository root or current directory.",
+)
+def init(agent: str, project_root: Path):
     """Initialize dumpty in the current project."""
     try:
+        # Determine project root
+        project_root = get_project_root(project_root)
+
         # Detect or validate agents
-        detector = AgentDetector()
+        detector = AgentDetector(project_root)
         detected_agents = detector.detect_agents()
 
         if agent:
@@ -307,9 +335,9 @@ def init(agent: str):
             return
 
         # Create lockfile if it doesn't exist
-        lockfile_path = Path.cwd() / "dumpty.lock"
+        lockfile_path = project_root / "dumpty.lock"
         if not lockfile_path.exists():
-            lockfile = LockfileManager()
+            lockfile = LockfileManager(project_root)
             lockfile._save()
             console.print("[green]✓[/] Created dumpty.lock")
         else:
@@ -329,11 +357,19 @@ def init(agent: str):
     "--agent",
     help="Uninstall from specific agent only (copilot, claude, etc.). Otherwise uninstall from all agents.",
 )
-def uninstall(package_name: str, agent: str):
+@click.option(
+    "--project-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    help="Project root directory. Defaults to git repository root or current directory.",
+)
+def uninstall(package_name: str, agent: str, project_root: Path):
     """Uninstall a package."""
     try:
+        # Determine project root
+        project_root = get_project_root(project_root, warn=False)
+
         # Load lockfile
-        lockfile = LockfileManager()
+        lockfile = LockfileManager(project_root)
 
         # Check if package exists
         package = lockfile.get_package(package_name)
@@ -367,7 +403,7 @@ def uninstall(package_name: str, agent: str):
             target_agents = [Agent.from_name(a) for a in package.installed_for]
 
         # Uninstall files for each agent
-        installer = FileInstaller()
+        installer = FileInstaller(project_root)
         total_removed = 0
 
         console.print(f"\n[blue]Uninstalling {package_name} v{package.version}[/]")
@@ -422,9 +458,19 @@ def uninstall(package_name: str, agent: str):
 @click.option("--all", "update_all", is_flag=True, help="Update all installed packages")
 @click.option("--version", "target_version", help="Semantic version tag (e.g., 2.0.0 or v2.0.0)")
 @click.option("--commit", "target_commit", help="Specific commit hash to update to")
-def update(package_name: str, update_all: bool, target_version: str, target_commit: str):
+@click.option(
+    "--project-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    help="Project root directory. Defaults to git repository root or current directory.",
+)
+def update(
+    package_name: str, update_all: bool, target_version: str, target_commit: str, project_root: Path
+):
     """Update installed packages to newer versions."""
     try:
+        # Determine project root
+        project_root = get_project_root(project_root, warn=False)
+
         # Validate options
         if target_version and target_commit:
             console.print("[red]Error:[/] Cannot use both --version and --commit")
@@ -448,7 +494,7 @@ def update(package_name: str, update_all: bool, target_version: str, target_comm
             sys.exit(1)
 
         # Load lockfile
-        lockfile = LockfileManager()
+        lockfile = LockfileManager(project_root)
         packages = lockfile.list_packages()
 
         if not packages:
@@ -470,8 +516,8 @@ def update(package_name: str, update_all: bool, target_version: str, target_comm
 
         # Initialize downloader
         downloader = PackageDownloader()
-        installer = FileInstaller()
-        detector = AgentDetector()
+        installer = FileInstaller(project_root)
+        detector = AgentDetector(project_root)
 
         updated_count = 0
 
@@ -622,19 +668,24 @@ def update(package_name: str, update_all: bool, target_version: str, target_comm
                     # Ensure agent directory exists
                     detector.ensure_agent_directory(agent)
 
-                    # Install artifacts
+                    # Install artifacts using install_package to trigger hooks
                     artifacts = manifest.agents[agent_name]
+
+                    # Prepare source files list for install_package
+                    source_files = [
+                        (package_dir / artifact.file, artifact.installed_path)
+                        for artifact in artifacts
+                    ]
+
+                    # Call install_package which will trigger pre/post install hooks
+                    results = installer.install_package(source_files, agent, manifest.name)
+
+                    # Process results for lockfile
                     agent_files = []
-
-                    for artifact in artifacts:
-                        source_file = package_dir / artifact.file
-                        dest_path, checksum = installer.install_file(
-                            source_file, agent, manifest.name, artifact.installed_path
-                        )
-
+                    for (dest_path, checksum), artifact in zip(results, artifacts):
                         # Make path relative to project root for lockfile
                         try:
-                            rel_path = dest_path.relative_to(Path.cwd())
+                            rel_path = dest_path.relative_to(project_root)
                         except ValueError:
                             rel_path = dest_path
 
@@ -695,11 +746,19 @@ def update(package_name: str, update_all: bool, target_version: str, target_comm
 
 @cli.command()
 @click.argument("package_name")
-def show(package_name: str):
+@click.option(
+    "--project-root",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    help="Project root directory. Defaults to git repository root or current directory.",
+)
+def show(package_name: str, project_root: Path):
     """Display detailed information about an installed package."""
     try:
+        # Determine project root
+        project_root = get_project_root(project_root, warn=False)
+
         # Load lockfile
-        lockfile = LockfileManager()
+        lockfile = LockfileManager(project_root)
 
         # Find package in lockfile
         package = lockfile.get_package(package_name)

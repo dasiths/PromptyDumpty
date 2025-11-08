@@ -74,7 +74,7 @@ agents:
         assert result.exit_code == 0, f"Install failed: {result.output}"
 
         # Verify package was installed
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = lockfile.get_package("test-package")
 
         assert package is not None
@@ -116,7 +116,7 @@ def test_update_with_commit(cli_runner, tmp_path, monkeypatch):
     (tmp_path / ".github" / "test-package" / "old.md").write_text("Old content")
 
     # Create existing lockfile
-    lockfile = LockfileManager(tmp_path / "dumpty.lock")
+    lockfile = LockfileManager(tmp_path)
     package = InstalledPackage(
         name="test-package",
         version="1.0.0",
@@ -192,7 +192,7 @@ agents:
         assert "Updating to commit: def789ab" in result.output
 
         # Verify package was updated
-        updated_lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        updated_lockfile = LockfileManager(tmp_path)
         updated_package = updated_lockfile.get_package("test-package")
 
         assert updated_package.version == "1.7.3"  # Version from manifest at that commit
@@ -216,7 +216,7 @@ def test_update_cannot_use_both_version_and_commit(cli_runner, tmp_path, monkeyp
     monkeypatch.chdir(tmp_path)
 
     # Create minimal lockfile
-    lockfile = LockfileManager(tmp_path / "dumpty.lock")
+    lockfile = LockfileManager(tmp_path)
     package = InstalledPackage(
         name="test-package",
         version="1.0.0",
@@ -243,7 +243,7 @@ def test_update_commit_requires_package_name(cli_runner, tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
 
     # Create minimal lockfile with a package
-    lockfile = LockfileManager(tmp_path / "dumpty.lock")
+    lockfile = LockfileManager(tmp_path)
     package = InstalledPackage(
         name="test-package",
         version="1.0.0",

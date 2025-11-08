@@ -102,6 +102,7 @@ ls -la dumpty/agents/
 
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import List
 
 
 class BaseAgent(ABC):
@@ -153,10 +154,42 @@ class BaseAgent(ABC):
         """
         return project_root / self.directory
     
+    # Lifecycle Hooks (Optional - default implementations do nothing)
+    
+    def pre_install(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """Hook called before installing package files."""
+        pass
+    
+    def post_install(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """Hook called after installing package files."""
+        pass
+    
+    def pre_uninstall(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """Hook called before uninstalling package files."""
+        pass
+    
+    def post_uninstall(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """Hook called after uninstalling package files."""
+        pass
+    
     def __repr__(self) -> str:
         """String representation."""
         return f"{self.__class__.__name__}(name='{self.name}')"
 ```
+
+**Note on Lifecycle Hooks:**
+- All four hooks are optional with default no-op implementations
+- Enable agents to perform custom actions during install/uninstall/update
+- Example use case: Copilot can update VS Code settings to register prompt file locations
+- See REQUIREMENTS.md FR-6 for detailed hook specifications
 
 **Verification:**
 ```python
@@ -176,6 +209,7 @@ except TypeError:
 - [ ] File `dumpty/agents/base.py` created
 - [ ] BaseAgent class is abstract (cannot instantiate)
 - [ ] All required properties and methods defined
+- [ ] All four lifecycle hooks defined with default implementations
 - [ ] Type hints present on all methods
 - [ ] Docstrings complete
 

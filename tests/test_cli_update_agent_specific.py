@@ -28,7 +28,7 @@ def test_update_honors_agent_specific_installation(cli_runner, tmp_path, monkeyp
     copilot_file.write_text("# Test v1.0.0")
 
     # Create lockfile with package installed ONLY for copilot
-    lockfile = LockfileManager(tmp_path / "dumpty.lock")
+    lockfile = LockfileManager(tmp_path)
     package = InstalledPackage(
         name="test-package",
         version="1.0.0",
@@ -118,7 +118,7 @@ agents:
         assert result.exit_code == 0, f"Update failed: {result.output}"
 
         # Verify lockfile - should still only have copilot in installed_for
-        updated_lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        updated_lockfile = LockfileManager(tmp_path)
         updated_package = updated_lockfile.get_package("test-package")
 
         assert updated_package is not None
@@ -166,7 +166,7 @@ def test_update_multiple_agents_installation(cli_runner, tmp_path, monkeypatch):
     (tmp_path / ".cursor" / "test-package" / "test.md").write_text("# Old")
 
     # Create lockfile with package installed for BOTH agents
-    lockfile = LockfileManager(tmp_path / "dumpty.lock")
+    lockfile = LockfileManager(tmp_path)
     package = InstalledPackage(
         name="test-package",
         version="1.0.0",
@@ -261,7 +261,7 @@ agents:
         assert result.exit_code == 0, f"Update failed: {result.output}"
 
         # Verify lockfile - should have BOTH agents
-        updated_lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        updated_lockfile = LockfileManager(tmp_path)
         updated_package = updated_lockfile.get_package("test-package")
 
         assert updated_package.version == "2.0.0"

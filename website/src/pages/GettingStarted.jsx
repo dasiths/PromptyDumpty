@@ -1,12 +1,23 @@
 import TerminalBlock from '../components/TerminalBlock'
+import TableOfContents from '../components/TableOfContents'
+
+const tocItems = [
+  { id: 'installation', title: 'Installation' },
+  { id: 'initialize', title: 'Initialize Your Project' },
+  { id: 'installing-packages', title: 'Installing Packages' },
+  { id: 'managing-packages', title: 'Managing Packages' },
+  { id: 'how-it-works', title: 'How It Works' },
+  { id: 'next-steps', title: 'Next Steps' },
+]
 
 export default function GettingStarted() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 text-white">
-      <h1 className="text-4xl font-bold mb-8">Getting Started</h1>
+    <div className="flex gap-8 max-w-7xl mx-auto px-4 py-12">
+      <div className="flex-1 min-w-0 text-white">
+        <h1 className="text-4xl font-bold mb-8">Getting Started</h1>
 
-      <section className="mb-12">
-        <h2 className="text-3xl font-semibold mb-4">Installation</h2>
+        <section id="installation" className="mb-12 scroll-mt-24">
+          <h2 className="text-3xl font-semibold mb-4">Installation</h2>
         <p className="text-slate-300 mb-4">
           Install PromptyDumpty using pip:
         </p>
@@ -23,7 +34,7 @@ pip install -e .`}
         </TerminalBlock>
       </section>
 
-      <section className="mb-12">
+      <section id="initialize" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Initialize Your Project</h2>
         <p className="text-slate-300 mb-4">
           Navigate to your project directory and initialize PromptyDumpty:
@@ -39,7 +50,7 @@ dumpty init`}
         </p>
       </section>
 
-      <section className="mb-12">
+      <section id="installing-packages" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Installing Packages</h2>
         <p className="text-slate-300 mb-4">
           Install a package from a Git repository using the full URL:
@@ -66,7 +77,7 @@ dumpty init`}
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="managing-packages" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Managing Packages</h2>
         <p className="text-slate-300 mb-6">
           After installation, manage packages using their name from the manifest (not the full URL).
@@ -106,7 +117,7 @@ dumpty update --all`}
         <TerminalBlock>dumpty show my-prompts</TerminalBlock>
       </section>
 
-      <section className="mb-12">
+      <section id="how-it-works" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">How It Works</h2>
         <div className="space-y-4 text-slate-300">
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
@@ -141,7 +152,7 @@ dumpty update --all`}
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="next-steps" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Next Steps</h2>
         <div className="bg-primary-900/30 border border-primary-700/50 rounded-lg p-6">
           <ul className="space-y-3 text-slate-300">
@@ -151,6 +162,8 @@ dumpty update --all`}
           </ul>
         </div>
       </section>
+      </div>
+      <TableOfContents items={tocItems} />
     </div>
   )
 }

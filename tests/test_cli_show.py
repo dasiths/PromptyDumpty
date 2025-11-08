@@ -21,7 +21,7 @@ class TestShowCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="test-package",
             version="1.0.0",
@@ -67,7 +67,7 @@ class TestShowCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create empty lockfile
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         lockfile._save()
 
         result = cli_runner.invoke(cli, ["show", "nonexistent-package"])
@@ -81,7 +81,7 @@ class TestShowCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package installed for multiple agents
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="multi-agent-pkg",
             version="2.0.0",
@@ -146,7 +146,7 @@ class TestShowCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package without optional fields
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="minimal-pkg",
             version="1.5.0",
@@ -182,7 +182,7 @@ class TestShowCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="format-test",
             version="3.0.0",
@@ -241,7 +241,7 @@ class TestShowCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package with multiple files
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="sorted-pkg",
             version="1.0.0",
@@ -290,7 +290,7 @@ class TestShowCommand:
         monkeypatch.chdir(tmp_path)
 
         # Create lockfile with package with agents in non-alphabetical order
-        lockfile = LockfileManager(tmp_path / "dumpty.lock")
+        lockfile = LockfileManager(tmp_path)
         package = InstalledPackage(
             name="agent-sorted-pkg",
             version="1.0.0",

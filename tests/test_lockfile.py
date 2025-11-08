@@ -7,17 +7,18 @@ from dumpty.models import InstalledPackage, InstalledFile
 
 def test_create_empty_lockfile(tmp_path):
     """Test creating a new lockfile."""
-    lockfile_path = tmp_path / "dumpty.lock"
-    manager = LockfileManager(lockfile_path)
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
 
-    assert manager.lockfile_path == lockfile_path
+    assert manager.lockfile_path == project_root / "dumpty.lock"
     assert manager.data["version"] == 1
     assert manager.data["packages"] == []
 
 
 def test_load_existing_lockfile(tmp_path):
     """Test loading an existing lockfile."""
-    lockfile_path = tmp_path / "dumpty.lock"
+    project_root = tmp_path
+    lockfile_path = project_root / "dumpty.lock"
     lockfile_path.write_text(
         """
 version: 1
@@ -39,7 +40,7 @@ packages:
 """
     )
 
-    manager = LockfileManager(lockfile_path)
+    manager = LockfileManager(project_root)
 
     assert len(manager.data["packages"]) == 1
     assert manager.data["packages"][0]["name"] == "test-pkg"
@@ -47,8 +48,8 @@ packages:
 
 def test_add_package(tmp_path):
     """Test adding a package to lockfile."""
-    lockfile_path = tmp_path / "dumpty.lock"
-    manager = LockfileManager(lockfile_path)
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
 
     package = InstalledPackage(
         name="test-pkg",
@@ -73,18 +74,19 @@ def test_add_package(tmp_path):
     manager.add_package(package)
 
     # Verify lockfile was saved
+    lockfile_path = project_root / "dumpty.lock"
     assert lockfile_path.exists()
 
     # Reload and verify
-    manager2 = LockfileManager(lockfile_path)
+    manager2 = LockfileManager(project_root)
     assert len(manager2.data["packages"]) == 1
     assert manager2.data["packages"][0]["name"] == "test-pkg"
 
 
 def test_add_package_updates_existing(tmp_path):
     """Test that adding a package with same name updates it."""
-    lockfile_path = tmp_path / "dumpty.lock"
-    manager = LockfileManager(lockfile_path)
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
 
     # Add first version
     package1 = InstalledPackage(
@@ -122,8 +124,8 @@ def test_add_package_updates_existing(tmp_path):
 
 def test_remove_package(tmp_path):
     """Test removing a package from lockfile."""
-    lockfile_path = tmp_path / "dumpty.lock"
-    manager = LockfileManager(lockfile_path)
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
 
     # Add two packages
     package1 = InstalledPackage(
@@ -161,8 +163,8 @@ def test_remove_package(tmp_path):
 
 def test_get_package(tmp_path):
     """Test getting a package from lockfile."""
-    lockfile_path = tmp_path / "dumpty.lock"
-    manager = LockfileManager(lockfile_path)
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
 
     package = InstalledPackage(
         name="test-pkg",
@@ -190,8 +192,8 @@ def test_get_package(tmp_path):
 
 def test_list_packages(tmp_path):
     """Test listing all packages."""
-    lockfile_path = tmp_path / "dumpty.lock"
-    manager = LockfileManager(lockfile_path)
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
 
     # Empty list
     packages = manager.list_packages()
@@ -219,8 +221,8 @@ def test_list_packages(tmp_path):
 
 def test_package_exists(tmp_path):
     """Test checking if package exists."""
-    lockfile_path = tmp_path / "dumpty.lock"
-    manager = LockfileManager(lockfile_path)
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
 
     package = InstalledPackage(
         name="test-pkg",

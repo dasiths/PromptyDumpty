@@ -8,3 +8,6 @@ test-project/
 __pycache__/
 *.pyc
 *.pyo
+
+.github/
+.vscode/
