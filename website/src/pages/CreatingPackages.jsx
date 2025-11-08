@@ -1,12 +1,25 @@
 import CodeBlock from '../components/CodeBlock'
+import TableOfContents from '../components/TableOfContents'
+
+const tocItems = [
+  { id: 'package-structure', title: 'Package Structure' },
+  { id: 'manifest-file', title: 'The Manifest File' },
+  { id: 'manifest-fields', title: 'Manifest Fields' },
+  { id: 'key-features', title: 'Key Features' },
+  { id: 'example-package', title: 'Example Package' },
+  { id: 'supported-agents', title: 'Supported Agents' },
+  { id: 'publishing', title: 'Publishing Your Package' },
+  { id: 'best-practices', title: 'Best Practices' },
+]
 
 export default function CreatingPackages() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 text-white">
-      <h1 className="text-4xl font-bold mb-8">Creating Packages</h1>
+    <div className="flex gap-8 max-w-7xl mx-auto px-4 py-12">
+      <div className="flex-1 min-w-0 text-white">
+        <h1 className="text-4xl font-bold mb-8">Creating Packages</h1>
 
-      <section className="mb-12">
-        <h2 className="text-3xl font-semibold mb-4">Package Structure</h2>
+        <section id="package-structure" className="mb-12 scroll-mt-24">
+          <h2 className="text-3xl font-semibold mb-4">Package Structure</h2>
         <p className="text-slate-300 mb-4">
           A PromptyDumpty package is simply a Git repository with a <code>dumpty.package.yaml</code> manifest file. You can organize your files however you want!
         </p>
@@ -23,7 +36,7 @@ export default function CreatingPackages() {
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="manifest-file" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">The Manifest File</h2>
         <p className="text-slate-300 mb-4">
           The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent:
@@ -59,7 +72,7 @@ agents:
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="manifest-fields" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Manifest Fields</h2>
         
         <div className="space-y-6">
@@ -89,7 +102,7 @@ agents:
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="key-features" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Key Features</h2>
         
         <div className="grid md:grid-cols-2 gap-6">
@@ -127,7 +140,7 @@ agents:
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="example-package" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Example Package</h2>
         <p className="text-slate-300 mb-4">
           Here's a complete example of a code review workflow package:
@@ -186,7 +199,7 @@ agents:
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="supported-agents" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Supported Agents</h2>
         <p className="text-slate-300 mb-4">
           You can create packages for the following agents:
@@ -213,7 +226,7 @@ agents:
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="publishing" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Publishing Your Package</h2>
         <div className="space-y-4 text-slate-300">
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
@@ -258,7 +271,7 @@ agents:
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="best-practices" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Best Practices</h2>
         <div className="bg-primary-900/30 border border-primary-700/50 rounded-lg p-6">
           <ul className="space-y-3 text-slate-300">
@@ -271,6 +284,8 @@ agents:
           </ul>
         </div>
       </section>
+      </div>
+      <TableOfContents items={tocItems} />
     </div>
   )
 }

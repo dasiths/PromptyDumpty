@@ -1,13 +1,26 @@
 import CodeBlock from '../components/CodeBlock'
 import TerminalBlock from '../components/TerminalBlock'
+import TableOfContents from '../components/TableOfContents'
+
+const tocItems = [
+  { id: 'command-reference', title: 'Command Reference' },
+  { id: 'agent-detection', title: 'Agent Detection' },
+  { id: 'agent-behaviors', title: 'Agent-Specific Behaviors' },
+  { id: 'lockfile-format', title: 'Lockfile Format' },
+  { id: 'package-organization', title: 'Package Organization' },
+  { id: 'troubleshooting', title: 'Troubleshooting' },
+  { id: 'contributing', title: 'Contributing' },
+  { id: 'resources', title: 'Resources' },
+]
 
 export default function Documentation() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 text-white">
-      <h1 className="text-4xl font-bold mb-8">Documentation</h1>
+    <div className="flex gap-8 max-w-7xl mx-auto px-4 py-12">
+      <div className="flex-1 min-w-0 text-white">
+        <h1 className="text-4xl font-bold mb-8">Documentation</h1>
 
-      <section className="mb-12">
-        <h2 className="text-3xl font-semibold mb-4">Command Reference</h2>
+        <section id="command-reference" className="mb-12 scroll-mt-24">
+          <h2 className="text-3xl font-semibold mb-4">Command Reference</h2>
         
         <div className="space-y-6">
           <CommandDoc
@@ -79,7 +92,7 @@ dumpty update --all`}
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="agent-detection" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Agent Detection</h2>
         <p className="text-slate-300 mb-4">
           PromptyDumpty automatically detects which AI agents are configured in your project by looking for specific directories:
@@ -122,7 +135,7 @@ dumpty update --all`}
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="agent-behaviors" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Agent-Specific Behaviors</h2>
         <p className="text-slate-300 mb-4">
           Some agents have additional behaviors when packages are installed or uninstalled:
@@ -153,7 +166,7 @@ dumpty update --all`}
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="lockfile-format" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Lockfile Format</h2>
         <p className="text-slate-300 mb-4">
           PromptyDumpty maintains a <code>dumpty.lock</code> file to track installed packages:
@@ -186,7 +199,7 @@ packages:
         </p>
       </section>
 
-      <section className="mb-12">
+      <section id="package-organization" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Package Organization</h2>
         <p className="text-slate-300 mb-4">
           Packages are installed with a clear namespace to avoid conflicts:
@@ -207,7 +220,7 @@ packages:
         </p>
       </section>
 
-      <section className="mb-12">
+      <section id="troubleshooting" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Troubleshooting</h2>
 
         <div className="space-y-6">
@@ -233,7 +246,7 @@ packages:
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="contributing" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Contributing</h2>
         <p className="text-slate-300 mb-4">
           PromptyDumpty is open source and welcomes contributions!
@@ -249,7 +262,7 @@ packages:
         </div>
       </section>
 
-      <section className="mb-12">
+      <section id="resources" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Resources</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <a 
@@ -288,6 +301,8 @@ packages:
           </div>
         </div>
       </section>
+      </div>
+      <TableOfContents items={tocItems} />
     </div>
   )
 }
