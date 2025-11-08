@@ -95,30 +95,61 @@ dumpty update --all`}
             <tbody>
               <tr className="border-b border-slate-700/50">
                 <td className="py-2 pr-4">GitHub Copilot</td>
-                <td className="py-2"><code>.github/prompts/</code></td>
+                <td className="py-2"><code>.github/</code></td>
               </tr>
               <tr className="border-b border-slate-700/50">
                 <td className="py-2 pr-4">Claude</td>
-                <td className="py-2"><code>.claude/commands/</code></td>
+                <td className="py-2"><code>.claude/</code></td>
               </tr>
               <tr className="border-b border-slate-700/50">
                 <td className="py-2 pr-4">Cursor</td>
-                <td className="py-2"><code>.cursor/prompts/</code></td>
+                <td className="py-2"><code>.cursor/</code></td>
               </tr>
               <tr className="border-b border-slate-700/50">
                 <td className="py-2 pr-4">Gemini</td>
-                <td className="py-2"><code>.gemini/prompts/</code></td>
+                <td className="py-2"><code>.gemini/</code></td>
               </tr>
               <tr className="border-b border-slate-700/50">
                 <td className="py-2 pr-4">Windsurf</td>
-                <td className="py-2"><code>.windsurf/rules/</code></td>
+                <td className="py-2"><code>.windsurf/</code></td>
               </tr>
               <tr>
                 <td className="py-2 pr-4">Cline</td>
-                <td className="py-2"><code>.cline/prompts/</code></td>
+                <td className="py-2"><code>.cline/</code></td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-3xl font-semibold mb-4">Agent-Specific Behaviors</h2>
+        <p className="text-slate-300 mb-4">
+          Some agents have additional behaviors when packages are installed or uninstalled:
+        </p>
+        <div className="space-y-4">
+          <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
+            <h3 className="text-lg font-semibold mb-2 text-primary-400">GitHub Copilot</h3>
+            <p className="text-slate-300 mb-3">
+              Automatically updates VS Code workspace settings to register package directories for prompts and modes.
+            </p>
+            <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
+              <p className="text-xs text-slate-400 mb-2">Updates <code>.vscode/settings.json</code>:</p>
+              <CodeBlock language="json">
+{`{
+  "chat.promptFilesLocations": {
+    ".github/my-package": true
+  },
+  "chat.modeFilesLocations": {
+    ".github/my-package": true
+  }
+}`}
+              </CodeBlock>
+            </div>
+            <p className="text-slate-400 text-sm mt-3">
+              This ensures GitHub Copilot can discover and use the installed prompts and modes. Both settings are automatically cleaned up on uninstall.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -133,17 +164,21 @@ dumpty update --all`}
 packages:
   - name: my-workflows
     version: 1.0.0
-    source_url: https://github.com/org/my-workflows
-    commit: abc123def456
+    source: https://github.com/org/my-workflows
+    source_type: git
+    resolved: https://github.com/org/my-workflows/commit/abc123def456
     installed_at: "2025-11-04T10:30:00Z"
-    agent: copilot
+    installed_for:
+      - copilot
     files:
-      - installed_path: .github/prompts/my-workflows/review.prompt.md
-        source_path: src/review.md
-        checksum: sha256:abc...
-      - installed_path: .github/rules/my-workflows/standards.md
-        source_path: src/standards.md
-        checksum: sha256:def...`}
+      copilot:
+        - source: src/review.md
+          installed: .github/my-workflows/review.prompt.md
+          checksum: sha256:abc...
+        - source: src/standards.md
+          installed: .github/my-workflows/standards.md
+          checksum: sha256:def...
+    manifest_checksum: sha256:manifest123...`}
           </CodeBlock>
         </div>
         <p className="text-slate-300">
@@ -159,17 +194,16 @@ packages:
         <div className="border border-slate-700 mb-4">
           <CodeBlock language="bash">
 {`.github/
-└── prompts/
-    └── my-workflows/              # Package namespace
-        ├── review.prompt.md
-        └── planning.prompt.md
-└── rules/
-    └── my-workflows/              # Same namespace
+└── my-workflows/                  # Package namespace
+    ├── prompts/
+    │   ├── review.prompt.md
+    │   └── planning.prompt.md
+    └── rules/
         └── standards.md`}
           </CodeBlock>
         </div>
         <p className="text-slate-300">
-          Each package gets its own subdirectory within the agent's paths, making it easy to identify and remove packages cleanly.
+          Each package gets its own subdirectory within the agent's directory, making it easy to identify and remove packages cleanly.
         </p>
       </section>
 
@@ -179,7 +213,7 @@ packages:
         <div className="space-y-6">
           <TroubleshootingItem
             question="Agent not detected?"
-            answer="Make sure the appropriate directory exists (.github/prompts/, .claude/commands/, etc.). Run `dumpty init` to set up the structure."
+            answer="Make sure the appropriate directory exists (.github/, .claude/, etc.). Run `dumpty init` to set up the structure."
           />
 
           <TroubleshootingItem
@@ -189,7 +223,7 @@ packages:
 
           <TroubleshootingItem
             question="Files not appearing?"
-            answer="Ensure the file paths in the manifest match your package structure. Check that installed_path values are correct for your agent."
+            answer="Ensure the file paths in the manifest match your package structure. Check that the installed paths are correct for your agent's directory."
           />
 
           <TroubleshootingItem

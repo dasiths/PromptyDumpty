@@ -139,7 +139,7 @@ agents:
 {`code-review-workflow/
 ├── dumpty.package.yaml
 ├── README.md
-└── prompts/
+└── src/                     # Organize however you want!
     ├── review-checklist.md
     ├── security-audit.md
     └── performance-tips.md`}
@@ -160,27 +160,27 @@ agents:
     artifacts:
       - name: review-checklist
         description: Code review checklist
-        file: prompts/review-checklist.md
+        file: src/review-checklist.md
         installed_path: prompts/review.prompt.md
       
       - name: security-audit
         description: Security review guidelines
-        file: prompts/security-audit.md
+        file: src/security-audit.md
         installed_path: prompts/security.prompt.md
       
       - name: performance
         description: Performance optimization tips
-        file: prompts/performance-tips.md
+        file: src/performance-tips.md
         installed_path: rules/performance.md
 
   claude:
     artifacts:
       - name: review-checklist
-        file: prompts/review-checklist.md
+        file: src/review-checklist.md
         installed_path: commands/code-review.md
       
       - name: security-audit
-        file: prompts/security-audit.md
+        file: src/security-audit.md
         installed_path: commands/security-audit.md`}
           </CodeBlock>
         </div>
