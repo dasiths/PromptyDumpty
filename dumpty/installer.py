@@ -2,7 +2,7 @@
 
 import shutil
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from dumpty.agent_detector import Agent
 from dumpty.utils import calculate_checksum
 
@@ -54,6 +54,48 @@ class FileInstaller:
 
         return dest_file, checksum
 
+    def install_package(
+        self,
+        source_files: List[tuple[Path, str]],
+        agent: Agent,
+        package_name: str,
+    ) -> List[tuple[Path, str]]:
+        """
+        Install a complete package with hooks support.
+
+        Args:
+            source_files: List of (source_file, installed_path) tuples
+            agent: Target agent
+            package_name: Package name
+
+        Returns:
+            List of (installed_path, checksum) tuples
+        """
+        # Get agent implementation
+        agent_impl = agent._get_impl()
+
+        # Prepare list of files that will be installed (relative paths)
+        install_paths = [
+            Path(agent.directory) / package_name / installed_path
+            for _, installed_path in source_files
+        ]
+
+        # Call pre-install hook
+        agent_impl.pre_install(self.project_root, package_name, install_paths)
+
+        # Install all files
+        results = []
+        for source_file, installed_path in source_files:
+            dest_path, checksum = self.install_file(
+                source_file, agent, package_name, installed_path
+            )
+            results.append((dest_path, checksum))
+
+        # Call post-install hook
+        agent_impl.post_install(self.project_root, package_name, install_paths)
+
+        return results
+
     def uninstall_package(self, agent: Agent, package_name: str) -> None:
         """
         Uninstall a package from an agent's directory.
@@ -65,5 +107,28 @@ class FileInstaller:
         agent_dir = self.project_root / agent.directory
         package_dir = agent_dir / package_name
 
-        if package_dir.exists():
-            shutil.rmtree(package_dir)
+        if not package_dir.exists():
+            return
+
+        # Get agent implementation
+        agent_impl = agent._get_impl()
+
+        # Get list of files that will be removed (relative paths)
+        uninstall_paths = []
+        for file_path in package_dir.rglob("*"):
+            if file_path.is_file():
+                try:
+                    rel_path = file_path.relative_to(self.project_root)
+                    uninstall_paths.append(rel_path)
+                except ValueError:
+                    # If file is outside project root, use absolute path
+                    uninstall_paths.append(file_path)
+
+        # Call pre-uninstall hook
+        agent_impl.pre_uninstall(self.project_root, package_name, uninstall_paths)
+
+        # Remove package directory
+        shutil.rmtree(package_dir)
+
+        # Call post-uninstall hook
+        agent_impl.post_uninstall(self.project_root, package_name, uninstall_paths)

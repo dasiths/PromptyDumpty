@@ -173,7 +173,7 @@ This specification defines the technical architecture for refactoring PromptyDum
 ```python
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional
+from typing import List
 
 
 class BaseAgent(ABC):
@@ -224,6 +224,60 @@ class BaseAgent(ABC):
             Path to agent directory
         """
         return project_root / self.directory
+    
+    # Lifecycle Hooks (Optional - default implementations do nothing)
+    
+    def pre_install(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """
+        Hook called before installing package files.
+        
+        Args:
+            project_root: Root directory of the project
+            package_name: Name of the package being installed
+            files: List of file paths that will be installed
+        """
+        pass
+    
+    def post_install(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """
+        Hook called after installing package files.
+        
+        Args:
+            project_root: Root directory of the project
+            package_name: Name of the package that was installed
+            files: List of file paths that were installed
+        """
+        pass
+    
+    def pre_uninstall(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """
+        Hook called before uninstalling package files.
+        
+        Args:
+            project_root: Root directory of the project
+            package_name: Name of the package being uninstalled
+            files: List of file paths that will be removed
+        """
+        pass
+    
+    def post_uninstall(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """
+        Hook called after uninstalling package files.
+        
+        Args:
+            project_root: Root directory of the project
+            package_name: Name of the package that was uninstalled
+            files: List of file paths that were removed
+        """
+        pass
 ```
 
 **Properties:**
@@ -234,6 +288,19 @@ class BaseAgent(ABC):
 **Methods:**
 - `is_configured(project_root)`: Detection logic (must implement)
 - `get_directory(project_root)`: Directory resolution (default provided)
+
+**Lifecycle Hooks (Optional):**
+- `pre_install(project_root, package_name, files)`: Called before file installation
+- `post_install(project_root, package_name, files)`: Called after file installation
+- `pre_uninstall(project_root, package_name, files)`: Called before file removal
+- `post_uninstall(project_root, package_name, files)`: Called after file removal
+
+**Hook Use Cases:**
+- Update agent-specific configuration files (e.g., VS Code settings)
+- Register/unregister packages with agent systems
+- Validate prerequisites before installation
+- Clean up resources after uninstallation
+- Create backups or indexes
 
 ### Entity: AgentRegistry (Singleton)
 

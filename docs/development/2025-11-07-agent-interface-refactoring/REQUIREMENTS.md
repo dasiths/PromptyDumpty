@@ -300,6 +300,122 @@ Update `AgentDetector` class to use agent implementations for detection.
 
 ---
 
+### FR-6: Agent Lifecycle Hooks
+
+**Priority:** Must Have
+
+**Description:**
+Provide lifecycle hooks for agents to perform custom actions during install, uninstall, and update operations. This enables agents to integrate with their specific configuration systems (e.g., updating VS Code settings for Copilot).
+
+**Hook Methods:**
+1. `pre_install(project_root, package_name, files)` - Called before installing files
+2. `post_install(project_root, package_name, files)` - Called after installing files
+3. `pre_uninstall(project_root, package_name, files)` - Called before uninstalling files
+4. `post_uninstall(project_root, package_name, files)` - Called after uninstalling files
+
+**Hook Parameters:**
+- `project_root: Path` - Root directory of the project
+- `package_name: str` - Name of the package being installed/uninstalled
+- `files: List[Path]` - List of file paths (relative to project root) being installed/uninstalled
+
+**Use Cases:**
+- **Copilot**: Update `.vscode/settings.json` to add/remove paths in `chat.promptFilesLocations` or `chat.modeFilesLocations`
+- **Claude**: Update agent-specific configuration files with new package locations
+- **General**: Validate prerequisites, create backups, update indexes, clean up empty directories
+
+**Acceptance Criteria:**
+- [ ] All four lifecycle hooks defined in `BaseAgent` with default no-op implementations
+- [ ] Hooks are optional (default implementation does nothing)
+- [ ] `FileInstaller` calls hooks at appropriate times
+- [ ] Hooks receive complete file list before/after operations
+- [ ] Hooks are called during install, uninstall, and update operations
+- [ ] Update operation calls hooks in correct order: pre_uninstall → uninstall → post_uninstall → pre_install → install → post_install
+- [ ] Tests verify hooks are called with correct parameters
+- [ ] Documentation includes hook usage examples
+
+**Hook Call Order:**
+
+*Install Operation:*
+```
+1. pre_install(project_root, package_name, [files_to_install])
+2. Copy files to agent directory
+3. post_install(project_root, package_name, [installed_files])
+```
+
+*Uninstall Operation:*
+```
+1. pre_uninstall(project_root, package_name, [files_to_remove])
+2. Remove files from agent directory
+3. post_uninstall(project_root, package_name, [removed_files])
+```
+
+*Update Operation:*
+```
+1. pre_uninstall(project_root, old_package_name, [old_files])
+2. Remove old files
+3. post_uninstall(project_root, old_package_name, [old_files])
+4. pre_install(project_root, package_name, [new_files])
+5. Copy new files
+6. post_install(project_root, package_name, [new_files])
+```
+
+**Edge Cases:**
+- Hook raises exception (should not block operation by default, or provide error handling)
+- File list changes between pre and post hooks
+- Multiple agents installed simultaneously
+- Partial installation/uninstallation failures
+- Hook modifies files during operation
+
+**Example Implementation (Copilot):**
+```python
+class CopilotAgent(BaseAgent):
+    def post_install(self, project_root: Path, package_name: str, files: List[Path]) -> None:
+        """Update VS Code settings to include new prompt files."""
+        settings_file = project_root / ".vscode" / "settings.json"
+        
+        # Load existing settings or create new
+        if settings_file.exists():
+            with open(settings_file) as f:
+                settings = json.load(f)
+        else:
+            settings = {}
+        
+        # Add package directory to promptFilesLocations
+        package_path = f".github/{package_name}"
+        if "chat.promptFilesLocations" not in settings:
+            settings["chat.promptFilesLocations"] = []
+        
+        if package_path not in settings["chat.promptFilesLocations"]:
+            settings["chat.promptFilesLocations"].append(package_path)
+        
+        # Save updated settings
+        settings_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(settings_file, "w") as f:
+            json.dump(settings, f, indent=2)
+    
+    def post_uninstall(self, project_root: Path, package_name: str, files: List[Path]) -> None:
+        """Remove package path from VS Code settings."""
+        settings_file = project_root / ".vscode" / "settings.json"
+        
+        if not settings_file.exists():
+            return
+        
+        with open(settings_file) as f:
+            settings = json.load(f)
+        
+        # Remove package directory from promptFilesLocations
+        package_path = f".github/{package_name}"
+        if "chat.promptFilesLocations" in settings:
+            if package_path in settings["chat.promptFilesLocations"]:
+                settings["chat.promptFilesLocations"].remove(package_path)
+        
+        # Save updated settings
+        with open(settings_file, "w") as f:
+            json.dump(settings, f, indent=2)
+```
+
+---
+
 ## 5. Technical Requirements
 
 ### TR-1: Package Structure

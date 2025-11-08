@@ -145,6 +145,155 @@ python -c "from dumpty.agent_detector import Agent; print(Agent.NEWAGENT.directo
 
 ---
 
+## Advanced: Lifecycle Hooks
+
+Agents can implement lifecycle hooks to perform custom actions during package installation, uninstallation, and updates. All hooks are optional with default no-op implementations.
+
+### Available Hooks
+
+**Installation Hooks:**
+- `pre_install(project_root, package_name, files)` - Called before files are copied
+- `post_install(project_root, package_name, files)` - Called after files are copied
+
+**Uninstallation Hooks:**
+- `pre_uninstall(project_root, package_name, files)` - Called before files are removed
+- `post_uninstall(project_root, package_name, files)` - Called after files are removed
+
+**Parameters:**
+- `project_root: Path` - Root directory of the project
+- `package_name: str` - Name of the package
+- `files: List[Path]` - List of file paths (relative to project root)
+
+### Example: Update VS Code Settings (Copilot)
+
+```python
+import json
+from pathlib import Path
+from typing import List
+from .base import BaseAgent
+
+
+class CopilotAgent(BaseAgent):
+    """GitHub Copilot agent with VS Code integration."""
+    
+    @property
+    def name(self) -> str:
+        return "copilot"
+    
+    @property
+    def display_name(self) -> str:
+        return "GitHub Copilot"
+    
+    @property
+    def directory(self) -> str:
+        return ".github"
+    
+    def is_configured(self, project_root: Path) -> bool:
+        agent_dir = project_root / self.directory
+        return agent_dir.exists() and agent_dir.is_dir()
+    
+    def post_install(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """Update VS Code settings to include new prompt files."""
+        settings_file = project_root / ".vscode" / "settings.json"
+        
+        # Load or create settings
+        if settings_file.exists():
+            with open(settings_file) as f:
+                settings = json.load(f)
+        else:
+            settings = {}
+        
+        # Add package directory to promptFilesLocations
+        package_path = f".github/{package_name}"
+        if "chat.promptFilesLocations" not in settings:
+            settings["chat.promptFilesLocations"] = []
+        
+        if package_path not in settings["chat.promptFilesLocations"]:
+            settings["chat.promptFilesLocations"].append(package_path)
+        
+        # Save settings
+        settings_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(settings_file, "w") as f:
+            json.dump(settings, f, indent=2)
+    
+    def post_uninstall(
+        self, project_root: Path, package_name: str, files: List[Path]
+    ) -> None:
+        """Remove package path from VS Code settings."""
+        settings_file = project_root / ".vscode" / "settings.json"
+        
+        if not settings_file.exists():
+            return
+        
+        with open(settings_file) as f:
+            settings = json.load(f)
+        
+        # Remove package directory
+        package_path = f".github/{package_name}"
+        if "chat.promptFilesLocations" in settings:
+            if package_path in settings["chat.promptFilesLocations"]:
+                settings["chat.promptFilesLocations"].remove(package_path)
+        
+        # Save settings
+        with open(settings_file, "w") as f:
+            json.dump(settings, f, indent=2)
+```
+
+### Example: Create Index File
+
+```python
+def post_install(
+    self, project_root: Path, package_name: str, files: List[Path]
+) -> None:
+    """Create an index of installed files."""
+    agent_dir = project_root / self.directory
+    index_file = agent_dir / "package_index.txt"
+    
+    # Append package to index
+    with open(index_file, "a") as f:
+        f.write(f"{package_name}: {len(files)} files\n")
+```
+
+### Example: Backup Before Uninstall
+
+```python
+import shutil
+from datetime import datetime
+
+def pre_uninstall(
+    self, project_root: Path, package_name: str, files: List[Path]
+) -> None:
+    """Create backup before uninstalling."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_dir = project_root / ".backups" / f"{package_name}_{timestamp}"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Backup each file
+    for file_path in files:
+        if file_path.exists():
+            rel_path = file_path.relative_to(project_root)
+            dest = backup_dir / rel_path
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(file_path, dest)
+```
+
+### Hook Call Order During Update
+
+When a package is updated, hooks are called in this order:
+
+1. `pre_uninstall(project_root, old_package_name, old_files)`
+2. Remove old files
+3. `post_uninstall(project_root, old_package_name, old_files)`
+4. `pre_install(project_root, package_name, new_files)`
+5. Copy new files
+6. `post_install(project_root, package_name, new_files)`
+
+This ensures clean transitions and allows agents to update their configurations appropriately.
+
+---
+
 ## Advanced: Custom Detection Logic
 
 If your agent requires more sophisticated detection than simple directory existence, override `is_configured()`:
