@@ -157,14 +157,20 @@ def test_install_package_calls_hooks(tmp_path):
             self.pre_install_called = False
             self.post_install_called = False
             self.pre_install_package = None
+            self.pre_install_dir = None
             self.pre_install_files = None
 
-        def pre_install(self, project_root: Path, package_name: str, files: list):
+        def pre_install(
+            self, project_root: Path, package_name: str, install_dir: Path, files: list
+        ):
             self.pre_install_called = True
             self.pre_install_package = package_name
+            self.pre_install_dir = install_dir
             self.pre_install_files = files
 
-        def post_install(self, project_root: Path, package_name: str, files: list):
+        def post_install(
+            self, project_root: Path, package_name: str, install_dir: Path, files: list
+        ):
             self.post_install_called = True
 
     # Replace the copilot agent in registry temporarily
@@ -196,6 +202,7 @@ def test_install_package_calls_hooks(tmp_path):
         assert tracked_agent.pre_install_called
         assert tracked_agent.post_install_called
         assert tracked_agent.pre_install_package == "test-package"
+        assert tracked_agent.pre_install_dir == tmp_path / ".github" / "test-package"
         assert len(tracked_agent.pre_install_files) == 2
 
         # Verify files were installed
@@ -223,14 +230,20 @@ def test_uninstall_package_calls_hooks(tmp_path):
             self.pre_uninstall_called = False
             self.post_uninstall_called = False
             self.pre_uninstall_package = None
+            self.pre_uninstall_dir = None
             self.pre_uninstall_files = None
 
-        def pre_uninstall(self, project_root: Path, package_name: str, files: list):
+        def pre_uninstall(
+            self, project_root: Path, package_name: str, install_dir: Path, files: list
+        ):
             self.pre_uninstall_called = True
             self.pre_uninstall_package = package_name
+            self.pre_uninstall_dir = install_dir
             self.pre_uninstall_files = files
 
-        def post_uninstall(self, project_root: Path, package_name: str, files: list):
+        def post_uninstall(
+            self, project_root: Path, package_name: str, install_dir: Path, files: list
+        ):
             self.post_uninstall_called = True
 
     # Replace the claude agent in registry temporarily
@@ -257,6 +270,7 @@ def test_uninstall_package_calls_hooks(tmp_path):
         assert tracked_agent.pre_uninstall_called
         assert tracked_agent.post_uninstall_called
         assert tracked_agent.pre_uninstall_package == "test-package"
+        assert tracked_agent.pre_uninstall_dir == package_dir
         assert len(tracked_agent.pre_uninstall_files) == 2
 
         # Verify package was removed
@@ -265,3 +279,45 @@ def test_uninstall_package_calls_hooks(tmp_path):
     finally:
         # Restore original agent
         registry._agents["claude"] = original_agent
+
+
+def test_copilot_vscode_settings_integration(tmp_path):
+    """Test that Copilot agent updates VS Code settings on install/uninstall."""
+    import json
+    from dumpty.installer import FileInstaller
+    from dumpty.agent_detector import Agent
+
+    installer = FileInstaller(tmp_path)
+
+    # Create test files
+    test_file = tmp_path / "source.txt"
+    test_file.write_text("test prompt file")
+
+    source_files = [(test_file, "prompt.md")]
+
+    # Install package
+    installer.install_package(source_files, Agent.COPILOT, "test-prompts")
+
+    # Verify VS Code settings were created/updated
+    settings_file = tmp_path / ".vscode" / "settings.json"
+    assert settings_file.exists()
+
+    with open(settings_file) as f:
+        settings = json.load(f)
+
+    # Check that package path was added to both settings
+    expected_path = ".github/test-prompts"
+    assert "chat.promptFilesLocations" in settings
+    assert expected_path in settings["chat.promptFilesLocations"]
+    assert "chat.modeFilesLocations" in settings
+    assert expected_path in settings["chat.modeFilesLocations"]
+
+    # Uninstall package
+    installer.uninstall_package(Agent.COPILOT, "test-prompts")
+
+    # Verify paths were removed from settings
+    with open(settings_file) as f:
+        settings = json.load(f)
+
+    assert expected_path not in settings.get("chat.promptFilesLocations", [])
+    assert expected_path not in settings.get("chat.modeFilesLocations", [])

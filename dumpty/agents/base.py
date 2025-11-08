@@ -2,7 +2,6 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List
 
 
 class BaseAgent(ABC):
@@ -54,7 +53,9 @@ class BaseAgent(ABC):
         """
         return project_root / self.directory
 
-    def pre_install(self, project_root: Path, package_name: str, files: List[Path]) -> None:
+    def pre_install(
+        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+    ) -> None:
         """
         Hook called before installing package files.
 
@@ -65,14 +66,17 @@ class BaseAgent(ABC):
         Args:
             project_root: Root directory of the project
             package_name: Name of the package being installed
-            files: List of file paths that will be installed (relative to agent directory)
+            install_dir: Directory where package will be installed (agent_dir/package_name)
+            files: List of file paths that will be installed (relative to project root)
 
         Note:
             Default implementation does nothing. Override to add custom behavior.
         """
         pass
 
-    def post_install(self, project_root: Path, package_name: str, files: List[Path]) -> None:
+    def post_install(
+        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+    ) -> None:
         """
         Hook called after installing package files.
 
@@ -88,14 +92,17 @@ class BaseAgent(ABC):
         Args:
             project_root: Root directory of the project
             package_name: Name of the package that was installed
-            files: List of file paths that were installed (relative to agent directory)
+            install_dir: Directory where package was installed (agent_dir/package_name)
+            files: List of file paths that were installed (relative to project root)
 
         Note:
             Default implementation does nothing. Override to add custom behavior.
         """
         pass
 
-    def pre_uninstall(self, project_root: Path, package_name: str, files: List[Path]) -> None:
+    def pre_uninstall(
+        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+    ) -> None:
         """
         Hook called before uninstalling package files.
 
@@ -106,14 +113,17 @@ class BaseAgent(ABC):
         Args:
             project_root: Root directory of the project
             package_name: Name of the package being uninstalled
-            files: List of file paths that will be removed (relative to agent directory)
+            install_dir: Directory where package is installed (agent_dir/package_name)
+            files: List of file paths that will be removed (relative to project root)
 
         Note:
             Default implementation does nothing. Override to add custom behavior.
         """
         pass
 
-    def post_uninstall(self, project_root: Path, package_name: str, files: List[Path]) -> None:
+    def post_uninstall(
+        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+    ) -> None:
         """
         Hook called after uninstalling package files.
 
@@ -129,7 +139,8 @@ class BaseAgent(ABC):
         Args:
             project_root: Root directory of the project
             package_name: Name of the package that was uninstalled
-            files: List of file paths that were removed (relative to agent directory)
+            install_dir: Directory where package was installed (agent_dir/package_name)
+            files: List of file paths that were removed (relative to project root)
 
         Note:
             Default implementation does nothing. Override to add custom behavior.

@@ -123,13 +123,14 @@ def test_base_agent_hooks_default_implementation(tmp_path):
             return True
 
     agent = TestAgent()
+    install_dir = tmp_path / ".test" / "package"
     files = [Path(".test/package/file1.txt"), Path(".test/package/file2.txt")]
 
     # Should not raise any errors (default implementation is no-op)
-    agent.pre_install(tmp_path, "test-package", files)
-    agent.post_install(tmp_path, "test-package", files)
-    agent.pre_uninstall(tmp_path, "test-package", files)
-    agent.post_uninstall(tmp_path, "test-package", files)
+    agent.pre_install(tmp_path, "test-package", install_dir, files)
+    agent.post_install(tmp_path, "test-package", install_dir, files)
+    agent.pre_uninstall(tmp_path, "test-package", install_dir, files)
+    agent.post_uninstall(tmp_path, "test-package", install_dir, files)
 
 
 def test_base_agent_hooks_can_be_overridden(tmp_path):
@@ -142,6 +143,7 @@ def test_base_agent_hooks_can_be_overridden(tmp_path):
             self.pre_uninstall_called = False
             self.post_uninstall_called = False
             self.received_package_name = None
+            self.received_install_dir = None
             self.received_files = None
 
         @property
@@ -159,33 +161,44 @@ def test_base_agent_hooks_can_be_overridden(tmp_path):
         def is_configured(self, project_root: Path):
             return True
 
-        def pre_install(self, project_root: Path, package_name: str, files: list):
+        def pre_install(
+            self, project_root: Path, package_name: str, install_dir: Path, files: list
+        ):
             self.pre_install_called = True
             self.received_package_name = package_name
+            self.received_install_dir = install_dir
             self.received_files = files
 
-        def post_install(self, project_root: Path, package_name: str, files: list):
+        def post_install(
+            self, project_root: Path, package_name: str, install_dir: Path, files: list
+        ):
             self.post_install_called = True
 
-        def pre_uninstall(self, project_root: Path, package_name: str, files: list):
+        def pre_uninstall(
+            self, project_root: Path, package_name: str, install_dir: Path, files: list
+        ):
             self.pre_uninstall_called = True
 
-        def post_uninstall(self, project_root: Path, package_name: str, files: list):
+        def post_uninstall(
+            self, project_root: Path, package_name: str, install_dir: Path, files: list
+        ):
             self.post_uninstall_called = True
 
     agent = CustomHookAgent()
+    install_dir = tmp_path / ".test" / "package"
     files = [Path(".test/package/file1.txt")]
 
-    agent.pre_install(tmp_path, "test-package", files)
+    agent.pre_install(tmp_path, "test-package", install_dir, files)
     assert agent.pre_install_called
     assert agent.received_package_name == "test-package"
+    assert agent.received_install_dir == install_dir
     assert agent.received_files == files
 
-    agent.post_install(tmp_path, "test-package", files)
+    agent.post_install(tmp_path, "test-package", install_dir, files)
     assert agent.post_install_called
 
-    agent.pre_uninstall(tmp_path, "test-package", files)
+    agent.pre_uninstall(tmp_path, "test-package", install_dir, files)
     assert agent.pre_uninstall_called
 
-    agent.post_uninstall(tmp_path, "test-package", files)
+    agent.post_uninstall(tmp_path, "test-package", install_dir, files)
     assert agent.post_uninstall_called

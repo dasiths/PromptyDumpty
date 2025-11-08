@@ -74,14 +74,18 @@ class FileInstaller:
         # Get agent implementation
         agent_impl = agent._get_impl()
 
-        # Prepare list of files that will be installed (relative paths)
+        # Determine install directory
+        agent_dir = self.project_root / agent.directory
+        install_dir = agent_dir / package_name
+
+        # Prepare list of files that will be installed (relative to project root)
         install_paths = [
             Path(agent.directory) / package_name / installed_path
             for _, installed_path in source_files
         ]
 
         # Call pre-install hook
-        agent_impl.pre_install(self.project_root, package_name, install_paths)
+        agent_impl.pre_install(self.project_root, package_name, install_dir, install_paths)
 
         # Install all files
         results = []
@@ -92,7 +96,7 @@ class FileInstaller:
             results.append((dest_path, checksum))
 
         # Call post-install hook
-        agent_impl.post_install(self.project_root, package_name, install_paths)
+        agent_impl.post_install(self.project_root, package_name, install_dir, install_paths)
 
         return results
 
@@ -113,7 +117,7 @@ class FileInstaller:
         # Get agent implementation
         agent_impl = agent._get_impl()
 
-        # Get list of files that will be removed (relative paths)
+        # Get list of files that will be removed (relative to project root)
         uninstall_paths = []
         for file_path in package_dir.rglob("*"):
             if file_path.is_file():
@@ -125,10 +129,10 @@ class FileInstaller:
                     uninstall_paths.append(file_path)
 
         # Call pre-uninstall hook
-        agent_impl.pre_uninstall(self.project_root, package_name, uninstall_paths)
+        agent_impl.pre_uninstall(self.project_root, package_name, package_dir, uninstall_paths)
 
         # Remove package directory
         shutil.rmtree(package_dir)
 
         # Call post-uninstall hook
-        agent_impl.post_uninstall(self.project_root, package_name, uninstall_paths)
+        agent_impl.post_uninstall(self.project_root, package_name, package_dir, uninstall_paths)
