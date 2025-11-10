@@ -2,7 +2,7 @@
 
 ## Overview
 
-A lightweight, universal package manager CLI for installing and managing AI agent artifacts (prompts, chatmodes, instructions, memory files, templates, etc.) across different AI coding assistants and platforms.
+A lightweight, universal package manager CLI for installing and managing AI coding assistants (prompts, chatmodes, instructions, memory files, templates, etc.) across different AI coding assistants and platforms.
 
 ## Problem Statement
 
@@ -634,7 +634,7 @@ dumpty uninstall bdd-workflows
 
 ## Summary
 
-Dumpty provides a lightweight, universal package manager for AI agent artifacts. It focuses on:
+Dumpty provides a lightweight, universal package manager for AI coding assistants. It focuses on:
 
 - **Simplicity:** Minimal configuration, intuitive commands
 - **Universality:** Works across multiple AI agents

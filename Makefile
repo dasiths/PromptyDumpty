@@ -2,7 +2,7 @@
 
 # Default target
 help:
-	@echo "PromptyDumpty - Universal Package Manager for AI Agent Artifacts"
+	@echo "PromptyDumpty - Universal Package Manager for AI Coding Assistants"
 	@echo ""
 	@echo "Available targets:"
 	@echo "  make install      - Install package in production mode"

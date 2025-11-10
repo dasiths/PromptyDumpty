@@ -1,6 +1,6 @@
 # PromptyDumpty Website
 
-Static website for [PromptyDumpty](https://dumpty.dev) - Universal package manager for AI agent artifacts.
+Static website for [PromptyDumpty](https://dumpty.dev) - Universal package manager for AI coding assistants.
 
 ## Tech Stack
 

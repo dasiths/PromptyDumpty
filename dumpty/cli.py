@@ -21,7 +21,7 @@ console = Console()
 @click.group()
 @click.version_option(version=__version__)
 def cli():
-    """Dumpty - Universal package manager for AI agent artifacts."""
+    """Dumpty - Universal package manager for AI coding assistants."""
     pass
 
 

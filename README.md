@@ -4,7 +4,7 @@
 
 <img src="website/public/logo.png" width=200px />
 
-A lightweight, universal package manager for AI agent artifacts (prompts, instructions, rules, workflows, etc.).
+A lightweight, universal package manager for AI coding assistants (prompts, instructions, rules, workflows, etc.).
 
 🌐 **Visit [dumpty.dev](https://dumpty.dev)** for full documentation and guides.
 

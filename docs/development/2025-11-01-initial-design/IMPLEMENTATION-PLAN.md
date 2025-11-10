@@ -12,7 +12,7 @@ This document provides step-by-step instructions for implementing the PromptyDum
 
 ## Project Goals
 
-Build a lightweight, universal package manager CLI for AI agent artifacts that:
+Build a lightweight, universal package manager CLI for AI coding assistants that:
 - Auto-detects AI agents in projects
 - Installs packages from Git repositories
 - Tracks installations in a lockfile
@@ -76,7 +76,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "prompty-dumpty"
 version = "0.1.0"
-description = "Universal package manager for AI agent artifacts"
+description = "Universal package manager for AI coding assistants"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
@@ -171,7 +171,7 @@ touch tests/__init__.py
 Create `dumpty/__init__.py` with version:
 
 ```python
-"""PromptyDumpty - Universal package manager for AI agent artifacts."""
+"""PromptyDumpty - Universal package manager for AI coding assistants."""
 
 __version__ = "0.1.0"
 ```
@@ -189,7 +189,7 @@ from dumpty import __version__
 @click.group()
 @click.version_option(version=__version__)
 def cli():
-    """Dumpty - Universal package manager for AI agent artifacts."""
+    """Dumpty - Universal package manager for AI coding assistants."""
     pass
 
 @cli.command()

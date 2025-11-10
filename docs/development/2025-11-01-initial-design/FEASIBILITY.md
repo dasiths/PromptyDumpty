@@ -48,7 +48,7 @@ import click
 @click.group()
 @click.version_option(version='0.1.0')
 def cli():
-    """Dumpty - Universal package manager for AI agent artifacts"""
+    """Dumpty - Universal package manager for AI coding assistants"""
     pass
 
 @cli.command()
@@ -146,7 +146,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "prompty-dumpty"
 version = "0.1.0"
-description = "Universal package manager for AI agent artifacts"
+description = "Universal package manager for AI coding assistants"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}

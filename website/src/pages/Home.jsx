@@ -12,7 +12,7 @@ export default function Home() {
             PromptyDumpty
           </h1>
           <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
-            A lightweight, universal package manager for AI agent artifacts
+            A lightweight, universal package manager for AI coding assistants
           </p>
           <p className="text-lg text-slate-400 mb-12 max-w-2xl mx-auto">
             Install and manage prompts, instructions, rules, and workflows across GitHub Copilot, Claude, Cursor, Gemini, Windsurf, and more.
@@ -125,7 +125,7 @@ dumpty list`}
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6">Ready to get started?</h2>
           <p className="text-xl text-slate-300 mb-8">
-            Install PromptyDumpty and start managing your AI agent artifacts today.
+            Install PromptyDumpty and start managing your AI coding assistants today.
           </p>
           <Link
             to="/getting-started"
