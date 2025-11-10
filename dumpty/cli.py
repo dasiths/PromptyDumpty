@@ -182,37 +182,46 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             # Ensure agent directory exists
             detector.ensure_agent_directory(target_agent)
 
-            # Install artifacts using install_package to trigger hooks
-            artifacts = manifest.agents[agent_name]
-            console.print(f"\n[cyan]{target_agent.display_name}[/] ({len(artifacts)} artifacts):")
+            # Get groups and artifacts for this agent
+            groups = manifest.agents[agent_name]
+            
+            # Count total artifacts across all groups
+            total_artifacts = sum(len(artifacts) for artifacts in groups.values())
+            console.print(f"\n[cyan]{target_agent.display_name}[/] ({total_artifacts} artifacts):")
 
-            # Prepare source files list for install_package
-            source_files = [
-                (package_dir / artifact.file, artifact.installed_path) for artifact in artifacts
-            ]
+            # Prepare source files list for install_package (now with groups)
+            source_files = []
+            for group_name, artifacts in groups.items():
+                for artifact in artifacts:
+                    source_files.append((package_dir / artifact.file, artifact.installed_path, group_name))
 
             # Call install_package which will trigger pre/post install hooks
             results = installer.install_package(source_files, target_agent, manifest.name)
 
             # Process results for lockfile
             agent_files = []
-            for (dest_path, checksum), artifact in zip(results, artifacts):
-                # Make path relative to project root for lockfile
-                try:
-                    rel_path = dest_path.relative_to(project_root)
-                except ValueError:
-                    rel_path = dest_path
+            artifact_idx = 0
+            for group_name, artifacts in groups.items():
+                for artifact in artifacts:
+                    dest_path, checksum = results[artifact_idx]
+                    artifact_idx += 1
+                    
+                    # Make path relative to project root for lockfile
+                    try:
+                        rel_path = dest_path.relative_to(project_root)
+                    except ValueError:
+                        rel_path = dest_path
 
-                agent_files.append(
-                    InstalledFile(
-                        source=artifact.file,
-                        installed=str(rel_path),
-                        checksum=checksum,
+                    agent_files.append(
+                        InstalledFile(
+                            source=artifact.file,
+                            installed=str(rel_path),
+                            checksum=checksum,
+                        )
                     )
-                )
 
-                console.print(f"  [green]✓[/] {artifact.file} → {rel_path}")
-                total_installed += 1
+                    console.print(f"  [green]✓[/] {artifact.file} → {rel_path}")
+                    total_installed += 1
 
             installed_files[agent_name] = agent_files
 
