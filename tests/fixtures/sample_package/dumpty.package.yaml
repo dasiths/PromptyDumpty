@@ -6,15 +6,15 @@ license: MIT
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: planning
         description: Planning prompt
         file: src/planning.md
-        installed_path: prompts/planning.prompt.md
+        installed_path: planning.prompt.md
   
   claude:
-    artifacts:
+    commands:
       - name: planning
         description: Planning command
         file: src/planning.md
-        installed_path: commands/planning.md
+        installed_path: planning.md

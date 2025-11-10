@@ -19,7 +19,7 @@ def sample_package_dir(tmp_path):
     package_dir = tmp_path / "sample-package"
     package_dir.mkdir()
 
-    # Create manifest
+    # Create manifest with NESTED format
     manifest_content = """
 name: test-package
 version: 1.0.0
@@ -29,11 +29,11 @@ license: MIT
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test-prompt
         description: Test prompt file
         file: src/test.prompt.md
-        installed_path: prompts/test.prompt.md
+        installed_path: test.prompt.md
 """
     (package_dir / "dumpty.package.yaml").write_text(manifest_content)
 
@@ -268,7 +268,7 @@ description: Test package
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: missing
         description: Missing file
         file: src/missing.md
@@ -396,7 +396,7 @@ description: Test package
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test
         description: Test file
         file: src/test.md
