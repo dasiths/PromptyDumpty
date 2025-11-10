@@ -28,6 +28,8 @@ Refine the initial requirements from Phase 1 (Explore) by:
 - Clear scope boundaries
 - Technical constraints documented
 
+**Note:** Focus on what needs to be built, not when. Refined requirements are consumed by AI coding agents who work without time constraints.
+
 ## Workflow
 
 ### 1. Review Phase 1 Artifacts

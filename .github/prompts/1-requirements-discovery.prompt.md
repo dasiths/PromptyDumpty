@@ -46,6 +46,8 @@ You will create/update `REQUIREMENTS.md` following the template at:
 - Success Criteria
 - Open Questions
 
+**Note:** Focus on what needs to be built, not when. Requirements documents are consumed by AI coding agents who work without time constraints.
+
 ## Research Tools
 
 - **codebase**: Understand existing patterns and conventions

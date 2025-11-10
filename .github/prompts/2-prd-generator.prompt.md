@@ -43,7 +43,9 @@ You will create `PRD.md` following the template at:
 - Features and Requirements (detailed)
 - Success Metrics (measurable)
 - Technical Considerations
-- Timeline and Milestones
+- Milestones and Scope
+
+**Note:** Do not include time estimates or durations. The PRD is consumed by AI coding agents who work without time constraints.
 
 ## Workflow
 

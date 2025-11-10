@@ -46,6 +46,8 @@ You will create `SPEC.md` following the template at:
 - Testing Strategy
 - Acceptance Criteria
 
+**Note:** Do not include time estimates or implementation schedules. The specification is consumed by AI coding agents who work without time constraints.
+
 ## Workflow
 
 ### 1. Analyze Context from Phase 1 & 2

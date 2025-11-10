@@ -38,6 +38,8 @@ Transform implementation plans into concise GitHub issues that autonomous coding
 - **Acceptance Criteria**: How to verify completion (measurable checkboxes)
 - **Optional Notes**: Any special considerations not in the documentation
 
+**Note:** Do not include time estimates or effort calculations. GitHub issues are for AI coding agents who complete tasks based on complexity, not calendar time.
+
 ## Workflow
 
 ### 1. Analyze Implementation Plan

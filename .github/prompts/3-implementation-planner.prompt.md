@@ -37,6 +37,8 @@ Create implementation plans that operationalize the technical specification (SPE
 - **Order**: Logical sequence for implementation
 - **Testing Strategy**: Unit and integration test plans
 
+**Note:** Do not include time estimates, durations, or effort calculations. The implementation plan is consumed by AI coding agents who work without time constraints and complete tasks based on complexity, not calendar time.
+
 ## Workflow
 
 ### 1. Analyze Specifications

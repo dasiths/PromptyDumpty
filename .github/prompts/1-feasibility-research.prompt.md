@@ -44,6 +44,8 @@ You may create `FEASIBILITY.md` following the template at:
 - Recommendation
 - Risks and Mitigation
 
+**Note:** Focus on technical feasibility and trade-offs, not implementation timelines. Feasibility documents guide AI coding agents on architectural decisions.
+
 ## Research Tools
 - **codebase**: Examine existing patterns and architecture
 - **search** & **searchResults**: Find relevant implementations
