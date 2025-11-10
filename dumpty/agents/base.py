@@ -2,10 +2,14 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import List
 
 
 class BaseAgent(ABC):
     """Abstract base class for AI agent implementations."""
+
+    # Supported artifact groups for this agent (e.g., ["prompts", "modes"])
+    SUPPORTED_GROUPS: List[str] = []
 
     @property
     @abstractmethod
@@ -52,6 +56,19 @@ class BaseAgent(ABC):
             Path to agent directory
         """
         return project_root / self.directory
+
+    @classmethod
+    def validate_artifact_group(cls, group: str) -> bool:
+        """
+        Validate if artifact group is supported by this agent.
+
+        Args:
+            group: Group name to validate
+
+        Returns:
+            True if group is in SUPPORTED_GROUPS, False otherwise
+        """
+        return group in cls.SUPPORTED_GROUPS
 
     def pre_install(
         self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]

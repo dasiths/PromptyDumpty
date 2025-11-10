@@ -1,11 +1,14 @@
 """Cline agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class ClineAgent(BaseAgent):
     """Cline agent implementation."""
+
+    SUPPORTED_GROUPS: List[str] = ["rules", "workflows"]
 
     @property
     def name(self) -> str:

@@ -1,11 +1,15 @@
 """Claude agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class ClaudeAgent(BaseAgent):
     """Claude agent implementation."""
+
+    # Claude uses .claude/agents/ and .claude/commands/ folders
+    SUPPORTED_GROUPS: List[str] = ["agents", "commands"]
 
     @property
     def name(self) -> str:

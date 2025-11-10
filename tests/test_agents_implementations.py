@@ -218,3 +218,60 @@ class TestContinueAgent:
         """Test detection when directory missing."""
         agent = ContinueAgent()
         assert agent.is_configured(tmp_path) is False
+
+
+class TestAllAgentsSupportedGroups:
+    """Tests to verify all agents have SUPPORTED_GROUPS defined."""
+
+    def test_all_agents_have_supported_groups(self):
+        """Test that all agent implementations have SUPPORTED_GROUPS attribute."""
+        agents = [
+            CopilotAgent(),
+            ClaudeAgent(),
+            CursorAgent(),
+            GeminiAgent(),
+            WindsurfAgent(),
+            ClineAgent(),
+            AiderAgent(),
+            ContinueAgent(),
+        ]
+
+        for agent in agents:
+            assert hasattr(agent.__class__, "SUPPORTED_GROUPS"), (
+                f"{agent.__class__.__name__} missing SUPPORTED_GROUPS"
+            )
+            assert isinstance(agent.__class__.SUPPORTED_GROUPS, list), (
+                f"{agent.__class__.__name__}.SUPPORTED_GROUPS must be a list"
+            )
+
+    def test_copilot_supported_groups(self):
+        """Test CopilotAgent has correct supported groups."""
+        assert CopilotAgent.SUPPORTED_GROUPS == ["prompts", "modes"]
+
+    def test_cursor_supported_groups(self):
+        """Test CursorAgent has correct supported groups."""
+        assert CursorAgent.SUPPORTED_GROUPS == ["rules"]
+
+    def test_windsurf_supported_groups(self):
+        """Test WindsurfAgent has correct supported groups."""
+        assert WindsurfAgent.SUPPORTED_GROUPS == ["workflows", "rules"]
+
+    def test_cline_supported_groups(self):
+        """Test ClineAgent has correct supported groups."""
+        assert ClineAgent.SUPPORTED_GROUPS == ["rules", "workflows"]
+
+    def test_gemini_supported_groups(self):
+        """Test GeminiAgent has correct supported groups (empty)."""
+        assert GeminiAgent.SUPPORTED_GROUPS == []
+
+    def test_claude_supported_groups(self):
+        """Test ClaudeAgent has correct supported groups."""
+        assert ClaudeAgent.SUPPORTED_GROUPS == ["agents", "commands"]
+
+    def test_aider_supported_groups(self):
+        """Test AiderAgent has correct supported groups (empty)."""
+        assert AiderAgent.SUPPORTED_GROUPS == []
+
+    def test_continue_supported_groups(self):
+        """Test ContinueAgent has correct supported groups (empty)."""
+        assert ContinueAgent.SUPPORTED_GROUPS == []

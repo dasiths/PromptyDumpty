@@ -2,11 +2,14 @@
 
 import json
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class CopilotAgent(BaseAgent):
     """GitHub Copilot agent implementation."""
+
+    SUPPORTED_GROUPS: List[str] = ["prompts", "modes"]
 
     @property
     def name(self) -> str:

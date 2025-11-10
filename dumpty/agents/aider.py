@@ -1,11 +1,15 @@
 """Aider agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class AiderAgent(BaseAgent):
     """Aider agent implementation."""
+
+    # Aider uses flat structure, no special groups
+    SUPPORTED_GROUPS: List[str] = []
 
     @property
     def name(self) -> str:

@@ -1,11 +1,14 @@
 """Gemini agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class GeminiAgent(BaseAgent):
     """Gemini agent implementation."""
+
+    SUPPORTED_GROUPS: List[str] = []  # Flat structure, no groups
 
     @property
     def name(self) -> str:

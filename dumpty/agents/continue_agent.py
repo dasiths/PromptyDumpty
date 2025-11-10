@@ -1,11 +1,15 @@
 """Continue agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class ContinueAgent(BaseAgent):
     """Continue agent implementation."""
+
+    # Continue uses flat structure, no special groups
+    SUPPORTED_GROUPS: List[str] = []
 
     @property
     def name(self) -> str:

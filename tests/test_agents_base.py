@@ -202,3 +202,103 @@ def test_base_agent_hooks_can_be_overridden(tmp_path):
 
     agent.post_uninstall(tmp_path, "test-package", install_dir, files)
     assert agent.post_uninstall_called
+
+
+def test_base_agent_has_supported_groups():
+    """Test that BaseAgent has SUPPORTED_GROUPS class attribute."""
+
+    class TestAgent(BaseAgent):
+        SUPPORTED_GROUPS = ["prompts", "modes"]
+
+        @property
+        def name(self):
+            return "test"
+
+        @property
+        def display_name(self):
+            return "Test"
+
+        @property
+        def directory(self):
+            return ".test"
+
+        def is_configured(self, project_root: Path):
+            return True
+
+    assert hasattr(TestAgent, "SUPPORTED_GROUPS")
+    assert TestAgent.SUPPORTED_GROUPS == ["prompts", "modes"]
+
+
+def test_validate_artifact_group_valid():
+    """Test validate_artifact_group with valid group."""
+
+    class TestAgent(BaseAgent):
+        SUPPORTED_GROUPS = ["prompts", "modes"]
+
+        @property
+        def name(self):
+            return "test"
+
+        @property
+        def display_name(self):
+            return "Test"
+
+        @property
+        def directory(self):
+            return ".test"
+
+        def is_configured(self, project_root: Path):
+            return True
+
+    assert TestAgent.validate_artifact_group("prompts") is True
+    assert TestAgent.validate_artifact_group("modes") is True
+
+
+def test_validate_artifact_group_invalid():
+    """Test validate_artifact_group with invalid group."""
+
+    class TestAgent(BaseAgent):
+        SUPPORTED_GROUPS = ["prompts", "modes"]
+
+        @property
+        def name(self):
+            return "test"
+
+        @property
+        def display_name(self):
+            return "Test"
+
+        @property
+        def directory(self):
+            return ".test"
+
+        def is_configured(self, project_root: Path):
+            return True
+
+    assert TestAgent.validate_artifact_group("rules") is False
+    assert TestAgent.validate_artifact_group("workflows") is False
+
+
+def test_validate_artifact_group_empty_list():
+    """Test validate_artifact_group with empty SUPPORTED_GROUPS."""
+
+    class TestAgent(BaseAgent):
+        SUPPORTED_GROUPS = []
+
+        @property
+        def name(self):
+            return "test"
+
+        @property
+        def display_name(self):
+            return "Test"
+
+        @property
+        def directory(self):
+            return ".test"
+
+        def is_configured(self, project_root: Path):
+            return True
+
+    assert TestAgent.validate_artifact_group("prompts") is False
+    assert TestAgent.validate_artifact_group("modes") is False
