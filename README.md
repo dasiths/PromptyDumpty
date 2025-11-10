@@ -15,7 +15,7 @@ PromptyDumpty lets you install and manage prompt packages across different AI co
 ## Why?
 
 - **Share prompts easily**: Package and distribute your team's prompts
-- **Works everywhere**: One package works with multiple AI agents
+- **Works everywhere**: One package works with multiple AI coding assistants
 - **Simple**: Just YAML files and Git repos, no complex setup
 - **Safe**: Clean installation and removal, clear tracking
 
@@ -240,7 +240,7 @@ make run ARGS='list'
 make run ARGS='install https://github.com/org/my-prompts'
 ```
 
-## Supported AI Agents
+## Supported AI Coding Assistants
 
 - **GitHub Copilot** (`.github/`)
 - **Claude** (`.claude/`)

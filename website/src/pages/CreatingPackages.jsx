@@ -134,7 +134,7 @@ agents:
             <div className="text-3xl mb-3">📦</div>
             <h3 className="text-xl font-semibold mb-2">Multi-Agent Support</h3>
             <p className="text-slate-300">
-              Create one package that works across all supported AI agents.
+              Create one package that works across all supported AI coding assistants.
             </p>
           </div>
         </div>

@@ -209,7 +209,7 @@ class TestInitCommand:
         result = cli_runner.invoke(cli, ["init"])
 
         assert result.exit_code == 0
-        assert "No AI agents detected" in result.output
+        assert "No supported AI coding assistants detected" in result.output
         assert "GitHub Copilot" in result.output  # Shows supported agents
 
     def test_init_invalid_agent(self, cli_runner, tmp_path, monkeypatch):
@@ -300,7 +300,7 @@ agents:
         result = cli_runner.invoke(cli, ["install", "test-url"])
 
         assert result.exit_code == 1
-        assert "No AI agents detected" in result.output
+        assert "No supported AI coding assistants detected" in result.output
 
     def test_install_with_agent_flag(self, cli_runner, tmp_path, monkeypatch, sample_package_dir):
         """Test install with --agent flag."""

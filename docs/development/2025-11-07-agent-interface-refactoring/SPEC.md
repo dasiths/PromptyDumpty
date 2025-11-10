@@ -352,7 +352,7 @@ from enum import Enum
 
 
 class Agent(Enum):
-    """Supported AI agents (backward compatible facade)."""
+    """Supported AI coding assistants (backward compatible facade)."""
     
     # Enum members reference agent implementations
     COPILOT = "copilot"
@@ -776,7 +776,7 @@ from typing import List, Optional
 
 
 class Agent(Enum):
-    """Supported AI agents with their directory structures."""
+    """Supported AI coding assistants with their directory structures."""
 
     COPILOT = "copilot"
     CLAUDE = "claude"
@@ -822,7 +822,7 @@ class Agent(Enum):
 
 
 class AgentDetector:
-    """Detects which AI agents are configured in a project."""
+    """Detects which AI coding assistants are configured in a project."""
 
     def __init__(self, project_root: Optional[Path] = None):
         """Initialize detector."""

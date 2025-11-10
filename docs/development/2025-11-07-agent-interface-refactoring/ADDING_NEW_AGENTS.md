@@ -91,7 +91,7 @@ In `dumpty/agent_detector.py`, add to the `Agent` enum:
 
 ```python
 class Agent(Enum):
-    """Supported AI agents with their directory structures."""
+    """Supported AI coding assistants with their directory structures."""
     
     # ... existing members
     NEWAGENT = "newagent"  # Value must match agent.name

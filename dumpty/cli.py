@@ -68,7 +68,7 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
         elif detected_agents:
             target_agents = detected_agents
         else:
-            console.print("[yellow]Warning:[/] No AI agents detected in this project.")
+            console.print("[yellow]Warning:[/] No supported AI coding assistants detected in this project.")
             console.print(
                 "Please specify an agent with --agent flag or create an agent directory "
                 "(e.g., .github, .claude, .cursor)"
@@ -326,7 +326,7 @@ def init(agent: str, project_root: Path):
                 console.print(f"  - {a.display_name} ({a.directory}/)")
         else:
             console.print(
-                "[yellow]No AI agents detected.[/] You can create agent directories manually:"
+                "[yellow]No supported AI coding assistants detected.[/] You can create agent directories manually:"
             )
             console.print("\nSupported agents:")
             for a in Agent:

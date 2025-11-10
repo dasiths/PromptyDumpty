@@ -8,7 +8,7 @@ Refactor Agent Detection to Plugin-like Interface Architecture
 ## **Description:**
 
 ### Overview
-Refactor PromptyDumpty's agent detection system from a monolithic enum-based design to a plugin-like interface-based architecture. This will enable adding new AI agents by creating a single implementation file, improving extensibility and maintainability while maintaining 100% backward compatibility.
+Refactor PromptyDumpty's agent detection system from a monolithic enum-based design to a plugin-like interface-based architecture. This will enable adding new AI coding assistants by creating a single implementation file, improving extensibility and maintainability while maintaining 100% backward compatibility.
 
 **Full Context:** See development session folder at [`docs/development/2025-11-07-agent-interface-refactoring/`](../../../docs/development/2025-11-07-agent-interface-refactoring/)
 

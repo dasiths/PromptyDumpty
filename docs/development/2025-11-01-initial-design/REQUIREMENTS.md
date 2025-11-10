@@ -6,15 +6,15 @@ A lightweight, universal package manager CLI for installing and managing AI codi
 
 ## Problem Statement
 
-1. **Fragmentation**: Different AI agents use different directory structures and file formats
+1. **Fragmentation**: Different AI coding assistants use different directory structures and file formats
 2. **Reusability**: Teams create custom workflows but have no standardized way to share them
 3. **Version Control**: No tracking of installed artifacts or their versions
 4. **Discovery**: No centralized way to find and install community-created prompt collections
-5. **Multi-Agent Support**: Developers use multiple AI agents and need artifacts to work across all of them
+5. **Multi-Agent Support**: Developers use multiple AI coding assistants and need artifacts to work across all of them
 
 ## Goals
 
-- **Universal**: Support multiple AI agents (GitHub Copilot, Claude, Cursor, Gemini, Windsurf, Cline, etc.)
+- **Universal**: Support multiple AI coding assistants (GitHub Copilot, Claude, Cursor, Gemini, Windsurf, Cline, etc.)
 - **Lightweight**: Minimal configuration, simple manifest format
 - **Flexible**: Support any artifact types defined by package creators (commands, memory, templates, rules, workflows, etc.)
 - **Transparent**: Clear tracking of what's installed and where
@@ -136,7 +136,7 @@ The manifest is organized by agent, with each agent defining its own artifacts. 
 ```yaml
 name: bdd-workflows
 version: 1.0.0
-description: Behavior-Driven Development workflows for AI agents
+description: Behavior-Driven Development workflows for AI coding assistants
 author: your-org
 homepage: https://github.com/org/my-package
 license: MIT
@@ -562,11 +562,11 @@ dumpty validate                      # Validate package manifest
 ## Success Criteria
 
 1. Users can install a package with one command
-2. Installed artifacts work immediately with detected AI agents
+2. Installed artifacts work immediately with detected AI coding assistants
 3. Users can safely remove packages without manual cleanup
 4. Lockfile enables reproducible installations across teams
 5. Community can create and share packages easily
-6. Works with at least 5 different AI agents
+6. Works with at least 5 different AI coding assistants
 
 ## Open Questions
 
@@ -637,7 +637,7 @@ dumpty uninstall bdd-workflows
 Dumpty provides a lightweight, universal package manager for AI coding assistants. It focuses on:
 
 - **Simplicity:** Minimal configuration, intuitive commands
-- **Universality:** Works across multiple AI agents
+- **Universality:** Works across multiple AI coding assistants
 - **Flexibility:** Package creators define their own artifact types and structure
 - **Transparency:** Clear tracking of installations with lockfile
 - **Safety:** Predictable installation and removal with naming conventions

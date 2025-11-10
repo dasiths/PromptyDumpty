@@ -95,7 +95,7 @@ dumpty update --all`}
       <section id="agent-detection" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Agent Detection</h2>
         <p className="text-slate-300 mb-4">
-          PromptyDumpty automatically detects which AI agents are configured in your project by looking for specific directories:
+          PromptyDumpty automatically detects which AI coding assistants are configured in your project by looking for specific directories:
         </p>
         <div className="bg-slate-900/50 rounded-lg p-6 border border-slate-700">
           <table className="w-full text-slate-300">

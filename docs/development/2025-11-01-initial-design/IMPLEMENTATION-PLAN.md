@@ -13,11 +13,11 @@ This document provides step-by-step instructions for implementing the PromptyDum
 ## Project Goals
 
 Build a lightweight, universal package manager CLI for AI coding assistants that:
-- Auto-detects AI agents in projects
+- Auto-detects AI coding assistants in projects
 - Installs packages from Git repositories
 - Tracks installations in a lockfile
 - Uses the user's existing git configuration
-- Supports multiple AI agents (Copilot, Claude, Cursor, etc.)
+- Supports multiple AI coding assistants (Copilot, Claude, Cursor, etc.)
 
 ---
 
@@ -679,7 +679,7 @@ from typing import List, Optional
 
 
 class Agent(Enum):
-    """Supported AI agents with their directory structures."""
+    """Supported AI coding assistants with their directory structures."""
     COPILOT = (".github", "GitHub Copilot")
     CLAUDE = (".claude", "Claude")
     CURSOR = (".cursor", "Cursor")
@@ -715,7 +715,7 @@ class Agent(Enum):
 
 
 class AgentDetector:
-    """Detects which AI agents are configured in a project."""
+    """Detects which AI coding assistants are configured in a project."""
     
     def __init__(self, project_root: Optional[Path] = None):
         """

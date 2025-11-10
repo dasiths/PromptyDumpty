@@ -1059,7 +1059,7 @@ print("OK: All 8 agents registered")
 **Step 1:** Update enum values from tuples to strings
 ```python
 class Agent(Enum):
-    """Supported AI agents with their directory structures."""
+    """Supported AI coding assistants with their directory structures."""
 
     # OLD: COPILOT = (".github", "GitHub Copilot")
     # NEW:
