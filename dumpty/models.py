@@ -18,11 +18,21 @@ class Artifact:
     @classmethod
     def from_dict(cls, data: dict) -> "Artifact":
         """Create Artifact from dictionary."""
+        # Validate paths for security
+        file_path = data["file"]
+        installed_path = data["installed_path"]
+        
+        # Reject absolute paths and path traversal attempts
+        if Path(file_path).is_absolute() or ".." in file_path:
+            raise ValueError(f"Invalid file path (absolute or contains '..'): {file_path}")
+        if Path(installed_path).is_absolute() or ".." in installed_path:
+            raise ValueError(f"Invalid installed path (absolute or contains '..'): {installed_path}")
+        
         return cls(
             name=data["name"],
             description=data.get("description", ""),
-            file=data["file"],
-            installed_path=data["installed_path"],
+            file=file_path,
+            installed_path=installed_path,
         )
 
 
@@ -37,7 +47,8 @@ class PackageManifest:
     homepage: Optional[str] = None
     license: Optional[str] = None
     dumpty_version: Optional[str] = None
-    agents: Dict[str, List[Artifact]] = field(default_factory=dict)
+    manifest_version: Optional[int] = None
+    agents: Dict[str, Dict[str, List[Artifact]]] = field(default_factory=dict)
 
     @classmethod
     def from_file(cls, path: Path) -> "PackageManifest":
@@ -51,17 +62,46 @@ class PackageManifest:
             if field_name not in data:
                 raise ValueError(f"Missing required field: {field_name}")
 
-        # Parse agents and artifacts
+        # Parse agents and artifacts with NESTED structure
         agents = {}
         if "agents" in data:
             for agent_name, agent_data in data["agents"].items():
-                artifacts = []
+                # OLD FORMAT DETECTION (reject with helpful error)
                 if "artifacts" in agent_data:
-                    for artifact_data in agent_data["artifacts"]:
-                        artifacts.append(Artifact.from_dict(artifact_data))
-                agents[agent_name] = artifacts
+                    raise ValueError(
+                        f"Invalid manifest format detected.\n\n"
+                        f"The old flat format is no longer supported. Please update to nested format:\n\n"
+                        f"Old format:\n"
+                        f"  agents:\n"
+                        f"    {agent_name}:\n"
+                        f"      artifacts:\n"
+                        f"        - name: example\n"
+                        f"          file: src/example.md\n"
+                        f"          installed_path: example.md\n\n"
+                        f"New format (group artifacts by type):\n"
+                        f"  agents:\n"
+                        f"    {agent_name}:\n"
+                        f"      prompts:  # or modes, rules, workflows, etc.\n"
+                        f"        - name: example\n"
+                        f"          file: src/example.md\n"
+                        f"          installed_path: example.md\n\n"
+                        f"See documentation: https://dumpty.dev/docs/manifest-format"
+                    )
 
-        return cls(
+                # Parse nested groups
+                groups = {}
+                for group_name, group_data in agent_data.items():
+                    if not isinstance(group_data, list):
+                        continue  # Skip non-list fields (e.g., metadata)
+
+                    artifacts = []
+                    for artifact_data in group_data:
+                        artifacts.append(Artifact.from_dict(artifact_data))
+                    groups[group_name] = artifacts
+
+                agents[agent_name] = groups
+
+        manifest = cls(
             name=data["name"],
             version=data["version"],
             description=data["description"],
@@ -69,8 +109,47 @@ class PackageManifest:
             homepage=data.get("homepage"),
             license=data.get("license"),
             dumpty_version=data.get("dumpty_version"),
+            manifest_version=data.get("manifest_version"),
             agents=agents,
         )
+
+        # Validate groups against agent registry
+        manifest.validate_groups()
+
+        return manifest
+
+    def validate_groups(self) -> None:
+        """
+        Validate that all artifact groups are supported by their agents.
+        
+        Raises:
+            ValueError: If any group is not supported by its agent
+        """
+        from dumpty.agents.registry import get_agent_by_name
+        
+        for agent_name, groups in self.agents.items():
+            # Try to get agent implementation
+            try:
+                agent_class = get_agent_by_name(agent_name)
+            except ValueError:
+                # Unknown agent - print warning but continue (forward compatibility)
+                print(f"Warning: Unknown agent '{agent_name}' - cannot validate groups")
+                continue
+            
+            # Validate each group
+            for group_name in groups.keys():
+                if not agent_class.validate_artifact_group(group_name):
+                    supported = agent_class.SUPPORTED_GROUPS
+                    if supported:
+                        raise ValueError(
+                            f"Invalid artifact group '{group_name}' for agent '{agent_name}'.\n"
+                            f"Supported groups: {', '.join(supported)}"
+                        )
+                    else:
+                        raise ValueError(
+                            f"Agent '{agent_name}' does not support artifact groups.\n"
+                            f"This agent uses a flat structure."
+                        )
 
     def validate_files_exist(self, package_root: Path) -> List[str]:
         """
@@ -78,11 +157,12 @@ class PackageManifest:
         Returns list of missing files.
         """
         missing = []
-        for agent_name, artifacts in self.agents.items():
-            for artifact in artifacts:
-                file_path = package_root / artifact.file
-                if not file_path.exists():
-                    missing.append(f"{agent_name}/{artifact.name}: {artifact.file}")
+        for agent_name, groups in self.agents.items():
+            for group_name, artifacts in groups.items():
+                for artifact in artifacts:
+                    file_path = package_root / artifact.file
+                    if not file_path.exists():
+                        missing.append(f"{agent_name}/{group_name}/{artifact.name}: {artifact.file}")
         return missing
 
 

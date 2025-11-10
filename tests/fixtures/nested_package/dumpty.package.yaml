@@ -1,0 +1,30 @@
+name: nested-test-package
+version: 1.0.0
+description: Test package with nested group structure
+author: Test Author
+license: MIT
+manifest_version: 2
+
+agents:
+  copilot:
+    prompts:
+      - name: planning
+        description: Planning prompt
+        file: src/planning.md
+        installed_path: planning.prompt.md
+      - name: review
+        description: Review prompt
+        file: src/review.md
+        installed_path: review.prompt.md
+    modes:
+      - name: debug
+        description: Debug mode
+        file: src/debug.md
+        installed_path: debug.md
+  
+  cursor:
+    rules:
+      - name: coding-standards
+        description: Coding standards
+        file: src/standards.md
+        installed_path: coding-standards.mdc
