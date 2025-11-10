@@ -13,16 +13,41 @@ from dumpty.downloader import PackageDownloader
 from dumpty.installer import FileInstaller
 from dumpty.lockfile import LockfileManager
 from dumpty.models import PackageManifest, InstalledPackage, InstalledFile
-from dumpty.utils import calculate_checksum, parse_git_tags, compare_versions, get_project_root
+from dumpty.utils import (
+    calculate_checksum,
+    parse_git_tags,
+    compare_versions,
+    get_project_root,
+)
 
 console = Console()
 
+ASCII_ART = r"""
+██████╗ ██╗   ██╗███╗   ███╗██████╗ ████████╗██╗   ██╗         ██████╗██╗     ██╗
+██╔══██╗██║   ██║████╗ ████║██╔══██╗╚══██╔══╝╚██╗ ██╔╝        ██╔════╝██║     ██║
+██║  ██║██║   ██║██╔████╔██║██████╔╝   ██║    ╚████╔╝         ██║     ██║     ██║
+██║  ██║██║   ██║██║╚██╔╝██║██╔═══╝    ██║     ╚██╔╝          ██║     ██║     ██║
+██████╔╝╚██████╔╝██║ ╚═╝ ██║██║        ██║      ██║           ╚██████╗███████╗██║
+╚═════╝  ╚═════╝ ╚═╝     ╚═╝╚═╝        ╚═╝      ╚═╝            ╚═════╝╚══════╝╚═╝
+"""
 
-@click.group()
+
+@click.group(
+    invoke_without_command=True,
+    epilog=f"\n[blue]→[/blue] Visit [link=https://dumpty.dev]https://dumpty.dev[/link] for documentation and guides",
+)
 @click.version_option(version=__version__)
-def cli():
+@click.pass_context
+def cli(ctx):
     """Dumpty - Universal package manager for AI coding assistants."""
-    pass
+    # If no command is provided, show the logo
+    if ctx.invoked_subcommand is None:
+        console.print(f"[cyan]{ASCII_ART}[/cyan]")
+        console.print(
+            f"\n[bold cyan]Dumpty[/bold cyan] [dim]v{__version__}[/dim] - Universal package manager for AI coding assistants"
+        )
+        console.print(f"[blue]→[/blue] [link=https://dumpty.dev]https://dumpty.dev[/link]\n")
+        console.print("Run [cyan]dumpty --help[/cyan] to see available commands\n")
 
 
 @cli.command()
@@ -68,7 +93,9 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
         elif detected_agents:
             target_agents = detected_agents
         else:
-            console.print("[yellow]Warning:[/] No supported AI coding assistants detected in this project.")
+            console.print(
+                "[yellow]Warning:[/] No supported AI coding assistants detected in this project."
+            )
             console.print(
                 "Please specify an agent with --agent flag or create an agent directory "
                 "(e.g., .github, .claude, .cursor)"
