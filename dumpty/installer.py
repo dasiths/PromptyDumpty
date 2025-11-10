@@ -25,6 +25,7 @@ class FileInstaller:
         agent: Agent,
         package_name: str,
         installed_path: str,
+        group: Optional[str] = None,
     ) -> tuple[Path, str]:
         """
         Install a file to an agent's directory.
@@ -34,13 +35,20 @@ class FileInstaller:
             agent: Target agent
             package_name: Package name (for organizing files)
             installed_path: Relative path within package directory (from manifest)
+            group: Optional artifact group (e.g., 'prompts', 'modes', 'rules')
 
         Returns:
             Tuple of (installed file path, checksum)
         """
-        # Build destination path: <agent_dir>/<package_name>/<installed_path>
+        # Build destination path: <agent_dir>/<group>/<package_name>/<installed_path>
+        # If no group specified, use flat structure: <agent_dir>/<package_name>/<installed_path>
         agent_dir = self.project_root / agent.directory
-        package_dir = agent_dir / package_name
+        
+        if group:
+            package_dir = agent_dir / group / package_name
+        else:
+            package_dir = agent_dir / package_name
+            
         dest_file = package_dir / installed_path
 
         # Create parent directories
@@ -56,7 +64,7 @@ class FileInstaller:
 
     def install_package(
         self,
-        source_files: List[tuple[Path, str]],
+        source_files: List[tuple[Path, str, Optional[str]]],
         agent: Agent,
         package_name: str,
     ) -> List[tuple[Path, str]]:
@@ -64,7 +72,7 @@ class FileInstaller:
         Install a complete package with hooks support.
 
         Args:
-            source_files: List of (source_file, installed_path) tuples
+            source_files: List of (source_file, installed_path, group) tuples
             agent: Target agent
             package_name: Package name
 
@@ -74,24 +82,27 @@ class FileInstaller:
         # Get agent implementation
         agent_impl = agent._get_impl()
 
-        # Determine install directory
+        # Determine install directory (base directory for hooks)
         agent_dir = self.project_root / agent.directory
         install_dir = agent_dir / package_name
 
         # Prepare list of files that will be installed (relative to project root)
-        install_paths = [
-            Path(agent.directory) / package_name / installed_path
-            for _, installed_path in source_files
-        ]
+        install_paths = []
+        for _, installed_path, group in source_files:
+            if group:
+                full_path = Path(agent.directory) / group / package_name / installed_path
+            else:
+                full_path = Path(agent.directory) / package_name / installed_path
+            install_paths.append(full_path)
 
         # Call pre-install hook
         agent_impl.pre_install(self.project_root, package_name, install_dir, install_paths)
 
         # Install all files
         results = []
-        for source_file, installed_path in source_files:
+        for source_file, installed_path, group in source_files:
             dest_path, checksum = self.install_file(
-                source_file, agent, package_name, installed_path
+                source_file, agent, package_name, installed_path, group
             )
             results.append((dest_path, checksum))
 
