@@ -61,19 +61,19 @@ description: Test package supporting multiple agents
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test-prompt
         description: Test prompt
         file: src/test.md
         installed_path: test.md
   cursor:
-    artifacts:
+    rules:
       - name: test-cursor
         description: Cursor prompt
         file: src/cursor.md
         installed_path: cursor.md
   continue:
-    artifacts:
+    prompts:
       - name: test-continue
         description: Continue prompt
         file: src/continue.md
@@ -206,19 +206,19 @@ description: Test package
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test
         description: Test
         file: src/test.md
         installed_path: test.md
   cursor:
-    artifacts:
+    rules:
       - name: test
         description: Test
         file: src/test.md
         installed_path: test.md
   continue:
-    artifacts:
+    prompts:
       - name: test
         description: Test
         file: src/test.md

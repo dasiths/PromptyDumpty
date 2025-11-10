@@ -704,35 +704,40 @@ def update(
                     # Ensure agent directory exists
                     detector.ensure_agent_directory(agent)
 
-                    # Install artifacts using install_package to trigger hooks
-                    artifacts = manifest.agents[agent_name]
+                    # Get groups and artifacts for this agent (nested structure)
+                    groups = manifest.agents[agent_name]
 
-                    # Prepare source files list for install_package
-                    source_files = [
-                        (package_dir / artifact.file, artifact.installed_path)
-                        for artifact in artifacts
-                    ]
+                    # Prepare source files list for install_package (now with groups)
+                    source_files = []
+                    for group_name, artifacts in groups.items():
+                        for artifact in artifacts:
+                            source_files.append((package_dir / artifact.file, artifact.installed_path, group_name))
 
                     # Call install_package which will trigger pre/post install hooks
                     results = installer.install_package(source_files, agent, manifest.name)
 
                     # Process results for lockfile
                     agent_files = []
-                    for (dest_path, checksum), artifact in zip(results, artifacts):
-                        # Make path relative to project root for lockfile
-                        try:
-                            rel_path = dest_path.relative_to(project_root)
-                        except ValueError:
-                            rel_path = dest_path
+                    artifact_idx = 0
+                    for group_name, artifacts in groups.items():
+                        for artifact in artifacts:
+                            dest_path, checksum = results[artifact_idx]
+                            artifact_idx += 1
+                            
+                            # Make path relative to project root for lockfile
+                            try:
+                                rel_path = dest_path.relative_to(project_root)
+                            except ValueError:
+                                rel_path = dest_path
 
-                        agent_files.append(
-                            InstalledFile(
-                                source=artifact.file,
-                                installed=str(rel_path),
-                                checksum=checksum,
+                            agent_files.append(
+                                InstalledFile(
+                                    source=artifact.file,
+                                    installed=str(rel_path),
+                                    checksum=checksum,
+                                )
                             )
-                        )
-                        total_installed += 1
+                            total_installed += 1
 
                     installed_files[agent_name] = agent_files
 

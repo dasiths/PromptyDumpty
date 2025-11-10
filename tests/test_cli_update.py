@@ -82,7 +82,7 @@ def setup_package_for_update(tmp_path, mock_git_ops):
     new_pkg_dir = tmp_path / "cache" / "test-package"
     new_pkg_dir.mkdir(parents=True)
 
-    # Create manifest for new version
+    # Create manifest for new version with NESTED format
     manifest_content = """
 name: test-package
 version: 2.0.0
@@ -92,11 +92,11 @@ license: MIT
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test-prompt
         description: Test prompt file
         file: src/test.md
-        installed_path: prompts/test.md
+        installed_path: test.md
 """
     (new_pkg_dir / "dumpty.package.yaml").write_text(manifest_content)
 
@@ -215,7 +215,7 @@ class TestUpdateCommand:
         tmp_path, new_pkg_dir, mock_git_ops = setup_package_for_update
         monkeypatch.chdir(tmp_path)
 
-        # Create v1.1.0 package
+        # Create v1.1.0 package with NESTED format
         v110_dir = tmp_path / "cache" / "test-package-v110"
         v110_dir.mkdir(parents=True)
 
@@ -225,11 +225,11 @@ version: 1.1.0
 description: Test package
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test-prompt
         description: Test
         file: src/test.md
-        installed_path: prompts/test.md
+        installed_path: test.md
 """
         (v110_dir / "dumpty.package.yaml").write_text(manifest_content)
         src_dir = v110_dir / "src"
