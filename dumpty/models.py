@@ -43,11 +43,11 @@ class PackageManifest:
     name: str
     version: str
     description: str
+    manifest_version: float
     author: Optional[str] = None
     homepage: Optional[str] = None
     license: Optional[str] = None
     dumpty_version: Optional[str] = None
-    manifest_version: Optional[int] = None
     agents: Dict[str, Dict[str, List[Artifact]]] = field(default_factory=dict)
 
     @classmethod
@@ -61,6 +61,23 @@ class PackageManifest:
         for field_name in required:
             if field_name not in data:
                 raise ValueError(f"Missing required field: {field_name}")
+
+        # Validate manifest_version
+        manifest_version = data.get("manifest_version")
+        if manifest_version is None:
+            raise ValueError(
+                "Missing required field: manifest_version\n\n"
+                "The manifest must specify a version. For the current format, use:\n"
+                "  manifest_version: 1.0"
+            )
+        
+        # Only accept version 1.0
+        if manifest_version != 1.0:
+            raise ValueError(
+                f"Unsupported manifest version: {manifest_version}\n\n"
+                f"This version of dumpty only supports manifest_version: 1.0\n"
+                f"Please update your manifest or use a compatible version of dumpty."
+            )
 
         # Parse agents and artifacts with NESTED structure
         agents = {}
@@ -105,11 +122,11 @@ class PackageManifest:
             name=data["name"],
             version=data["version"],
             description=data["description"],
+            manifest_version=manifest_version,
             author=data.get("author"),
             homepage=data.get("homepage"),
             license=data.get("license"),
             dumpty_version=data.get("dumpty_version"),
-            manifest_version=data.get("manifest_version"),
             agents=agents,
         )
 
@@ -121,6 +138,9 @@ class PackageManifest:
     def validate_groups(self) -> None:
         """
         Validate that all artifact groups are supported by their agents.
+        
+        All agents support "files" as a catch-all for flat structure.
+        Agents with specific SUPPORTED_GROUPS validate against those.
         
         Raises:
             ValueError: If any group is not supported by its agent
@@ -140,16 +160,10 @@ class PackageManifest:
             for group_name in groups.keys():
                 if not agent_class.validate_artifact_group(group_name):
                     supported = agent_class.SUPPORTED_GROUPS
-                    if supported:
-                        raise ValueError(
-                            f"Invalid artifact group '{group_name}' for agent '{agent_name}'.\n"
-                            f"Supported groups: {', '.join(supported)}"
-                        )
-                    else:
-                        raise ValueError(
-                            f"Agent '{agent_name}' does not support artifact groups.\n"
-                            f"This agent uses a flat structure."
-                        )
+                    raise ValueError(
+                        f"Invalid artifact group '{group_name}' for agent '{agent_name}'.\n"
+                        f"Supported groups: {', '.join(supported)}"
+                    )
 
     def validate_files_exist(self, package_root: Path) -> List[str]:
         """

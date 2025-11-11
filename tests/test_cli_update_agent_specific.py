@@ -58,6 +58,7 @@ def test_update_honors_agent_specific_installation(cli_runner, tmp_path, monkeyp
 name: test-package
 version: 2.0.0
 description: Test package supporting multiple agents
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -203,6 +204,7 @@ def test_update_multiple_agents_installation(cli_runner, tmp_path, monkeypatch):
 name: test-package
 version: 2.0.0
 description: Test package
+manifest_version: 1.0
 
 agents:
   copilot:

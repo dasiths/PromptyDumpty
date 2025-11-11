@@ -6,7 +6,7 @@ from dumpty.agent_detector import Agent
 
 
 def test_install_file(tmp_path):
-    """Test installing a file."""
+    """Test installing a file with 'files' group."""
     # Create source file
     source_dir = tmp_path / "source"
     source_dir.mkdir()
@@ -19,13 +19,13 @@ def test_install_file(tmp_path):
 
     installer = FileInstaller(project_root)
 
-    # Install file without group (flat structure)
+    # Install file with "files" group (default group)
     dest_path, checksum = installer.install_file(
-        source_file, Agent.COPILOT, "test-package", "test.prompt.md"
+        source_file, Agent.COPILOT, "test-package", "test.prompt.md", "files"
     )
 
-    # Verify installation (flat structure)
-    expected_path = project_root / ".github" / "test-package" / "test.prompt.md"
+    # Verify installation with files directory
+    expected_path = project_root / ".github" / "files" / "test-package" / "test.prompt.md"
     assert dest_path == expected_path
     assert dest_path.exists()
     assert dest_path.read_text() == "# Test File"
@@ -97,7 +97,7 @@ def test_install_file_preserves_metadata(tmp_path):
 
     installer = FileInstaller(project_root)
 
-    dest_path, _ = installer.install_file(source_file, Agent.COPILOT, "pkg", "file.md")
+    dest_path, _ = installer.install_file(source_file, Agent.COPILOT, "pkg", "file.md", "files")
 
     # shutil.copy2 preserves modification time
     assert dest_path.stat().st_mtime == source_file.stat().st_mtime
@@ -376,7 +376,7 @@ def test_install_multiple_groups(tmp_path):
 
 
 def test_install_package_without_group(tmp_path):
-    """Test installing a package without groups (flat structure)."""
+    """Test installing a package using 'files' group (default for agents without specific groups)."""
     from dumpty.installer import FileInstaller
     from dumpty.agent_detector import Agent
 
@@ -387,15 +387,15 @@ def test_install_package_without_group(tmp_path):
     test_file.write_text("test content")
 
     source_files = [
-        (test_file, "file.txt", None),  # No group
+        (test_file, "file.txt", "files"),  # Use "files" group
     ]
 
     # Install package
     results = installer.install_package(source_files, Agent.GEMINI, "test-package")
 
-    # Verify files were installed without group directory
+    # Verify files were installed in files/ directory (not flat structure)
     assert len(results) == 1
-    assert (tmp_path / ".gemini/test-package/file.txt").exists()
+    assert (tmp_path / ".gemini/files/test-package/file.txt").exists()
 
 
 def test_install_package_multiple_groups_multiple_dirs(tmp_path):

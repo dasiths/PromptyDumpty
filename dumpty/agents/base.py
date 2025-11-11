@@ -9,7 +9,8 @@ class BaseAgent(ABC):
     """Abstract base class for AI agent implementations."""
 
     # Supported artifact groups for this agent (e.g., ["prompts", "modes"])
-    SUPPORTED_GROUPS: List[str] = []
+    # All agents support "files" as a catch-all for flat structure
+    SUPPORTED_GROUPS: List[str] = ["files"]
 
     @property
     @abstractmethod
@@ -79,10 +80,10 @@ class BaseAgent(ABC):
         Override this method in subclasses to customize folder mapping.
         
         Args:
-            group: Group name (e.g., 'prompts', 'modes')
+            group: Group name (e.g., 'prompts', 'modes', 'files')
             
         Returns:
-            Folder name for the group (e.g., 'prompts', 'modes')
+            Folder name for the group (e.g., 'prompts', 'modes', 'files')
             
         Example:
             A custom agent might map 'prompts' -> '.prompts' or 'rules' -> 'project_rules'

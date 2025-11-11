@@ -9,7 +9,7 @@ from .base import BaseAgent
 class CopilotAgent(BaseAgent):
     """GitHub Copilot agent implementation."""
 
-    SUPPORTED_GROUPS: List[str] = ["prompts", "modes"]
+    SUPPORTED_GROUPS: List[str] = ["files", "prompts", "modes"]
 
     @property
     def name(self) -> str:

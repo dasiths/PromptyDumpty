@@ -3,6 +3,7 @@ version: 1.0.0
 description: Sample package for testing
 author: Test Author
 license: MIT
+manifest_version: 1.0
 
 agents:
   copilot:

@@ -87,6 +87,7 @@ def setup_package_for_update(tmp_path, mock_git_ops):
 name: test-package
 version: 2.0.0
 description: Test package for update tests
+manifest_version: 1.0
 author: Test Author
 license: MIT
 
@@ -223,6 +224,7 @@ class TestUpdateCommand:
 name: test-package
 version: 1.1.0
 description: Test package
+manifest_version: 1.0
 agents:
   copilot:
     prompts:
@@ -521,6 +523,7 @@ agents:
 name: test-package
 version: 2.0.0
 description: Test package
+manifest_version: 1.0
 author: Test
 license: MIT
 

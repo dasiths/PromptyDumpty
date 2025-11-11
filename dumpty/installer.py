@@ -25,7 +25,7 @@ class FileInstaller:
         agent: Agent,
         package_name: str,
         installed_path: str,
-        group: Optional[str] = None,
+        group: str,
     ) -> tuple[Path, str]:
         """
         Install a file to an agent's directory.
@@ -35,22 +35,18 @@ class FileInstaller:
             agent: Target agent
             package_name: Package name (for organizing files)
             installed_path: Relative path within package directory (from manifest)
-            group: Optional artifact group (e.g., 'prompts', 'modes', 'rules')
+            group: Artifact group (e.g., 'prompts', 'modes', 'files')
 
         Returns:
             Tuple of (installed file path, checksum)
         """
         # Build destination path: <agent_dir>/<group_folder>/<package_name>/<installed_path>
-        # If no group specified, use flat structure: <agent_dir>/<package_name>/<installed_path>
         agent_dir = self.project_root / agent.directory
         agent_impl = agent._get_impl()
         
-        if group:
-            # Use agent's group folder mapping
-            group_folder = agent_impl.get_group_folder(group)
-            package_dir = agent_dir / group_folder / package_name
-        else:
-            package_dir = agent_dir / package_name
+        # Use agent's group folder mapping
+        group_folder = agent_impl.get_group_folder(group)
+        package_dir = agent_dir / group_folder / package_name
             
         dest_file = package_dir / installed_path
 
@@ -67,7 +63,7 @@ class FileInstaller:
 
     def install_package(
         self,
-        source_files: List[tuple[Path, str, Optional[str]]],
+        source_files: List[tuple[Path, str, str]],
         agent: Agent,
         package_name: str,
     ) -> List[tuple[Path, str]]:
@@ -91,11 +87,8 @@ class FileInstaller:
         
         # Collect all unique install directories
         for _, installed_path, group in source_files:
-            if group:
-                group_folder = agent_impl.get_group_folder(group)
-                install_dir = agent_dir / group_folder / package_name
-            else:
-                install_dir = agent_dir / package_name
+            group_folder = agent_impl.get_group_folder(group)
+            install_dir = agent_dir / group_folder / package_name
             install_dirs_set.add(install_dir)
         
         install_dirs = sorted(list(install_dirs_set))  # Sort for consistent ordering
@@ -103,11 +96,8 @@ class FileInstaller:
         # Prepare list of files that will be installed (relative to project root)
         install_paths = []
         for _, installed_path, group in source_files:
-            if group:
-                group_folder = agent_impl.get_group_folder(group)
-                full_path = Path(agent.directory) / group_folder / package_name / installed_path
-            else:
-                full_path = Path(agent.directory) / package_name / installed_path
+            group_folder = agent_impl.get_group_folder(group)
+            full_path = Path(agent.directory) / group_folder / package_name / installed_path
             install_paths.append(full_path)
 
         # Call pre-install hook with list of install directories

@@ -24,6 +24,7 @@ def sample_package_dir(tmp_path):
 name: test-package
 version: 1.0.0
 description: Test package for CLI tests
+manifest_version: 1.0
 author: Test Author
 license: MIT
 
@@ -265,6 +266,7 @@ class TestInstallCommand:
 name: test-package
 version: 1.0.0
 description: Test package
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -393,6 +395,7 @@ agents:
 name: test-package
 version: 2.0.0
 description: Test package
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -473,6 +476,7 @@ agents:
 name: test-package
 version: 2.0.0
 description: Test package
+manifest_version: 1.0
 
 agents:
   copilot:

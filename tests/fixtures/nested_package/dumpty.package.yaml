@@ -3,7 +3,7 @@ version: 1.0.0
 description: Test package with nested group structure
 author: Test Author
 license: MIT
-manifest_version: 2
+manifest_version: 1.0
 
 agents:
   copilot:

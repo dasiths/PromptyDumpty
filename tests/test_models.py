@@ -38,6 +38,7 @@ def test_package_manifest_from_file(tmp_path):
 name: test-package
 version: 1.0.0
 description: A test package
+manifest_version: 1.0
 author: Test Author
 license: MIT
 
@@ -99,6 +100,7 @@ def test_package_manifest_validate_files_exist(tmp_path):
 name: test-package
 version: 1.0.0
 description: A test package
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -232,7 +234,8 @@ def test_package_manifest_nested_format(tmp_path):
 name: test-package
 version: 1.0.0
 description: A test package
-manifest_version: 2
+manifest_version: 1.0
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -270,7 +273,7 @@ agents:
     manifest = PackageManifest.from_file(manifest_path)
 
     assert manifest.name == "test-package"
-    assert manifest.manifest_version == 2
+    assert manifest.manifest_version == 1.0
     assert "copilot" in manifest.agents
     assert "cursor" in manifest.agents
     
@@ -294,6 +297,7 @@ def test_package_manifest_old_format_detection(tmp_path):
 name: old-package
 version: 1.0.0
 description: Old format package
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -321,6 +325,7 @@ def test_package_manifest_invalid_group(tmp_path):
 name: test-package
 version: 1.0.0
 description: Test package
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -351,6 +356,7 @@ def test_package_manifest_unknown_agent_warning(tmp_path, capsys):
 name: test-package
 version: 1.0.0
 description: Test package
+manifest_version: 1.0
 
 agents:
   future_agent:
@@ -380,6 +386,7 @@ def test_package_manifest_empty_groups_agent(tmp_path):
 name: test-package
 version: 1.0.0
 description: Test package
+manifest_version: 1.0
 
 agents:
   gemini:
@@ -409,6 +416,7 @@ def test_package_manifest_validate_files_exist_nested(tmp_path):
 name: test-package
 version: 1.0.0
 description: Test package
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -439,3 +447,88 @@ agents:
     assert len(missing) == 1
     assert "copilot/prompts/missing" in missing[0]
     assert "src/missing.md" in missing[0]
+
+
+def test_package_manifest_missing_version():
+    """Test that manifest without manifest_version is rejected."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        manifest_content = """
+name: test-package
+version: 1.0.0
+description: Test package
+manifest_version: 1.0
+
+agents:
+  copilot:
+    prompts:
+      - name: test
+        file: src/test.md
+        installed_path: test.md
+"""
+        manifest_path = tmp_path / "dumpty.package.yaml"
+        manifest_path.write_text(manifest_content)
+        
+        with pytest.raises(ValueError) as exc_info:
+            PackageManifest.from_file(manifest_path)
+        
+        error_msg = str(exc_info.value)
+        assert "Missing required field: manifest_version" in error_msg
+        assert "manifest_version: 1.0" in error_msg
+
+
+def test_package_manifest_invalid_version():
+    """Test that manifest with unsupported version is rejected."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        manifest_content = """
+name: test-package
+version: 1.0.0
+description: Test package
+manifest_version: 1.0
+manifest_version: 2.0
+
+agents:
+  copilot:
+    prompts:
+      - name: test
+        file: src/test.md
+        installed_path: test.md
+"""
+        manifest_path = tmp_path / "dumpty.package.yaml"
+        manifest_path.write_text(manifest_content)
+        
+        with pytest.raises(ValueError) as exc_info:
+            PackageManifest.from_file(manifest_path)
+        
+        error_msg = str(exc_info.value)
+        assert "Unsupported manifest version: 2.0" in error_msg
+        assert "only supports manifest_version: 1.0" in error_msg
+
+
+def test_package_manifest_with_no_group_fixture():
+    """Test loading no-group package fixture."""
+    from pathlib import Path
+    fixture_path = Path(__file__).parent / "fixtures" / "no_group_package" / "dumpty.package.yaml"
+    
+    if fixture_path.exists():
+        manifest = PackageManifest.from_file(fixture_path)
+        assert manifest.name == "no-group-package"
+        assert manifest.manifest_version == 1.0
+        assert "gemini" in manifest.agents or "aider" in manifest.agents
+
+
+def test_package_manifest_with_invalid_group_fixture():
+    """Test that invalid-group package fixture is rejected."""
+    from pathlib import Path
+    fixture_path = Path(__file__).parent / "fixtures" / "invalid_group_package" / "dumpty.package.yaml"
+    
+    if fixture_path.exists():
+        with pytest.raises(ValueError) as exc_info:
+            PackageManifest.from_file(fixture_path)
+        
+        error_msg = str(exc_info.value)
+        # Should fail because 'invalid_group' is not in Copilot's SUPPORTED_GROUPS
+        assert "invalid_group" in error_msg or "not supported" in error_msg

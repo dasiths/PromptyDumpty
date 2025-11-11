@@ -29,6 +29,7 @@ def test_install_with_commit(cli_runner, tmp_path, monkeypatch):
 name: test-package
 version: 1.5.0
 description: Test package at specific commit
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -146,6 +147,7 @@ def test_update_with_commit(cli_runner, tmp_path, monkeypatch):
 name: test-package
 version: 1.7.3
 description: Test package at new commit
+manifest_version: 1.0
 
 agents:
   copilot:
