@@ -2,10 +2,15 @@
 
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import List
 
 
 class BaseAgent(ABC):
     """Abstract base class for AI agent implementations."""
+
+    # Supported artifact types for this agent (e.g., ["prompts", "modes"])
+    # All agents support "files" as a catch-all for flat structure
+    SUPPORTED_TYPES: List[str] = ["files"]
 
     @property
     @abstractmethod
@@ -53,8 +58,40 @@ class BaseAgent(ABC):
         """
         return project_root / self.directory
 
+    @classmethod
+    def validate_artifact_type(cls, artifact_type: str) -> bool:
+        """
+        Validate if artifact type is supported by this agent.
+
+        Args:
+            artifact_type: Type name to validate
+
+        Returns:
+            True if artifact_type is in SUPPORTED_TYPES, False otherwise
+        """
+        return artifact_type in cls.SUPPORTED_TYPES
+
+    @classmethod
+    def get_type_folder(cls, artifact_type: str) -> str:
+        """
+        Get the folder name for a given artifact type.
+
+        By default, the folder name matches the type name.
+        Override this method in subclasses to customize folder mapping.
+
+        Args:
+            artifact_type: Type name (e.g., 'prompts', 'modes', 'files')
+
+        Returns:
+            Folder name for the type (e.g., 'prompts', 'modes', 'files')
+
+        Example:
+            A custom agent might map 'prompts' -> '.prompts' or 'rules' -> 'project_rules'
+        """
+        return artifact_type
+
     def pre_install(
-        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+        self, project_root: Path, package_name: str, install_dirs: list[Path], files: list[Path]
     ) -> None:
         """
         Hook called before installing package files.
@@ -66,7 +103,9 @@ class BaseAgent(ABC):
         Args:
             project_root: Root directory of the project
             package_name: Name of the package being installed
-            install_dir: Directory where package will be installed (agent_dir/package_name)
+            install_dirs: List of directories where package files will be installed.
+                         With types, there may be multiple directories (e.g.,
+                         [.github/prompts/pkg, .github/modes/pkg])
             files: List of file paths that will be installed (relative to project root)
 
         Note:
@@ -75,7 +114,7 @@ class BaseAgent(ABC):
         pass
 
     def post_install(
-        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+        self, project_root: Path, package_name: str, install_dirs: list[Path], files: list[Path]
     ) -> None:
         """
         Hook called after installing package files.
@@ -92,7 +131,9 @@ class BaseAgent(ABC):
         Args:
             project_root: Root directory of the project
             package_name: Name of the package that was installed
-            install_dir: Directory where package was installed (agent_dir/package_name)
+            install_dirs: List of directories where package files were installed.
+                         With types, there may be multiple directories (e.g.,
+                         [.github/prompts/pkg, .github/modes/pkg])
             files: List of file paths that were installed (relative to project root)
 
         Note:
@@ -101,7 +142,7 @@ class BaseAgent(ABC):
         pass
 
     def pre_uninstall(
-        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+        self, project_root: Path, package_name: str, install_dirs: list[Path], files: list[Path]
     ) -> None:
         """
         Hook called before uninstalling package files.
@@ -113,7 +154,7 @@ class BaseAgent(ABC):
         Args:
             project_root: Root directory of the project
             package_name: Name of the package being uninstalled
-            install_dir: Directory where package is installed (agent_dir/package_name)
+            install_dirs: List of directories where package files are installed
             files: List of file paths that will be removed (relative to project root)
 
         Note:
@@ -122,7 +163,7 @@ class BaseAgent(ABC):
         pass
 
     def post_uninstall(
-        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+        self, project_root: Path, package_name: str, install_dirs: list[Path], files: list[Path]
     ) -> None:
         """
         Hook called after uninstalling package files.
@@ -139,7 +180,7 @@ class BaseAgent(ABC):
         Args:
             project_root: Root directory of the project
             package_name: Name of the package that was uninstalled
-            install_dir: Directory where package was installed (agent_dir/package_name)
+            install_dirs: List of directories where package files were installed
             files: List of file paths that were removed (relative to project root)
 
         Note:

@@ -1,11 +1,15 @@
 """Claude agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class ClaudeAgent(BaseAgent):
-    """Claude agent implementation."""
+    """Claude Desktop agent implementation."""
+
+    # Claude supports .clinerules and commands folders
+    SUPPORTED_TYPES: List[str] = ["files", "agents", "commands"]
 
     @property
     def name(self) -> str:

@@ -1,11 +1,14 @@
 """Gemini agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class GeminiAgent(BaseAgent):
-    """Gemini agent implementation."""
+    """Google Gemini agent implementation."""
+
+    SUPPORTED_TYPES: List[str] = ["files"]  # Universal files type
 
     @property
     def name(self) -> str:

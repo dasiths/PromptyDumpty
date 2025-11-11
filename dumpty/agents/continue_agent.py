@@ -1,11 +1,15 @@
 """Continue agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class ContinueAgent(BaseAgent):
-    """Continue agent implementation."""
+    """Continue.dev agent implementation."""
+
+    # Continue only supports universal files type
+    SUPPORTED_TYPES: List[str] = ["files"]
 
     @property
     def name(self) -> str:

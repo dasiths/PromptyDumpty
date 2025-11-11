@@ -18,13 +18,13 @@ def test_update_honors_agent_specific_installation(cli_runner, tmp_path, monkeyp
     """Test that update only updates agents that were originally installed."""
     monkeypatch.chdir(tmp_path)
 
-    # Create agent directories for multiple agents
-    (tmp_path / ".github" / "test-package").mkdir(parents=True)
-    (tmp_path / ".cursor" / "test-package").mkdir(parents=True)
-    (tmp_path / ".continue" / "test-package").mkdir(parents=True)
+    # Create agent directories for multiple agents with artifact type structure
+    (tmp_path / ".github" / "prompts" / "test-package").mkdir(parents=True)
+    (tmp_path / ".cursor" / "rules" / "test-package").mkdir(parents=True)
+    (tmp_path / ".continue" / "files" / "test-package").mkdir(parents=True)
 
     # Install files for copilot only
-    copilot_file = tmp_path / ".github" / "test-package" / "test.md"
+    copilot_file = tmp_path / ".github" / "prompts" / "test-package" / "test.md"
     copilot_file.write_text("# Test v1.0.0")
 
     # Create lockfile with package installed ONLY for copilot
@@ -41,7 +41,7 @@ def test_update_honors_agent_specific_installation(cli_runner, tmp_path, monkeyp
             "copilot": [
                 InstalledFile(
                     source="src/test.md",
-                    installed=".github/test-package/test.md",
+                    installed=".github/prompts/test-package/test.md",
                     checksum="sha256:old",
                 )
             ]
@@ -58,24 +58,25 @@ def test_update_honors_agent_specific_installation(cli_runner, tmp_path, monkeyp
 name: test-package
 version: 2.0.0
 description: Test package supporting multiple agents
+manifest_version: 1.0
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test-prompt
         description: Test prompt
         file: src/test.md
         installed_path: test.md
   cursor:
-    artifacts:
+    rules:
       - name: test-cursor
         description: Cursor prompt
         file: src/cursor.md
         installed_path: cursor.md
   continue:
-    artifacts:
+    files:
       - name: test-continue
-        description: Continue prompt
+        description: Continue file
         file: src/continue.md
         installed_path: continue.md
 """
@@ -134,17 +135,19 @@ agents:
 
         # Verify files on disk
         assert (
-            tmp_path / ".github" / "test-package" / "test.md"
+            tmp_path / ".github" / "prompts" / "test-package" / "test.md"
         ).exists(), "Copilot file should be updated"
         assert not (
-            tmp_path / ".cursor" / "test-package" / "cursor.md"
+            tmp_path / ".cursor" / "rules" / "test-package" / "cursor.md"
         ).exists(), "Cursor file should not be created"
         assert not (
-            tmp_path / ".continue" / "test-package" / "continue.md"
+            tmp_path / ".continue" / "files" / "test-package" / "continue.md"
         ).exists(), "Continue file should not be created"
 
         # Verify content was updated
-        copilot_content = (tmp_path / ".github" / "test-package" / "test.md").read_text()
+        copilot_content = (
+            tmp_path / ".github" / "prompts" / "test-package" / "test.md"
+        ).read_text()
         assert "v2.0.0" in copilot_content
 
     finally:
@@ -157,13 +160,13 @@ def test_update_multiple_agents_installation(cli_runner, tmp_path, monkeypatch):
     """Test that update works correctly when package is installed for multiple agents."""
     monkeypatch.chdir(tmp_path)
 
-    # Create agent directories
-    (tmp_path / ".github" / "test-package").mkdir(parents=True)
-    (tmp_path / ".cursor" / "test-package").mkdir(parents=True)
+    # Create agent directories with artifact type structure
+    (tmp_path / ".github" / "prompts" / "test-package").mkdir(parents=True)
+    (tmp_path / ".cursor" / "rules" / "test-package").mkdir(parents=True)
 
     # Install files for both copilot and cursor
-    (tmp_path / ".github" / "test-package" / "test.md").write_text("# Old")
-    (tmp_path / ".cursor" / "test-package" / "test.md").write_text("# Old")
+    (tmp_path / ".github" / "prompts" / "test-package" / "test.md").write_text("# Old")
+    (tmp_path / ".cursor" / "rules" / "test-package" / "test.md").write_text("# Old")
 
     # Create lockfile with package installed for BOTH agents
     lockfile = LockfileManager(tmp_path)
@@ -179,14 +182,14 @@ def test_update_multiple_agents_installation(cli_runner, tmp_path, monkeypatch):
             "copilot": [
                 InstalledFile(
                     source="src/test.md",
-                    installed=".github/test-package/test.md",
+                    installed=".github/prompts/test-package/test.md",
                     checksum="sha256:old",
                 )
             ],
             "cursor": [
                 InstalledFile(
                     source="src/test.md",
-                    installed=".cursor/test-package/test.md",
+                    installed=".cursor/rules/test-package/test.md",
                     checksum="sha256:old",
                 )
             ],
@@ -203,22 +206,23 @@ def test_update_multiple_agents_installation(cli_runner, tmp_path, monkeypatch):
 name: test-package
 version: 2.0.0
 description: Test package
+manifest_version: 1.0
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test
         description: Test
         file: src/test.md
         installed_path: test.md
   cursor:
-    artifacts:
+    rules:
       - name: test
         description: Test
         file: src/test.md
         installed_path: test.md
   continue:
-    artifacts:
+    files:
       - name: test
         description: Test
         file: src/test.md
@@ -278,9 +282,9 @@ agents:
         ), "Continue should not be installed (wasn't in original)"
 
         # Verify files on disk
-        copilot_file = tmp_path / ".github" / "test-package" / "test.md"
-        cursor_file = tmp_path / ".cursor" / "test-package" / "test.md"
-        continue_file = tmp_path / ".continue" / "test-package" / "test.md"
+        copilot_file = tmp_path / ".github" / "prompts" / "test-package" / "test.md"
+        cursor_file = tmp_path / ".cursor" / "rules" / "test-package" / "test.md"
+        continue_file = tmp_path / ".continue" / "files" / "test-package" / "test.md"
 
         assert copilot_file.exists()
         assert cursor_file.exists()

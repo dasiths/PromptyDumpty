@@ -1,11 +1,14 @@
 """Cursor agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class CursorAgent(BaseAgent):
     """Cursor agent implementation."""
+
+    SUPPORTED_TYPES: List[str] = ["files", "rules"]
 
     @property
     def name(self) -> str:

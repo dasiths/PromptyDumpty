@@ -61,37 +61,42 @@ my-package/
 
 ## Creating Packages
 
-Define what your package provides in `dumpty.package.yaml` - organized by agent:
+Define what your package provides in `dumpty.package.yaml` - organized by agent and type:
 
 ```yaml
 name: my-workflows
 version: 1.0.0
 description: Custom development workflows
+manifest_version: 1.0
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: code-review
         description: Code review workflow
         file: src/review.md
-        installed_path: prompts/code-review.prompt.md
-      
+        installed_path: code-review.prompt.md
+    modes:
       - name: standards
+        description: Coding standards mode
         file: src/standards.md
-        installed_path: rules/standards.md
+        installed_path: standards.md
   
   claude:
-    artifacts:
+    commands:
       - name: code-review
+        description: Code review command
         file: src/review.md
-        installed_path: commands/review.md
+        installed_path: review.md
 ```
 
 **Key Features:**
 - Organize files however makes sense to you
+- Organize artifacts by type (prompts, modes, rules, commands, etc.)
+- Use "files" type for generic artifacts
 - Explicitly map each file to its install location per agent
 - Reuse the same source file for multiple agents
-- Full control over installed paths and filenames
+- Installation paths: `{agent_dir}/{type}/{package}/{file}`
 
 ## Documentation
 

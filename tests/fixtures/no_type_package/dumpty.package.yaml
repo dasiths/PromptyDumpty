@@ -1,0 +1,21 @@
+name: no-type-package
+version: 1.0.0
+description: Test package with flat structure using 'files' type
+author: Test Author
+license: MIT
+manifest_version: 1.0
+
+agents:
+  gemini:
+    files:
+      - name: helper
+        description: Helper file
+        file: src/helper.md
+        installed_path: helper.md
+  
+  aider:
+    files:
+      - name: readme
+        description: README file
+        file: src/readme.md
+        installed_path: readme.md

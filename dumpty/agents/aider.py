@@ -1,11 +1,15 @@
 """Aider agent implementation."""
 
 from pathlib import Path
+from typing import List
 from .base import BaseAgent
 
 
 class AiderAgent(BaseAgent):
     """Aider agent implementation."""
+
+    # Aider only supports universal files type
+    SUPPORTED_TYPES: List[str] = ["files"]
 
     @property
     def name(self) -> str:

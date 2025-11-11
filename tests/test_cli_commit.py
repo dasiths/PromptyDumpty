@@ -29,10 +29,11 @@ def test_install_with_commit(cli_runner, tmp_path, monkeypatch):
 name: test-package
 version: 1.5.0
 description: Test package at specific commit
+manifest_version: 1.0
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test
         description: Test file
         file: src/test.md
@@ -82,8 +83,8 @@ agents:
         assert package.resolved == "abc123def456"  # Should track the commit hash
         assert "copilot" in package.installed_for
 
-        # Verify file was installed
-        installed_file = tmp_path / ".github" / "test-package" / "test.md"
+        # Verify file was installed (now in prompts/test-package/)
+        installed_file = tmp_path / ".github" / "prompts" / "test-package" / "test.md"
         assert installed_file.exists()
         assert "Test from commit" in installed_file.read_text()
 
@@ -146,10 +147,11 @@ def test_update_with_commit(cli_runner, tmp_path, monkeypatch):
 name: test-package
 version: 1.7.3
 description: Test package at new commit
+manifest_version: 1.0
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test
         description: Test file
         file: src/new.md
@@ -199,8 +201,8 @@ agents:
         assert updated_package.resolved == "def789abc012"  # New commit hash
 
         # Verify new file exists and old file is gone
-        new_file = tmp_path / ".github" / "test-package" / "new.md"
-        old_file = tmp_path / ".github" / "test-package" / "old.md"
+        new_file = tmp_path / ".github" / "prompts" / "test-package" / "new.md"
+        old_file = tmp_path / ".github" / "prompts" / "test-package" / "old.md"
         assert new_file.exists()
         assert not old_file.exists()
         assert "New content from commit" in new_file.read_text()

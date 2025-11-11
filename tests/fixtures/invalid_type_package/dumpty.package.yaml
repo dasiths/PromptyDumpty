@@ -1,0 +1,14 @@
+name: invalid-type-package
+version: 1.0.0
+description: Test package with invalid types (should fail validation)
+author: Test Author
+license: MIT
+manifest_version: 1.0
+
+agents:
+  copilot:
+    invalid_type:
+      - name: test
+        description: Test artifact
+        file: src/test.md
+        installed_path: test.md

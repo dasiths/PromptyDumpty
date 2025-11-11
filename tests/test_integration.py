@@ -21,28 +21,30 @@ def test_package(tmp_path):
 name: my-package
 version: 1.0.0
 description: Test package for integration testing
+manifest_version: 1.0
+manifest_version: 1.0
 author: Test Author
 license: MIT
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: planning
         description: Planning prompt
         file: src/planning.md
-        installed_path: prompts/planning.prompt.md
+        installed_path: planning.prompt.md
       
       - name: review
         description: Review prompt
         file: src/review.md
-        installed_path: prompts/review.prompt.md
+        installed_path: review.prompt.md
   
   claude:
-    artifacts:
+    commands:
       - name: planning
         description: Planning command
         file: src/planning.md
-        installed_path: commands/planning.md
+        installed_path: planning.md
 """
     (pkg_dir / "dumpty.package.yaml").write_text(manifest_content)
 
@@ -95,33 +97,43 @@ def test_complete_installation_workflow(tmp_path, test_package):
 
     # Install for Copilot
     copilot_files = []
-    for artifact in manifest.agents["copilot"]:
-        source_file = package_dir / artifact.file
-        dest_path, checksum = installer.install_file(
-            source_file, Agent.COPILOT, manifest.name, artifact.installed_path
-        )
-        assert dest_path.exists()
+    for artifact_type, artifacts in manifest.agents["copilot"].items():
+        for artifact in artifacts:
+            source_file = package_dir / artifact.file
+            dest_path, checksum = installer.install_file(
+                source_file,
+                Agent.COPILOT,
+                manifest.name,
+                artifact.installed_path,
+                artifact_type=artifact_type,
+            )
+            assert dest_path.exists()
 
-        rel_path = dest_path.relative_to(project_dir)
-        copilot_files.append(
-            InstalledFile(source=artifact.file, installed=str(rel_path), checksum=checksum)
-        )
+            rel_path = dest_path.relative_to(project_dir)
+            copilot_files.append(
+                InstalledFile(source=artifact.file, installed=str(rel_path), checksum=checksum)
+            )
 
     installed_files["copilot"] = copilot_files
 
     # Install for Claude
     claude_files = []
-    for artifact in manifest.agents["claude"]:
-        source_file = package_dir / artifact.file
-        dest_path, checksum = installer.install_file(
-            source_file, Agent.CLAUDE, manifest.name, artifact.installed_path
-        )
-        assert dest_path.exists()
+    for artifact_type, artifacts in manifest.agents["claude"].items():
+        for artifact in artifacts:
+            source_file = package_dir / artifact.file
+            dest_path, checksum = installer.install_file(
+                source_file,
+                Agent.CLAUDE,
+                manifest.name,
+                artifact.installed_path,
+                artifact_type=artifact_type,
+            )
+            assert dest_path.exists()
 
-        rel_path = dest_path.relative_to(project_dir)
-        claude_files.append(
-            InstalledFile(source=artifact.file, installed=str(rel_path), checksum=checksum)
-        )
+            rel_path = dest_path.relative_to(project_dir)
+            claude_files.append(
+                InstalledFile(source=artifact.file, installed=str(rel_path), checksum=checksum)
+            )
 
     installed_files["claude"] = claude_files
 
@@ -157,13 +169,13 @@ def test_complete_installation_workflow(tmp_path, test_package):
     assert len(retrieved.files["claude"]) == 1
 
     # Verify physical files exist
-    assert (project_dir / ".github" / "my-package" / "prompts" / "planning.prompt.md").exists()
-    assert (project_dir / ".github" / "my-package" / "prompts" / "review.prompt.md").exists()
-    assert (project_dir / ".claude" / "my-package" / "commands" / "planning.md").exists()
+    assert (project_dir / ".github" / "prompts" / "my-package" / "planning.prompt.md").exists()
+    assert (project_dir / ".github" / "prompts" / "my-package" / "review.prompt.md").exists()
+    assert (project_dir / ".claude" / "commands" / "my-package" / "planning.md").exists()
 
     # Verify file content
     planning_content = (
-        project_dir / ".github" / "my-package" / "prompts" / "planning.prompt.md"
+        project_dir / ".github" / "prompts" / "my-package" / "planning.prompt.md"
     ).read_text()
     assert "Planning" in planning_content
 
@@ -187,14 +199,17 @@ def test_uninstall_workflow(tmp_path, test_package):
     manifest = PackageManifest.from_file(package_dir / "dumpty.package.yaml")
 
     # Install files
-    for artifact in manifest.agents["copilot"]:
-        source_file = package_dir / artifact.file
-        installer.install_file(source_file, Agent.COPILOT, manifest.name, artifact.installed_path)
+    for type_name, artifacts in manifest.agents["copilot"].items():
+        for artifact in artifacts:
+            source_file = package_dir / artifact.file
+            installer.install_file(
+                source_file, Agent.COPILOT, manifest.name, artifact.installed_path, type_name
+            )
 
     # Verify files exist
-    package_install_dir = project_dir / ".github" / "my-package"
+    package_install_dir = project_dir / ".github" / "prompts" / "my-package"
     assert package_install_dir.exists()
-    assert (package_install_dir / "prompts" / "planning.prompt.md").exists()
+    assert (package_install_dir / "planning.prompt.md").exists()
 
     # Uninstall
     installer.uninstall_package(Agent.COPILOT, "my-package")

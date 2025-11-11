@@ -218,3 +218,60 @@ class TestContinueAgent:
         """Test detection when directory missing."""
         agent = ContinueAgent()
         assert agent.is_configured(tmp_path) is False
+
+
+class TestAllAgentsSupportedGroups:
+    """Tests to verify all agents have SUPPORTED_TYPES defined."""
+
+    def test_all_agents_have_supported_types(self):
+        """Test that all agent implementations have SUPPORTED_TYPES attribute."""
+        agents = [
+            CopilotAgent(),
+            ClaudeAgent(),
+            CursorAgent(),
+            GeminiAgent(),
+            WindsurfAgent(),
+            ClineAgent(),
+            AiderAgent(),
+            ContinueAgent(),
+        ]
+
+        for agent in agents:
+            assert hasattr(
+                agent.__class__, "SUPPORTED_TYPES"
+            ), f"{agent.__class__.__name__} missing SUPPORTED_TYPES"
+            assert isinstance(
+                agent.__class__.SUPPORTED_TYPES, list
+            ), f"{agent.__class__.__name__}.SUPPORTED_TYPES must be a list"
+
+    def test_copilot_supported_types(self):
+        """Test CopilotAgent has correct supported types."""
+        assert CopilotAgent.SUPPORTED_TYPES == ["files", "prompts", "modes"]
+
+    def test_cursor_supported_types(self):
+        """Test CursorAgent has correct supported types."""
+        assert CursorAgent.SUPPORTED_TYPES == ["files", "rules"]
+
+    def test_windsurf_supported_types(self):
+        """Test WindsurfAgent has correct supported types."""
+        assert WindsurfAgent.SUPPORTED_TYPES == ["files", "workflows", "rules"]
+
+    def test_cline_supported_types(self):
+        """Test ClineAgent has correct supported types."""
+        assert ClineAgent.SUPPORTED_TYPES == ["files", "rules", "workflows"]
+
+    def test_gemini_supported_types(self):
+        """Test GeminiAgent has correct supported types (files only)."""
+        assert GeminiAgent.SUPPORTED_TYPES == ["files"]
+
+    def test_claude_supported_types(self):
+        """Test ClaudeAgent has correct supported types."""
+        assert ClaudeAgent.SUPPORTED_TYPES == ["files", "agents", "commands"]
+
+    def test_aider_supported_types(self):
+        """Test AiderAgent has correct supported types (files only)."""
+        assert AiderAgent.SUPPORTED_TYPES == ["files"]
+
+    def test_continue_supported_types(self):
+        """Test ContinueAgent has correct supported types (files only)."""
+        assert ContinueAgent.SUPPORTED_TYPES == ["files"]

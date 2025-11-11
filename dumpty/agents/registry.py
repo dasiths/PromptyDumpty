@@ -1,6 +1,6 @@
 """Agent registry for managing implementations."""
 
-from typing import List, Optional
+from typing import List, Optional, Type
 from .base import BaseAgent
 
 
@@ -59,3 +59,44 @@ class AgentRegistry:
     def clear(self) -> None:
         """Clear all registered agents (primarily for testing)."""
         self._agents.clear()
+
+
+def get_agent_by_name(name: str) -> Type[BaseAgent]:
+    """
+    Get agent class by name.
+
+    Args:
+        name: Agent name (e.g., 'copilot', 'cursor')
+
+    Returns:
+        Agent class
+
+    Raises:
+        ValueError: If agent not found
+    """
+    # Import agent classes here to avoid circular imports
+    from .copilot import CopilotAgent
+    from .claude import ClaudeAgent
+    from .cursor import CursorAgent
+    from .gemini import GeminiAgent
+    from .windsurf import WindsurfAgent
+    from .cline import ClineAgent
+    from .aider import AiderAgent
+    from .continue_agent import ContinueAgent
+
+    agents = {
+        "copilot": CopilotAgent,
+        "claude": ClaudeAgent,
+        "cursor": CursorAgent,
+        "gemini": GeminiAgent,
+        "windsurf": WindsurfAgent,
+        "cline": ClineAgent,
+        "aider": AiderAgent,
+        "continue": ContinueAgent,
+    }
+
+    agent_class = agents.get(name.lower())
+    if agent_class is None:
+        raise ValueError(f"Unknown agent: {name}")
+
+    return agent_class

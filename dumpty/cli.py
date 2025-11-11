@@ -119,6 +119,34 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
 
         manifest = PackageManifest.from_file(manifest_path)
 
+        # Validate types for each agent before installation
+        console.print("[blue]Validating manifest types...[/]")
+        from dumpty.agents.registry import get_agent_by_name
+
+        validation_errors = []
+
+        for agent_name, types_dict in manifest.agents.items():
+            agent_class = get_agent_by_name(agent_name)
+            if agent_class is None:
+                console.print(f"  [yellow]⚠[/] Unknown agent '{agent_name}' (skipping validation)")
+                continue
+
+            supported_types = agent_class.SUPPORTED_TYPES
+            for type_name in types_dict.keys():
+                if type_name not in supported_types:
+                    validation_errors.append(
+                        f"Agent '{agent_name}' does not support type '{type_name}'. "
+                        f"Supported: {', '.join(supported_types)}"
+                    )
+
+        if validation_errors:
+            console.print("[red]Error:[/] Manifest validation failed:")
+            for error in validation_errors:
+                console.print(f"  - {error}")
+            console.print("\nRun [cyan]dumpty validate-manifest[/] for detailed validation")
+            sys.exit(1)
+        console.print("  [green]✓[/] All types are valid")
+
         # Validate files exist
         missing_files = manifest.validate_files_exist(package_dir)
         if missing_files:
@@ -182,37 +210,48 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             # Ensure agent directory exists
             detector.ensure_agent_directory(target_agent)
 
-            # Install artifacts using install_package to trigger hooks
-            artifacts = manifest.agents[agent_name]
-            console.print(f"\n[cyan]{target_agent.display_name}[/] ({len(artifacts)} artifacts):")
+            # Get types and artifacts for this agent
+            types = manifest.agents[agent_name]
 
-            # Prepare source files list for install_package
-            source_files = [
-                (package_dir / artifact.file, artifact.installed_path) for artifact in artifacts
-            ]
+            # Count total artifacts across all types
+            total_artifacts = sum(len(artifacts) for artifacts in types.values())
+            console.print(f"\n[cyan]{target_agent.display_name}[/] ({total_artifacts} artifacts):")
+
+            # Prepare source files list for install_package (now with types)
+            source_files = []
+            for type_name, artifacts in types.items():
+                for artifact in artifacts:
+                    source_files.append(
+                        (package_dir / artifact.file, artifact.installed_path, type_name)
+                    )
 
             # Call install_package which will trigger pre/post install hooks
             results = installer.install_package(source_files, target_agent, manifest.name)
 
             # Process results for lockfile
             agent_files = []
-            for (dest_path, checksum), artifact in zip(results, artifacts):
-                # Make path relative to project root for lockfile
-                try:
-                    rel_path = dest_path.relative_to(project_root)
-                except ValueError:
-                    rel_path = dest_path
+            artifact_idx = 0
+            for type_name, artifacts in types.items():
+                for artifact in artifacts:
+                    dest_path, checksum = results[artifact_idx]
+                    artifact_idx += 1
 
-                agent_files.append(
-                    InstalledFile(
-                        source=artifact.file,
-                        installed=str(rel_path),
-                        checksum=checksum,
+                    # Make path relative to project root for lockfile
+                    try:
+                        rel_path = dest_path.relative_to(project_root)
+                    except ValueError:
+                        rel_path = dest_path
+
+                    agent_files.append(
+                        InstalledFile(
+                            source=artifact.file,
+                            installed=str(rel_path),
+                            checksum=checksum,
+                        )
                     )
-                )
 
-                console.print(f"  [green]✓[/] {artifact.file} → {rel_path}")
-                total_installed += 1
+                    console.print(f"  [green]✓[/] {artifact.file} → {rel_path}")
+                    total_installed += 1
 
             installed_files[agent_name] = agent_files
 
@@ -659,6 +698,33 @@ def update(
 
                     manifest = PackageManifest.from_file(manifest_path)
 
+                # Validate types for each agent before update
+                from dumpty.agents.registry import get_agent_by_name
+
+                validation_errors = []
+
+                for agent_name, types_dict in manifest.agents.items():
+                    agent_class = get_agent_by_name(agent_name)
+                    if agent_class is None:
+                        continue
+
+                    supported_types = agent_class.SUPPORTED_TYPES
+                    for type_name in types_dict.keys():
+                        if type_name not in supported_types:
+                            validation_errors.append(
+                                f"Agent '{agent_name}' does not support type '{type_name}'. "
+                                f"Supported: {', '.join(supported_types)}"
+                            )
+
+                if validation_errors:
+                    console.print("  [red]Error:[/] Manifest validation failed:")
+                    for error in validation_errors:
+                        console.print(f"    - {error}")
+                    console.print(
+                        "\n  Run [cyan]dumpty validate-manifest[/] for detailed validation"
+                    )
+                    continue
+
                 # Validate files exist
                 missing_files = manifest.validate_files_exist(package_dir)
                 if missing_files:
@@ -695,35 +761,42 @@ def update(
                     # Ensure agent directory exists
                     detector.ensure_agent_directory(agent)
 
-                    # Install artifacts using install_package to trigger hooks
-                    artifacts = manifest.agents[agent_name]
+                    # Get types and artifacts for this agent (nested structure)
+                    types = manifest.agents[agent_name]
 
-                    # Prepare source files list for install_package
-                    source_files = [
-                        (package_dir / artifact.file, artifact.installed_path)
-                        for artifact in artifacts
-                    ]
+                    # Prepare source files list for install_package (now with types)
+                    source_files = []
+                    for type_name, artifacts in types.items():
+                        for artifact in artifacts:
+                            source_files.append(
+                                (package_dir / artifact.file, artifact.installed_path, type_name)
+                            )
 
                     # Call install_package which will trigger pre/post install hooks
                     results = installer.install_package(source_files, agent, manifest.name)
 
                     # Process results for lockfile
                     agent_files = []
-                    for (dest_path, checksum), artifact in zip(results, artifacts):
-                        # Make path relative to project root for lockfile
-                        try:
-                            rel_path = dest_path.relative_to(project_root)
-                        except ValueError:
-                            rel_path = dest_path
+                    artifact_idx = 0
+                    for type_name, artifacts in types.items():
+                        for artifact in artifacts:
+                            dest_path, checksum = results[artifact_idx]
+                            artifact_idx += 1
 
-                        agent_files.append(
-                            InstalledFile(
-                                source=artifact.file,
-                                installed=str(rel_path),
-                                checksum=checksum,
+                            # Make path relative to project root for lockfile
+                            try:
+                                rel_path = dest_path.relative_to(project_root)
+                            except ValueError:
+                                rel_path = dest_path
+
+                            agent_files.append(
+                                InstalledFile(
+                                    source=artifact.file,
+                                    installed=str(rel_path),
+                                    checksum=checksum,
+                                )
                             )
-                        )
-                        total_installed += 1
+                            total_installed += 1
 
                     installed_files[agent_name] = agent_files
 
@@ -853,6 +926,95 @@ def _display_package_info(package: InstalledPackage):
             table.add_row(artifact_name, file.installed)
 
         console.print(table)
+
+
+@cli.command()
+@click.argument(
+    "manifest_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=False
+)
+def validate_manifest(manifest_path: Path):
+    """Validate a package manifest file.
+
+    Checks if the manifest can be parsed and validates that specified types
+    are supported by each agent.
+
+    MANIFEST_PATH: Path to dumpty.package.yaml (defaults to current directory)
+    """
+    try:
+        # Default to dumpty.package.yaml in current directory
+        if manifest_path is None:
+            manifest_path = Path.cwd() / "dumpty.package.yaml"
+            if not manifest_path.exists():
+                console.print("[red]Error:[/] No dumpty.package.yaml found in current directory")
+                console.print("\nUsage: [cyan]dumpty validate-manifest [MANIFEST_PATH][/]")
+                sys.exit(1)
+
+        console.print(f"\n[bold]Validating manifest:[/] {manifest_path}")
+        console.print()
+
+        # Try to load and parse the manifest
+        try:
+            manifest = PackageManifest.from_file(manifest_path)
+        except ValueError as e:
+            console.print(f"[red]✗ Validation failed:[/] {e}")
+            sys.exit(1)
+        except Exception as e:
+            console.print(f"[red]✗ Parse error:[/] {e}")
+            sys.exit(1)
+
+        # Basic validation passed
+        console.print(f"[green]✓[/] Manifest parsed successfully")
+        console.print(f"  Package: [cyan]{manifest.name}[/] v{manifest.version}")
+        console.print(f"  Manifest version: {manifest.manifest_version}")
+        console.print()
+
+        # Validate types for each agent
+        console.print("[bold]Agent Type Validation:[/]")
+        console.print()
+
+        validation_passed = True
+        for agent_name, types_dict in manifest.agents.items():
+            # Get agent to check supported types
+            from dumpty.agents.registry import get_agent_by_name
+
+            agent_class = get_agent_by_name(agent_name)
+
+            if agent_class is None:
+                console.print(
+                    f"  [yellow]⚠[/] [cyan]{agent_name}[/]: Unknown agent (skipping validation)"
+                )
+                continue
+
+            supported_types = agent_class.SUPPORTED_TYPES
+            console.print(f"  [cyan]{agent_name}[/]:")
+            console.print(f"    Supported types: {', '.join(supported_types)}")
+
+            # Check each type used in manifest
+            for type_name in types_dict.keys():
+                if type_name in supported_types:
+                    artifact_count = len(types_dict[type_name])
+                    console.print(
+                        f"    [green]✓[/] {type_name} ({artifact_count} artifact{'s' if artifact_count != 1 else ''})"
+                    )
+                else:
+                    validation_passed = False
+                    console.print(f"    [red]✗[/] {type_name} - NOT SUPPORTED by this agent")
+            console.print()
+
+        # Final summary
+        if validation_passed:
+            console.print("[bold green]✓ Manifest is valid![/]")
+            console.print()
+        else:
+            console.print(
+                "[bold red]✗ Validation failed:[/] Some types are not supported by their agents"
+            )
+            console.print()
+            sys.exit(1)
+
+    except Exception as e:
+        console.print(f"[red]Error:[/] {e}")
+        sys.exit(1)
 
     console.print()
 
