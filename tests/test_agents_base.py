@@ -302,3 +302,63 @@ def test_validate_artifact_group_empty_list():
 
     assert TestAgent.validate_artifact_group("prompts") is False
     assert TestAgent.validate_artifact_group("modes") is False
+
+
+def test_get_group_folder_default():
+    """Test get_group_folder returns group name by default."""
+
+    class TestAgent(BaseAgent):
+        SUPPORTED_GROUPS = ["prompts", "modes"]
+
+        @property
+        def name(self):
+            return "test"
+
+        @property
+        def display_name(self):
+            return "Test"
+
+        @property
+        def directory(self):
+            return ".test"
+
+        def is_configured(self, project_root: Path):
+            return True
+
+    assert TestAgent.get_group_folder("prompts") == "prompts"
+    assert TestAgent.get_group_folder("modes") == "modes"
+
+
+def test_get_group_folder_custom_mapping():
+    """Test get_group_folder with custom mapping."""
+
+    class CustomAgent(BaseAgent):
+        SUPPORTED_GROUPS = ["prompts", "rules"]
+
+        @property
+        def name(self):
+            return "custom"
+
+        @property
+        def display_name(self):
+            return "Custom"
+
+        @property
+        def directory(self):
+            return ".custom"
+
+        def is_configured(self, project_root: Path):
+            return True
+
+        @classmethod
+        def get_group_folder(cls, group: str) -> str:
+            """Custom mapping for group folders."""
+            mapping = {
+                "prompts": ".prompts",
+                "rules": "project_rules",
+            }
+            return mapping.get(group, group)
+
+    assert CustomAgent.get_group_folder("prompts") == ".prompts"
+    assert CustomAgent.get_group_folder("rules") == "project_rules"
+    assert CustomAgent.get_group_folder("other") == "other"  # Falls back to group name

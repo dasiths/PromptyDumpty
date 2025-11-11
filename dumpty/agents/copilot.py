@@ -40,18 +40,18 @@ class CopilotAgent(BaseAgent):
         return agent_dir.exists() and agent_dir.is_dir()
 
     def post_install(
-        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+        self, project_root: Path, package_name: str, install_dirs: list[Path], files: list[Path]
     ) -> None:
         """
         Update VS Code settings to include new prompt file locations.
 
-        Adds the installed package path to chat.promptFilesLocations and
+        Adds the installed package paths to chat.promptFilesLocations and
         chat.modeFilesLocations in .vscode/settings.json.
 
         Args:
             project_root: Root directory of the project
             package_name: Name of the package that was installed
-            install_dir: Directory where package was installed
+            install_dirs: List of directories where package files were installed
             files: List of file paths that were installed
         """
         settings_file = project_root / ".vscode" / "settings.json"
@@ -66,25 +66,27 @@ class CopilotAgent(BaseAgent):
         else:
             settings = {}
 
-        # Get package path relative to project root
-        try:
-            package_path = str(install_dir.relative_to(project_root))
-        except ValueError:
-            # If install_dir is outside project_root, use absolute path
-            package_path = str(install_dir)
+        # Add each install directory to settings
+        for install_dir in install_dirs:
+            # Get package path relative to project root
+            try:
+                package_path = str(install_dir.relative_to(project_root))
+            except ValueError:
+                # If install_dir is outside project_root, use absolute path
+                package_path = str(install_dir)
 
-        # Add to promptFilesLocations if not already present
-        # Format: {"path": boolean} where boolean indicates if it's enabled
-        if "chat.promptFilesLocations" not in settings:
-            settings["chat.promptFilesLocations"] = {}
-        if package_path not in settings["chat.promptFilesLocations"]:
-            settings["chat.promptFilesLocations"][package_path] = True
+            # Add to promptFilesLocations if not already present
+            # Format: {"path": boolean} where boolean indicates if it's enabled
+            if "chat.promptFilesLocations" not in settings:
+                settings["chat.promptFilesLocations"] = {}
+            if package_path not in settings["chat.promptFilesLocations"]:
+                settings["chat.promptFilesLocations"][package_path] = True
 
-        # Add to modeFilesLocations if not already present
-        if "chat.modeFilesLocations" not in settings:
-            settings["chat.modeFilesLocations"] = {}
-        if package_path not in settings["chat.modeFilesLocations"]:
-            settings["chat.modeFilesLocations"][package_path] = True
+            # Add to modeFilesLocations if not already present
+            if "chat.modeFilesLocations" not in settings:
+                settings["chat.modeFilesLocations"] = {}
+            if package_path not in settings["chat.modeFilesLocations"]:
+                settings["chat.modeFilesLocations"][package_path] = True
 
         # Save settings
         settings_file.parent.mkdir(parents=True, exist_ok=True)
@@ -92,18 +94,18 @@ class CopilotAgent(BaseAgent):
             json.dump(settings, f, indent=2)
 
     def post_uninstall(
-        self, project_root: Path, package_name: str, install_dir: Path, files: list[Path]
+        self, project_root: Path, package_name: str, install_dirs: list[Path], files: list[Path]
     ) -> None:
         """
-        Remove package path from VS Code settings.
+        Remove package paths from VS Code settings.
 
-        Removes the package path from chat.promptFilesLocations and
+        Removes the package paths from chat.promptFilesLocations and
         chat.modeFilesLocations in .vscode/settings.json.
 
         Args:
             project_root: Root directory of the project
             package_name: Name of the package that was uninstalled
-            install_dir: Directory where package was installed
+            install_dirs: List of directories where package files were installed
             files: List of file paths that were removed
         """
         settings_file = project_root / ".vscode" / "settings.json"
@@ -117,21 +119,23 @@ class CopilotAgent(BaseAgent):
         except (json.JSONDecodeError, IOError):
             return
 
-        # Get package path relative to project root
-        try:
-            package_path = str(install_dir.relative_to(project_root))
-        except ValueError:
-            package_path = str(install_dir)
+        # Remove each install directory from settings
+        for install_dir in install_dirs:
+            # Get package path relative to project root
+            try:
+                package_path = str(install_dir.relative_to(project_root))
+            except ValueError:
+                package_path = str(install_dir)
 
-        # Remove from promptFilesLocations
-        if "chat.promptFilesLocations" in settings:
-            if package_path in settings["chat.promptFilesLocations"]:
-                del settings["chat.promptFilesLocations"][package_path]
+            # Remove from promptFilesLocations
+            if "chat.promptFilesLocations" in settings:
+                if package_path in settings["chat.promptFilesLocations"]:
+                    del settings["chat.promptFilesLocations"][package_path]
 
-        # Remove from modeFilesLocations
-        if "chat.modeFilesLocations" in settings:
-            if package_path in settings["chat.modeFilesLocations"]:
-                del settings["chat.modeFilesLocations"][package_path]
+            # Remove from modeFilesLocations
+            if "chat.modeFilesLocations" in settings:
+                if package_path in settings["chat.modeFilesLocations"]:
+                    del settings["chat.modeFilesLocations"][package_path]
 
         # Save settings
         with open(settings_file, "w") as f:

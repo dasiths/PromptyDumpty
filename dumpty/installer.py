@@ -40,12 +40,15 @@ class FileInstaller:
         Returns:
             Tuple of (installed file path, checksum)
         """
-        # Build destination path: <agent_dir>/<group>/<package_name>/<installed_path>
+        # Build destination path: <agent_dir>/<group_folder>/<package_name>/<installed_path>
         # If no group specified, use flat structure: <agent_dir>/<package_name>/<installed_path>
         agent_dir = self.project_root / agent.directory
+        agent_impl = agent._get_impl()
         
         if group:
-            package_dir = agent_dir / group / package_name
+            # Use agent's group folder mapping
+            group_folder = agent_impl.get_group_folder(group)
+            package_dir = agent_dir / group_folder / package_name
         else:
             package_dir = agent_dir / package_name
             
@@ -82,21 +85,33 @@ class FileInstaller:
         # Get agent implementation
         agent_impl = agent._get_impl()
 
-        # Determine install directory (base directory for hooks)
+        # Determine install directories - collect unique directories based on groups
         agent_dir = self.project_root / agent.directory
-        install_dir = agent_dir / package_name
+        install_dirs_set = set()
+        
+        # Collect all unique install directories
+        for _, installed_path, group in source_files:
+            if group:
+                group_folder = agent_impl.get_group_folder(group)
+                install_dir = agent_dir / group_folder / package_name
+            else:
+                install_dir = agent_dir / package_name
+            install_dirs_set.add(install_dir)
+        
+        install_dirs = sorted(list(install_dirs_set))  # Sort for consistent ordering
 
         # Prepare list of files that will be installed (relative to project root)
         install_paths = []
         for _, installed_path, group in source_files:
             if group:
-                full_path = Path(agent.directory) / group / package_name / installed_path
+                group_folder = agent_impl.get_group_folder(group)
+                full_path = Path(agent.directory) / group_folder / package_name / installed_path
             else:
                 full_path = Path(agent.directory) / package_name / installed_path
             install_paths.append(full_path)
 
-        # Call pre-install hook
-        agent_impl.pre_install(self.project_root, package_name, install_dir, install_paths)
+        # Call pre-install hook with list of install directories
+        agent_impl.pre_install(self.project_root, package_name, install_dirs, install_paths)
 
         # Install all files
         results = []
@@ -106,8 +121,8 @@ class FileInstaller:
             )
             results.append((dest_path, checksum))
 
-        # Call post-install hook
-        agent_impl.post_install(self.project_root, package_name, install_dir, install_paths)
+        # Call post-install hook with list of install directories
+        agent_impl.post_install(self.project_root, package_name, install_dirs, install_paths)
 
         return results
 
@@ -120,30 +135,55 @@ class FileInstaller:
             package_name: Package name
         """
         agent_dir = self.project_root / agent.directory
-        package_dir = agent_dir / package_name
-
-        if not package_dir.exists():
+        
+        # If agent directory doesn't exist, nothing to uninstall
+        if not agent_dir.exists():
             return
-
+        
         # Get agent implementation
         agent_impl = agent._get_impl()
-
-        # Get list of files that will be removed (relative to project root)
+        
+        # Collect all directories that contain this package
+        # This handles both flat structure (agent_dir/package_name) and 
+        # grouped structure (agent_dir/group/package_name)
+        install_dirs = []
         uninstall_paths = []
-        for file_path in package_dir.rglob("*"):
-            if file_path.is_file():
-                try:
-                    rel_path = file_path.relative_to(self.project_root)
-                    uninstall_paths.append(rel_path)
-                except ValueError:
-                    # If file is outside project root, use absolute path
-                    uninstall_paths.append(file_path)
+        
+        # Check flat structure
+        flat_package_dir = agent_dir / package_name
+        if flat_package_dir.exists():
+            install_dirs.append(flat_package_dir)
+            for file_path in flat_package_dir.rglob("*"):
+                if file_path.is_file():
+                    try:
+                        rel_path = file_path.relative_to(self.project_root)
+                        uninstall_paths.append(rel_path)
+                    except ValueError:
+                        uninstall_paths.append(file_path)
+        
+        # Check grouped structure - iterate through all subdirectories in agent_dir
+        for potential_group_dir in agent_dir.iterdir():
+            if potential_group_dir.is_dir():
+                package_in_group = potential_group_dir / package_name
+                if package_in_group.exists() and package_in_group.is_dir():
+                    install_dirs.append(package_in_group)
+                    for file_path in package_in_group.rglob("*"):
+                        if file_path.is_file():
+                            try:
+                                rel_path = file_path.relative_to(self.project_root)
+                                uninstall_paths.append(rel_path)
+                            except ValueError:
+                                uninstall_paths.append(file_path)
+        
+        if not install_dirs:
+            return  # Nothing to uninstall
 
         # Call pre-uninstall hook
-        agent_impl.pre_uninstall(self.project_root, package_name, package_dir, uninstall_paths)
+        agent_impl.pre_uninstall(self.project_root, package_name, install_dirs, uninstall_paths)
 
-        # Remove package directory
-        shutil.rmtree(package_dir)
+        # Remove all package directories
+        for install_dir in install_dirs:
+            shutil.rmtree(install_dir)
 
         # Call post-uninstall hook
-        agent_impl.post_uninstall(self.project_root, package_name, package_dir, uninstall_paths)
+        agent_impl.post_uninstall(self.project_root, package_name, install_dirs, uninstall_paths)
