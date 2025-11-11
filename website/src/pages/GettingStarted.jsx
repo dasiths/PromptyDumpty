@@ -135,7 +135,7 @@ dumpty update --all`}
               <div className="text-3xl mr-4">2️⃣</div>
               <div>
                 <h4 className="text-xl font-semibold text-white mb-2">Smart Installation</h4>
-                <p>Packages are installed to the correct directories for your detected agent, with files organized by package name for easy management.</p>
+                <p>Packages are installed to the correct directories for your detected agent, with files organized by artifact type (prompts, modes, rules, etc.) and package name for easy management.</p>
               </div>
             </div>
           </div>

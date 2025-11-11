@@ -107,8 +107,8 @@ After running `test-install.sh`, you'll have:
 ```
 test-project/
 ├── .claude/
-│   └── sample-package/
-│       └── commands/
+│   └── commands/
+│       └── sample-package/
 │           └── planning.md
 └── dumpty.lock
 ```
