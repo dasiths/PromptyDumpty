@@ -150,6 +150,34 @@ Using Trusted Publishing instead of API tokens:
 🔒 **Scoped permissions** - Can only publish from specified repository/workflow  
 🔒 **Phishing resistant** - No credentials that can be stolen  
 
+## PyPI README Configuration
+
+This project maintains a separate `PYPI_README.md` file optimized for the PyPI package page.
+
+### Why a Separate PyPI README?
+
+The `PYPI_README.md` is condensed and focused on:
+- Installation and quick start
+- Core features and usage
+- Removing development-specific content (Makefile, website dev, etc.)
+- PyPI-specific badges
+
+### Using the PyPI README
+
+To use it for PyPI publishing, update `pyproject.toml`:
+
+```toml
+[project]
+readme = "PYPI_README.md"  # Changed from README.md
+```
+
+### Maintaining Both Files
+
+When making changes:
+1. **Always update `README.md` first** - This is the source of truth for GitHub
+2. **Periodically sync `PYPI_README.md`** - Copy relevant user-facing changes
+3. **Keep PYPI_README.md focused** - Exclude development/contributor details
+
 ## Additional Resources
 
 - [PyPI Trusted Publishing Documentation](https://docs.pypi.org/trusted-publishers/)
