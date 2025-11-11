@@ -119,6 +119,33 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
 
         manifest = PackageManifest.from_file(manifest_path)
 
+        # Validate groups for each agent before installation
+        console.print("[blue]Validating manifest groups...[/]")
+        from dumpty.agents.registry import get_agent_by_name
+        validation_errors = []
+        
+        for agent_name, groups_dict in manifest.agents.items():
+            agent_class = get_agent_by_name(agent_name)
+            if agent_class is None:
+                console.print(f"  [yellow]⚠[/] Unknown agent '{agent_name}' (skipping validation)")
+                continue
+            
+            supported_groups = agent_class.SUPPORTED_GROUPS
+            for group_name in groups_dict.keys():
+                if group_name not in supported_groups:
+                    validation_errors.append(
+                        f"Agent '{agent_name}' does not support group '{group_name}'. "
+                        f"Supported: {', '.join(supported_groups)}"
+                    )
+        
+        if validation_errors:
+            console.print("[red]Error:[/] Manifest validation failed:")
+            for error in validation_errors:
+                console.print(f"  - {error}")
+            console.print("\nRun [cyan]dumpty validate-manifest[/] for detailed validation")
+            sys.exit(1)
+        console.print("  [green]✓[/] All groups are valid")
+
         # Validate files exist
         missing_files = manifest.validate_files_exist(package_dir)
         if missing_files:
@@ -668,6 +695,30 @@ def update(
 
                     manifest = PackageManifest.from_file(manifest_path)
 
+                # Validate groups for each agent before update
+                from dumpty.agents.registry import get_agent_by_name
+                validation_errors = []
+                
+                for agent_name, groups_dict in manifest.agents.items():
+                    agent_class = get_agent_by_name(agent_name)
+                    if agent_class is None:
+                        continue
+                    
+                    supported_groups = agent_class.SUPPORTED_GROUPS
+                    for group_name in groups_dict.keys():
+                        if group_name not in supported_groups:
+                            validation_errors.append(
+                                f"Agent '{agent_name}' does not support group '{group_name}'. "
+                                f"Supported: {', '.join(supported_groups)}"
+                            )
+                
+                if validation_errors:
+                    console.print("  [red]Error:[/] Manifest validation failed:")
+                    for error in validation_errors:
+                        console.print(f"    - {error}")
+                    console.print("\n  Run [cyan]dumpty validate-manifest[/] for detailed validation")
+                    continue
+
                 # Validate files exist
                 missing_files = manifest.validate_files_exist(package_dir)
                 if missing_files:
@@ -867,6 +918,86 @@ def _display_package_info(package: InstalledPackage):
             table.add_row(artifact_name, file.installed)
 
         console.print(table)
+
+
+@cli.command()
+@click.argument("manifest_path", type=click.Path(exists=True, dir_okay=False, path_type=Path), required=False)
+def validate_manifest(manifest_path: Path):
+    """Validate a package manifest file.
+    
+    Checks if the manifest can be parsed and validates that specified groups
+    are supported by each agent.
+    
+    MANIFEST_PATH: Path to dumpty.package.yaml (defaults to current directory)
+    """
+    try:
+        # Default to dumpty.package.yaml in current directory
+        if manifest_path is None:
+            manifest_path = Path.cwd() / "dumpty.package.yaml"
+            if not manifest_path.exists():
+                console.print("[red]Error:[/] No dumpty.package.yaml found in current directory")
+                console.print("\nUsage: [cyan]dumpty validate-manifest [MANIFEST_PATH][/]")
+                sys.exit(1)
+        
+        console.print(f"\n[bold]Validating manifest:[/] {manifest_path}")
+        console.print()
+        
+        # Try to load and parse the manifest
+        try:
+            manifest = PackageManifest.from_file(manifest_path)
+        except ValueError as e:
+            console.print(f"[red]✗ Validation failed:[/] {e}")
+            sys.exit(1)
+        except Exception as e:
+            console.print(f"[red]✗ Parse error:[/] {e}")
+            sys.exit(1)
+        
+        # Basic validation passed
+        console.print(f"[green]✓[/] Manifest parsed successfully")
+        console.print(f"  Package: [cyan]{manifest.name}[/] v{manifest.version}")
+        console.print(f"  Manifest version: {manifest.manifest_version}")
+        console.print()
+        
+        # Validate groups for each agent
+        console.print("[bold]Agent Group Validation:[/]")
+        console.print()
+        
+        validation_passed = True
+        for agent_name, groups_dict in manifest.agents.items():
+            # Get agent to check supported groups
+            from dumpty.agents.registry import get_agent_by_name
+            agent_class = get_agent_by_name(agent_name)
+            
+            if agent_class is None:
+                console.print(f"  [yellow]⚠[/] [cyan]{agent_name}[/]: Unknown agent (skipping validation)")
+                continue
+            
+            supported_groups = agent_class.SUPPORTED_GROUPS
+            console.print(f"  [cyan]{agent_name}[/]:")
+            console.print(f"    Supported groups: {', '.join(supported_groups)}")
+            
+            # Check each group used in manifest
+            for group_name in groups_dict.keys():
+                if group_name in supported_groups:
+                    artifact_count = len(groups_dict[group_name])
+                    console.print(f"    [green]✓[/] {group_name} ({artifact_count} artifact{'s' if artifact_count != 1 else ''})")
+                else:
+                    validation_passed = False
+                    console.print(f"    [red]✗[/] {group_name} - NOT SUPPORTED by this agent")
+            console.print()
+        
+        # Final summary
+        if validation_passed:
+            console.print("[bold green]✓ Manifest is valid![/]")
+            console.print()
+        else:
+            console.print("[bold red]✗ Validation failed:[/] Some groups are not supported by their agents")
+            console.print()
+            sys.exit(1)
+            
+    except Exception as e:
+        console.print(f"[red]Error:[/] {e}")
+        sys.exit(1)
 
     console.print()
 

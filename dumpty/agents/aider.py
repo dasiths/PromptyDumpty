@@ -9,7 +9,7 @@ class AiderAgent(BaseAgent):
     """Aider agent implementation."""
 
     # Aider uses flat structure, no special groups
-    SUPPORTED_GROUPS: List[str] = []
+    SUPPORTED_GROUPS: List[str] = ["files"]
 
     @property
     def name(self) -> str:

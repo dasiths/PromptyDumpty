@@ -9,7 +9,7 @@ class ClaudeAgent(BaseAgent):
     """Claude agent implementation."""
 
     # Claude uses .claude/agents/ and .claude/commands/ folders
-    SUPPORTED_GROUPS: List[str] = ["agents", "commands"]
+    SUPPORTED_GROUPS: List[str] = ["files", "agents", "commands"]
 
     @property
     def name(self) -> str:

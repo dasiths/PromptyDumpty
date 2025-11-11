@@ -192,18 +192,20 @@ agents:
         description: Security review guidelines
         file: src/security-audit.md
         installed_path: security.prompt.md
-    rules:
-      - name: performance
-        description: Performance optimization tips
-        file: src/performance-tips.md
-        installed_path: performance.md
+    modes:
+      - name: review-mode
+        description: Code review assistant mode
+        file: src/review-mode.md
+        installed_path: code-review.md
 
+  cursor:
+    rules:
+      - name: review-standards
+        file: src/review-checklist.md
+        installed_path: review-standards.md
+  
   claude:
     commands:
-      - name: review-checklist
-        file: src/review-checklist.md
-        installed_path: code-review.md
-      
       - name: security-audit
         file: src/security-audit.md
         installed_path: security-audit.md`}
@@ -285,14 +287,28 @@ agents:
               <div className="text-2xl mr-4">2️⃣</div>
               <div>
                 <h4 className="text-lg font-semibold text-white mb-2">Add Your Manifest</h4>
-                <p>Create a <code>dumpty.package.yaml</code> file in the repository root.</p>
+                <p className="mb-2">Create a <code>dumpty.package.yaml</code> file in the repository root.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
+            <div className="flex items-start">
+              <div className="text-2xl mr-4">3️⃣</div>
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-2">Validate Your Manifest</h4>
+                <p className="mb-2">Before publishing, validate your manifest to ensure groups are correct:</p>
+                <div className="bg-slate-900/50 rounded border border-slate-700 p-3 mt-2">
+                  <code className="text-primary-300">dumpty validate-manifest dumpty.package.yaml</code>
+                </div>
+                <p className="mt-2 text-sm text-slate-400">This checks that your manifest can be parsed and all groups are supported by each agent.</p>
               </div>
             </div>
           </div>
           
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
             <div className="flex items-start">
-              <div className="text-2xl mr-4">3️⃣</div>
+              <div className="text-2xl mr-4">4️⃣</div>
               <div>
                 <h4 className="text-lg font-semibold text-white mb-2">Tag Versions</h4>
                 <p>Use Git tags for versioning: <code>git tag v1.0.0</code></p>
@@ -302,7 +318,7 @@ agents:
           
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
             <div className="flex items-start">
-              <div className="text-2xl mr-4">4️⃣</div>
+              <div className="text-2xl mr-4">5️⃣</div>
               <div>
                 <h4 className="text-lg font-semibold text-white mb-2">Share the URL</h4>
                 <p>Users can install with: <code>dumpty install https://github.com/org/your-package</code></p>
@@ -317,6 +333,9 @@ agents:
         <div className="bg-primary-900/30 border border-primary-700/50 rounded-lg p-6">
           <ul className="space-y-3 text-slate-300">
             <li>✅ Use semantic versioning (e.g., 1.0.0, 1.1.0, 2.0.0)</li>
+            <li>✅ <strong>Validate your manifest</strong> before publishing with <code className="text-primary-300">dumpty validate-manifest</code></li>
+            <li>✅ Use appropriate groups for each agent (e.g., <code>prompts</code> for Copilot, <code>rules</code> for Cursor)</li>
+            <li>✅ Use the universal <code>files</code> group for generic artifacts that don't fit specific categories</li>
             <li>✅ Include a descriptive README.md in your package</li>
             <li>✅ Test your package across different agents</li>
             <li>✅ Keep artifact descriptions clear and concise</li>

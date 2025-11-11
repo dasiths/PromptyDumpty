@@ -8,7 +8,7 @@ from .base import BaseAgent
 class GeminiAgent(BaseAgent):
     """Gemini agent implementation."""
 
-    SUPPORTED_GROUPS: List[str] = []  # Flat structure, no groups
+    SUPPORTED_GROUPS: List[str] = ["files"]  # Universal files group
 
     @property
     def name(self) -> str:
