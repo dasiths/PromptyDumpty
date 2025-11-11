@@ -529,7 +529,7 @@ license: MIT
 
 agents:
   copilot:
-    artifacts:
+    files:
       - name: new-file
         description: New file
         file: src/new-file.md
@@ -568,7 +568,7 @@ agents:
             assert not old_file.exists()
 
             # Verify new file was installed
-            new_file = tmp_path / ".github" / "test-package" / "new-file.md"
+            new_file = tmp_path / ".github" / "files" / "test-package" / "new-file.md"
             assert new_file.exists()
             assert "New content" in new_file.read_text()
 

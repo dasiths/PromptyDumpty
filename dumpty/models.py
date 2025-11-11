@@ -21,13 +21,15 @@ class Artifact:
         # Validate paths for security
         file_path = data["file"]
         installed_path = data["installed_path"]
-        
+
         # Reject absolute paths and path traversal attempts
         if Path(file_path).is_absolute() or ".." in file_path:
             raise ValueError(f"Invalid file path (absolute or contains '..'): {file_path}")
         if Path(installed_path).is_absolute() or ".." in installed_path:
-            raise ValueError(f"Invalid installed path (absolute or contains '..'): {installed_path}")
-        
+            raise ValueError(
+                f"Invalid installed path (absolute or contains '..'): {installed_path}"
+            )
+
         return cls(
             name=data["name"],
             description=data.get("description", ""),
@@ -70,7 +72,7 @@ class PackageManifest:
                 "The manifest must specify a version. For the current format, use:\n"
                 "  manifest_version: 1.0"
             )
-        
+
         # Only accept version 1.0
         if manifest_version != 1.0:
             raise ValueError(
@@ -87,22 +89,22 @@ class PackageManifest:
                 if "artifacts" in agent_data:
                     raise ValueError(
                         f"Invalid manifest format: 'artifacts' key is not supported.\n"
-                        f"Artifacts must be grouped by type (e.g., prompts, modes, rules, workflows, files).\n"
+                        f"Artifacts must be organized by type (e.g., prompts, modes, rules, workflows, files).\n"
                         f"Agent '{agent_name}' uses unsupported 'artifacts' key."
                     )
 
-                # Parse nested groups
-                groups = {}
-                for group_name, group_data in agent_data.items():
-                    if not isinstance(group_data, list):
+                # Parse nested types
+                types = {}
+                for type_name, type_data in agent_data.items():
+                    if not isinstance(type_data, list):
                         continue  # Skip non-list fields (e.g., metadata)
 
                     artifacts = []
-                    for artifact_data in group_data:
+                    for artifact_data in type_data:
                         artifacts.append(Artifact.from_dict(artifact_data))
-                    groups[group_name] = artifacts
+                    types[type_name] = artifacts
 
-                agents[agent_name] = groups
+                agents[agent_name] = types
 
         manifest = cls(
             name=data["name"],
@@ -116,39 +118,39 @@ class PackageManifest:
             agents=agents,
         )
 
-        # Validate groups against agent registry
-        manifest.validate_groups()
+        # Validate types against agent registry
+        manifest.validate_types()
 
         return manifest
 
-    def validate_groups(self) -> None:
+    def validate_types(self) -> None:
         """
-        Validate that all artifact groups are supported by their agents.
-        
+        Validate that all artifact types are supported by their agents.
+
         All agents support "files" as a catch-all for flat structure.
-        Agents with specific SUPPORTED_GROUPS validate against those.
-        
+        Agents with specific SUPPORTED_TYPES validate against those.
+
         Raises:
-            ValueError: If any group is not supported by its agent
+            ValueError: If any type is not supported by its agent
         """
         from dumpty.agents.registry import get_agent_by_name
-        
-        for agent_name, groups in self.agents.items():
+
+        for agent_name, types in self.agents.items():
             # Try to get agent implementation
             try:
                 agent_class = get_agent_by_name(agent_name)
             except ValueError:
                 # Unknown agent - print warning but continue (forward compatibility)
-                print(f"Warning: Unknown agent '{agent_name}' - cannot validate groups")
+                print(f"Warning: Unknown agent '{agent_name}' - cannot validate types")
                 continue
-            
-            # Validate each group
-            for group_name in groups.keys():
-                if not agent_class.validate_artifact_group(group_name):
-                    supported = agent_class.SUPPORTED_GROUPS
+
+            # Validate each type
+            for type_name in types.keys():
+                if not agent_class.validate_artifact_type(type_name):
+                    supported = agent_class.SUPPORTED_TYPES
                     raise ValueError(
-                        f"Invalid artifact group '{group_name}' for agent '{agent_name}'.\n"
-                        f"Supported groups: {', '.join(supported)}"
+                        f"Invalid artifact type '{type_name}' for agent '{agent_name}'.\n"
+                        f"Supported types: {', '.join(supported)}"
                     )
 
     def validate_files_exist(self, package_root: Path) -> List[str]:
@@ -157,12 +159,12 @@ class PackageManifest:
         Returns list of missing files.
         """
         missing = []
-        for agent_name, groups in self.agents.items():
-            for group_name, artifacts in groups.items():
+        for agent_name, types in self.agents.items():
+            for type_name, artifacts in types.items():
                 for artifact in artifacts:
                     file_path = package_root / artifact.file
                     if not file_path.exists():
-                        missing.append(f"{agent_name}/{group_name}/{artifact.name}: {artifact.file}")
+                        missing.append(f"{agent_name}/{type_name}/{artifact.name}: {artifact.file}")
         return missing
 
 

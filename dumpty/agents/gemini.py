@@ -6,9 +6,9 @@ from .base import BaseAgent
 
 
 class GeminiAgent(BaseAgent):
-    """Gemini agent implementation."""
+    """Google Gemini agent implementation."""
 
-    SUPPORTED_GROUPS: List[str] = ["files"]  # Universal files group
+    SUPPORTED_TYPES: List[str] = ["files"]  # Universal files type
 
     @property
     def name(self) -> str:

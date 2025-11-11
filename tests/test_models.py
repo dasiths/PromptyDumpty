@@ -60,7 +60,7 @@ agents:
 """
     manifest_path = tmp_path / "dumpty.package.yaml"
     manifest_path.write_text(manifest_content)
-    
+
     # Create source file
     src_dir = tmp_path / "src"
     src_dir.mkdir()
@@ -86,6 +86,7 @@ def test_package_manifest_missing_required_field(tmp_path):
     manifest_content = """
 name: test-package
 description: Missing version field
+manifest_version: 1.0
 """
     manifest_path = tmp_path / "dumpty.package.yaml"
     manifest_path.write_text(manifest_content)
@@ -198,39 +199,47 @@ def test_artifact_path_traversal_prevention():
     """Test that path traversal attempts are rejected."""
     # Test file path with ..
     with pytest.raises(ValueError, match="Invalid file path"):
-        Artifact.from_dict({
-            "name": "test",
-            "file": "../../../etc/passwd",
-            "installed_path": "test.md",
-        })
-    
+        Artifact.from_dict(
+            {
+                "name": "test",
+                "file": "../../../etc/passwd",
+                "installed_path": "test.md",
+            }
+        )
+
     # Test installed_path with ..
     with pytest.raises(ValueError, match="Invalid installed path"):
-        Artifact.from_dict({
-            "name": "test",
-            "file": "src/test.md",
-            "installed_path": "../../../etc/passwd",
-        })
-    
+        Artifact.from_dict(
+            {
+                "name": "test",
+                "file": "src/test.md",
+                "installed_path": "../../../etc/passwd",
+            }
+        )
+
     # Test absolute file path
     with pytest.raises(ValueError, match="Invalid file path"):
-        Artifact.from_dict({
-            "name": "test",
-            "file": "/etc/passwd",
-            "installed_path": "test.md",
-        })
-    
+        Artifact.from_dict(
+            {
+                "name": "test",
+                "file": "/etc/passwd",
+                "installed_path": "test.md",
+            }
+        )
+
     # Test absolute installed_path
     with pytest.raises(ValueError, match="Invalid installed path"):
-        Artifact.from_dict({
-            "name": "test",
-            "file": "src/test.md",
-            "installed_path": "/tmp/evil.md",
-        })
+        Artifact.from_dict(
+            {
+                "name": "test",
+                "file": "src/test.md",
+                "installed_path": "/tmp/evil.md",
+            }
+        )
 
 
 def test_package_manifest_nested_format(tmp_path):
-    """Test loading manifest with nested group structure."""
+    """Test loading manifest with nested type structure."""
     manifest_content = """
 name: test-package
 version: 1.0.0
@@ -261,7 +270,7 @@ agents:
 """
     manifest_path = tmp_path / "dumpty.package.yaml"
     manifest_path.write_text(manifest_content)
-    
+
     # Create source files
     src_dir = tmp_path / "src"
     src_dir.mkdir()
@@ -277,17 +286,17 @@ agents:
     assert manifest.manifest_version == 1.0
     assert "copilot" in manifest.agents
     assert "cursor" in manifest.agents
-    
+
     # Check nested structure
     assert "prompts" in manifest.agents["copilot"]
     assert "modes" in manifest.agents["copilot"]
     assert "rules" in manifest.agents["cursor"]
-    
-    # Check artifacts in groups
+
+    # Check artifacts in types
     assert len(manifest.agents["copilot"]["prompts"]) == 2
     assert len(manifest.agents["copilot"]["modes"]) == 1
     assert len(manifest.agents["cursor"]["rules"]) == 1
-    
+
     assert manifest.agents["copilot"]["prompts"][0].name == "planning"
     assert manifest.agents["copilot"]["modes"][0].name == "debug"
 
@@ -312,7 +321,7 @@ agents:
 
     with pytest.raises(ValueError) as exc_info:
         PackageManifest.from_file(manifest_path)
-    
+
     error_msg = str(exc_info.value)
     assert "Invalid manifest format" in error_msg
     assert "'artifacts' key is not supported" in error_msg
@@ -320,7 +329,7 @@ agents:
 
 
 def test_package_manifest_invalid_group(tmp_path):
-    """Test that invalid groups are rejected."""
+    """Test that invalid types are rejected."""
     manifest_content = """
 name: test-package
 version: 1.0.0
@@ -336,16 +345,16 @@ agents:
 """
     manifest_path = tmp_path / "dumpty.package.yaml"
     manifest_path.write_text(manifest_content)
-    
+
     src_dir = tmp_path / "src"
     src_dir.mkdir()
     (src_dir / "test.md").write_text("# Test")
 
     with pytest.raises(ValueError) as exc_info:
         PackageManifest.from_file(manifest_path)
-    
+
     error_msg = str(exc_info.value)
-    assert "Invalid artifact group 'invalid_group'" in error_msg
+    assert "Invalid artifact type 'invalid_group'" in error_msg
     assert "copilot" in error_msg
     assert "files, prompts, modes" in error_msg
 
@@ -367,21 +376,21 @@ agents:
 """
     manifest_path = tmp_path / "dumpty.package.yaml"
     manifest_path.write_text(manifest_content)
-    
+
     src_dir = tmp_path / "src"
     src_dir.mkdir()
     (src_dir / "test.md").write_text("# Test")
 
     # Should not raise, but should print warning
     manifest = PackageManifest.from_file(manifest_path)
-    
+
     captured = capsys.readouterr()
     assert "Warning: Unknown agent 'future_agent'" in captured.out
     assert manifest.name == "test-package"
 
 
 def test_package_manifest_empty_groups_agent(tmp_path):
-    """Test agent that only supports 'files' rejects other groups."""
+    """Test agent that only supports 'files' rejects other types."""
     manifest_content = """
 name: test-package
 version: 1.0.0
@@ -397,18 +406,18 @@ agents:
 """
     manifest_path = tmp_path / "dumpty.package.yaml"
     manifest_path.write_text(manifest_content)
-    
+
     src_dir = tmp_path / "src"
     src_dir.mkdir()
     (src_dir / "test.md").write_text("# Test")
 
     with pytest.raises(ValueError) as exc_info:
         PackageManifest.from_file(manifest_path)
-    
+
     error_msg = str(exc_info.value)
-    assert "Invalid artifact group 'prompts'" in error_msg
+    assert "Invalid artifact type 'prompts'" in error_msg
     assert "gemini" in error_msg
-    assert "Supported groups: files" in error_msg
+    assert "Supported types: files" in error_msg
 
 
 def test_package_manifest_validate_files_exist_nested(tmp_path):
@@ -435,7 +444,7 @@ agents:
 """
     manifest_path = tmp_path / "dumpty.package.yaml"
     manifest_path.write_text(manifest_content)
-    
+
     # Create only some files
     src_dir = tmp_path / "src"
     src_dir.mkdir()
@@ -453,6 +462,7 @@ agents:
 def test_package_manifest_missing_version():
     """Test that manifest without manifest_version is rejected."""
     import tempfile
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
         manifest_content = """
@@ -469,10 +479,10 @@ agents:
 """
         manifest_path = tmp_path / "dumpty.package.yaml"
         manifest_path.write_text(manifest_content)
-        
+
         with pytest.raises(ValueError) as exc_info:
             PackageManifest.from_file(manifest_path)
-        
+
         error_msg = str(exc_info.value)
         assert "Missing required field: manifest_version" in error_msg
         assert "manifest_version: 1.0" in error_msg
@@ -481,6 +491,7 @@ agents:
 def test_package_manifest_invalid_version():
     """Test that manifest with unsupported version is rejected."""
     import tempfile
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
         manifest_content = """
@@ -499,36 +510,40 @@ agents:
 """
         manifest_path = tmp_path / "dumpty.package.yaml"
         manifest_path.write_text(manifest_content)
-        
+
         with pytest.raises(ValueError) as exc_info:
             PackageManifest.from_file(manifest_path)
-        
+
         error_msg = str(exc_info.value)
         assert "Unsupported manifest version: 2.0" in error_msg
         assert "only supports manifest_version: 1.0" in error_msg
 
 
 def test_package_manifest_with_no_group_fixture():
-    """Test loading no-group package fixture."""
+    """Test loading no-type package fixture."""
     from pathlib import Path
-    fixture_path = Path(__file__).parent / "fixtures" / "no_group_package" / "dumpty.package.yaml"
-    
+
+    fixture_path = Path(__file__).parent / "fixtures" / "no_type_package" / "dumpty.package.yaml"
+
     if fixture_path.exists():
         manifest = PackageManifest.from_file(fixture_path)
-        assert manifest.name == "no-group-package"
+        assert manifest.name == "no-type-package"
         assert manifest.manifest_version == 1.0
         assert "gemini" in manifest.agents or "aider" in manifest.agents
 
 
 def test_package_manifest_with_invalid_group_fixture():
-    """Test that invalid-group package fixture is rejected."""
+    """Test that invalid-type package fixture is rejected."""
     from pathlib import Path
-    fixture_path = Path(__file__).parent / "fixtures" / "invalid_group_package" / "dumpty.package.yaml"
-    
+
+    fixture_path = (
+        Path(__file__).parent / "fixtures" / "invalid_type_package" / "dumpty.package.yaml"
+    )
+
     if fixture_path.exists():
         with pytest.raises(ValueError) as exc_info:
             PackageManifest.from_file(fixture_path)
-        
+
         error_msg = str(exc_info.value)
-        # Should fail because 'invalid_group' is not in Copilot's SUPPORTED_GROUPS
-        assert "invalid_group" in error_msg or "not supported" in error_msg
+        # Should fail because 'invalid_type' is not in Copilot's SUPPORTED_TYPES
+        assert "invalid_type" in error_msg or "not supported" in error_msg

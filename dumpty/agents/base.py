@@ -8,9 +8,9 @@ from typing import List
 class BaseAgent(ABC):
     """Abstract base class for AI agent implementations."""
 
-    # Supported artifact groups for this agent (e.g., ["prompts", "modes"])
+    # Supported artifact types for this agent (e.g., ["prompts", "modes"])
     # All agents support "files" as a catch-all for flat structure
-    SUPPORTED_GROUPS: List[str] = ["files"]
+    SUPPORTED_TYPES: List[str] = ["files"]
 
     @property
     @abstractmethod
@@ -59,36 +59,36 @@ class BaseAgent(ABC):
         return project_root / self.directory
 
     @classmethod
-    def validate_artifact_group(cls, group: str) -> bool:
+    def validate_artifact_type(cls, artifact_type: str) -> bool:
         """
-        Validate if artifact group is supported by this agent.
+        Validate if artifact type is supported by this agent.
 
         Args:
-            group: Group name to validate
+            artifact_type: Type name to validate
 
         Returns:
-            True if group is in SUPPORTED_GROUPS, False otherwise
+            True if artifact_type is in SUPPORTED_TYPES, False otherwise
         """
-        return group in cls.SUPPORTED_GROUPS
+        return artifact_type in cls.SUPPORTED_TYPES
 
     @classmethod
-    def get_group_folder(cls, group: str) -> str:
+    def get_type_folder(cls, artifact_type: str) -> str:
         """
-        Get the folder name for a given group.
-        
-        By default, the folder name matches the group name.
+        Get the folder name for a given artifact type.
+
+        By default, the folder name matches the type name.
         Override this method in subclasses to customize folder mapping.
-        
+
         Args:
-            group: Group name (e.g., 'prompts', 'modes', 'files')
-            
+            artifact_type: Type name (e.g., 'prompts', 'modes', 'files')
+
         Returns:
-            Folder name for the group (e.g., 'prompts', 'modes', 'files')
-            
+            Folder name for the type (e.g., 'prompts', 'modes', 'files')
+
         Example:
             A custom agent might map 'prompts' -> '.prompts' or 'rules' -> 'project_rules'
         """
-        return group
+        return artifact_type
 
     def pre_install(
         self, project_root: Path, package_name: str, install_dirs: list[Path], files: list[Path]
@@ -104,7 +104,7 @@ class BaseAgent(ABC):
             project_root: Root directory of the project
             package_name: Name of the package being installed
             install_dirs: List of directories where package files will be installed.
-                         With groups, there may be multiple directories (e.g., 
+                         With types, there may be multiple directories (e.g.,
                          [.github/prompts/pkg, .github/modes/pkg])
             files: List of file paths that will be installed (relative to project root)
 
@@ -132,7 +132,7 @@ class BaseAgent(ABC):
             project_root: Root directory of the project
             package_name: Name of the package that was installed
             install_dirs: List of directories where package files were installed.
-                         With groups, there may be multiple directories (e.g., 
+                         With types, there may be multiple directories (e.g.,
                          [.github/prompts/pkg, .github/modes/pkg])
             files: List of file paths that were installed (relative to project root)
 

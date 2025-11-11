@@ -8,8 +8,8 @@ from .base import BaseAgent
 class AiderAgent(BaseAgent):
     """Aider agent implementation."""
 
-    # Aider uses flat structure, no special groups
-    SUPPORTED_GROUPS: List[str] = ["files"]
+    # Aider only supports universal files type
+    SUPPORTED_TYPES: List[str] = ["files"]
 
     @property
     def name(self) -> str:

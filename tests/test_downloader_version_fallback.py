@@ -31,6 +31,7 @@ def test_checkout_version_without_v_fallback_to_with_v(tmp_path):
 name: test-package
 version: 1.0.0
 description: Test package
+manifest_version: 1.0
 """
         )
 
@@ -71,6 +72,7 @@ def test_checkout_version_with_v_does_not_fallback(tmp_path):
 name: test-package
 version: 1.0.0
 description: Test package
+manifest_version: 1.0
 """
         )
 
@@ -166,6 +168,7 @@ def test_checkout_commit_hash_no_fallback(tmp_path):
 name: test-package
 version: 1.0.0
 description: Test package
+manifest_version: 1.0
 """
         )
 

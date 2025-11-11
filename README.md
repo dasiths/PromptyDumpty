@@ -61,7 +61,7 @@ my-package/
 
 ## Creating Packages
 
-Define what your package provides in `dumpty.package.yaml` - organized by agent and group:
+Define what your package provides in `dumpty.package.yaml` - organized by agent and type:
 
 ```yaml
 name: my-workflows
@@ -92,11 +92,11 @@ agents:
 
 **Key Features:**
 - Organize files however makes sense to you
-- Group artifacts by type (prompts, modes, rules, commands, etc.)
-- Use "files" group for generic artifacts
+- Organize artifacts by type (prompts, modes, rules, commands, etc.)
+- Use "files" type for generic artifacts
 - Explicitly map each file to its install location per agent
 - Reuse the same source file for multiple agents
-- Installation paths: `{agent_dir}/{group}/{package}/{file}`
+- Installation paths: `{agent_dir}/{type}/{package}/{file}`
 
 ## Documentation
 

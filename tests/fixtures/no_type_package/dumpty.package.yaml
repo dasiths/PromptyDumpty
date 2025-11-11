@@ -1,6 +1,6 @@
-name: no-group-package
+name: no-type-package
 version: 1.0.0
-description: Test package with flat structure using 'files' group
+description: Test package with flat structure using 'files' type
 author: Test Author
 license: MIT
 manifest_version: 1.0

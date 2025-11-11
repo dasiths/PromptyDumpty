@@ -6,10 +6,10 @@ from .base import BaseAgent
 
 
 class ContinueAgent(BaseAgent):
-    """Continue agent implementation."""
+    """Continue.dev agent implementation."""
 
-    # Continue uses flat structure, no special groups
-    SUPPORTED_GROUPS: List[str] = ["files"]
+    # Continue only supports universal files type
+    SUPPORTED_TYPES: List[str] = ["files"]
 
     @property
     def name(self) -> str:

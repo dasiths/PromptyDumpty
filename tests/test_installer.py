@@ -6,7 +6,7 @@ from dumpty.agent_detector import Agent
 
 
 def test_install_file(tmp_path):
-    """Test installing a file with 'files' group."""
+    """Test installing a file with 'files' type."""
     # Create source file
     source_dir = tmp_path / "source"
     source_dir.mkdir()
@@ -19,7 +19,7 @@ def test_install_file(tmp_path):
 
     installer = FileInstaller(project_root)
 
-    # Install file with "files" group (default group)
+    # Install file with "files" type (default type)
     dest_path, checksum = installer.install_file(
         source_file, Agent.COPILOT, "test-package", "test.prompt.md", "files"
     )
@@ -33,7 +33,7 @@ def test_install_file(tmp_path):
 
 
 def test_install_file_with_group(tmp_path):
-    """Test installing a file with group."""
+    """Test installing a file with artifact type."""
     # Create source file
     source_dir = tmp_path / "source"
     source_dir.mkdir()
@@ -46,12 +46,12 @@ def test_install_file_with_group(tmp_path):
 
     installer = FileInstaller(project_root)
 
-    # Install file with group
+    # Install file with artifact type
     dest_path, checksum = installer.install_file(
-        source_file, Agent.COPILOT, "test-package", "test.prompt.md", group="prompts"
+        source_file, Agent.COPILOT, "test-package", "test.prompt.md", artifact_type="prompts"
     )
 
-    # Verify installation with group structure
+    # Verify installation with type structure
     expected_path = project_root / ".github" / "prompts" / "test-package" / "test.prompt.md"
     assert dest_path == expected_path
     assert dest_path.exists()
@@ -69,16 +69,16 @@ def test_install_file_creates_directories(tmp_path):
 
     installer = FileInstaller(project_root)
 
-    # Install with nested path and group
+    # Install with nested path and artifact type
     dest_path, checksum = installer.install_file(
         source_file,
         Agent.CLAUDE,
         "my-package",
         "subfolder/nested/file.md",
-        group="commands",
+        artifact_type="commands",
     )
 
-    # Verify all directories were created with group
+    # Verify all directories were created with artifact type
     expected_path = (
         project_root / ".claude" / "commands" / "my-package" / "subfolder" / "nested" / "file.md"
     )
@@ -154,9 +154,13 @@ def test_install_multiple_files_same_package(tmp_path):
 
     installer = FileInstaller(project_root)
 
-    # Install both files with group
-    dest1, _ = installer.install_file(file1, Agent.COPILOT, "pkg", "file1.md", group="prompts")
-    dest2, _ = installer.install_file(file2, Agent.COPILOT, "pkg", "file2.md", group="prompts")
+    # Install both files with artifact type
+    dest1, _ = installer.install_file(
+        file1, Agent.COPILOT, "pkg", "file1.md", artifact_type="prompts"
+    )
+    dest2, _ = installer.install_file(
+        file2, Agent.COPILOT, "pkg", "file2.md", artifact_type="prompts"
+    )
 
     # Verify both exist
     assert dest1.exists()
@@ -230,12 +234,14 @@ def test_install_package_calls_hooks(tmp_path):
         assert tracked_agent.pre_install_called
         assert tracked_agent.post_install_called
         assert tracked_agent.pre_install_package == "test-package"
-        # With groups, install_dirs is a list containing the group directory
+        # With artifact types, install_dirs is a list containing the type directory
         assert len(tracked_agent.pre_install_dirs) == 1
-        assert tracked_agent.pre_install_dirs[0] == tmp_path / ".github" / "prompts" / "test-package"
+        assert (
+            tracked_agent.pre_install_dirs[0] == tmp_path / ".github" / "prompts" / "test-package"
+        )
         assert len(tracked_agent.pre_install_files) == 2
 
-        # Verify files were installed with group structure
+        # Verify files were installed with type structure
         assert len(results) == 2
         assert (tmp_path / ".github/prompts/test-package/file1.txt").exists()
         assert (tmp_path / ".github/prompts/test-package/file2.txt").exists()
@@ -338,37 +344,41 @@ def test_copilot_vscode_settings_integration(tmp_path):
         settings = json.load(f)
 
     # Check that package path was added to both settings
-    # With groups, the path now includes the group folder
+    # With artifact types, the path now includes the type folder
     expected_path = ".github/prompts/test-prompts"
     assert "chat.promptFilesLocations" in settings
     assert expected_path in settings["chat.promptFilesLocations"]
     assert "chat.modeFilesLocations" in settings
     assert expected_path in settings["chat.modeFilesLocations"]
 
-    # Note: With grouped structure, uninstall now properly handles multiple directories
+    # Note: With typed structure, uninstall now properly handles multiple directories
 
 
 def test_install_multiple_groups(tmp_path):
-    """Test installing artifacts in multiple groups for the same package."""
+    """Test installing artifacts in multiple types for the same package."""
     source_dir = tmp_path / "source"
     source_dir.mkdir()
-    
+
     # Create test files
     prompt_file = source_dir / "prompt.md"
     prompt_file.write_text("# Prompt")
     mode_file = source_dir / "mode.md"
     mode_file.write_text("# Mode")
-    
+
     project_root = tmp_path / "project"
     project_root.mkdir()
 
     installer = FileInstaller(project_root)
 
-    # Install files to different groups
-    dest1, _ = installer.install_file(prompt_file, Agent.COPILOT, "pkg", "prompt.md", group="prompts")
-    dest2, _ = installer.install_file(mode_file, Agent.COPILOT, "pkg", "mode.md", group="modes")
+    # Install files to different types
+    dest1, _ = installer.install_file(
+        prompt_file, Agent.COPILOT, "pkg", "prompt.md", artifact_type="prompts"
+    )
+    dest2, _ = installer.install_file(
+        mode_file, Agent.COPILOT, "pkg", "mode.md", artifact_type="modes"
+    )
 
-    # Verify files are in different group directories
+    # Verify files are in different type directories
     assert dest1 == project_root / ".github" / "prompts" / "pkg" / "prompt.md"
     assert dest2 == project_root / ".github" / "modes" / "pkg" / "mode.md"
     assert dest1.exists()
@@ -376,7 +386,7 @@ def test_install_multiple_groups(tmp_path):
 
 
 def test_install_package_without_group(tmp_path):
-    """Test installing a package using 'files' group (default for agents without specific groups)."""
+    """Test installing a package using 'files' type (default for agents without specific types)."""
     from dumpty.installer import FileInstaller
     from dumpty.agent_detector import Agent
 
@@ -387,7 +397,7 @@ def test_install_package_without_group(tmp_path):
     test_file.write_text("test content")
 
     source_files = [
-        (test_file, "file.txt", "files"),  # Use "files" group
+        (test_file, "file.txt", "files"),  # Use "files" type
     ]
 
     # Install package
@@ -399,7 +409,7 @@ def test_install_package_without_group(tmp_path):
 
 
 def test_install_package_multiple_groups_multiple_dirs(tmp_path):
-    """Test that hooks receive multiple install directories when using multiple groups."""
+    """Test that hooks receive multiple install directories when using multiple types."""
     from dumpty.installer import FileInstaller
     from dumpty.agent_detector import Agent
     from pathlib import Path
@@ -417,6 +427,7 @@ def test_install_package_multiple_groups_multiple_dirs(tmp_path):
 
     # Replace agent temporarily
     from dumpty.agents.registry import AgentRegistry
+
     registry = AgentRegistry()
     original_agent = registry.get_agent("copilot")
     tracked_agent = TrackedAgent()
@@ -425,7 +436,7 @@ def test_install_package_multiple_groups_multiple_dirs(tmp_path):
     try:
         installer = FileInstaller(tmp_path)
 
-        # Create test files for different groups
+        # Create test files for different types
         test_file1 = tmp_path / "source1.txt"
         test_file1.write_text("prompt content")
         test_file2 = tmp_path / "source2.txt"
@@ -453,13 +464,13 @@ def test_install_package_multiple_groups_multiple_dirs(tmp_path):
 
 
 def test_uninstall_package_multiple_groups(tmp_path):
-    """Test that uninstall removes package from multiple group directories."""
+    """Test that uninstall removes package from multiple type directories."""
     from dumpty.installer import FileInstaller
     from dumpty.agent_detector import Agent
 
     installer = FileInstaller(tmp_path)
 
-    # Create package in multiple group directories
+    # Create package in multiple type directories
     prompts_dir = tmp_path / ".github/prompts/test-package"
     prompts_dir.mkdir(parents=True)
     (prompts_dir / "file1.txt").write_text("content 1")

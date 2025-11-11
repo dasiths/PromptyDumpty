@@ -8,7 +8,7 @@ from .base import BaseAgent
 class WindsurfAgent(BaseAgent):
     """Windsurf agent implementation."""
 
-    SUPPORTED_GROUPS: List[str] = ["files", "workflows", "rules"]
+    SUPPORTED_TYPES: List[str] = ["files", "workflows", "rules"]
 
     @property
     def name(self) -> str:

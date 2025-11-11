@@ -25,6 +25,7 @@ name: test-package
 version: 1.0.0
 description: Test package for CLI tests
 manifest_version: 1.0
+manifest_version: 1.0
 author: Test Author
 license: MIT
 
@@ -267,6 +268,7 @@ name: test-package
 version: 1.0.0
 description: Test package
 manifest_version: 1.0
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -396,6 +398,7 @@ name: test-package
 version: 2.0.0
 description: Test package
 manifest_version: 1.0
+manifest_version: 1.0
 
 agents:
   copilot:
@@ -477,10 +480,11 @@ name: test-package
 version: 2.0.0
 description: Test package
 manifest_version: 1.0
+manifest_version: 1.0
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: test
         description: Test file
         file: src/test.md

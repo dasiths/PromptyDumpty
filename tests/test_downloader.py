@@ -23,6 +23,8 @@ def test_repos_dir(tmp_path):
 name: sample-package
 version: 1.0.0
 description: Test package
+manifest_version: 1.0
+manifest_version: 1.0
 """
     )
 

@@ -64,13 +64,13 @@ class AgentRegistry:
 def get_agent_by_name(name: str) -> Type[BaseAgent]:
     """
     Get agent class by name.
-    
+
     Args:
         name: Agent name (e.g., 'copilot', 'cursor')
-        
+
     Returns:
         Agent class
-        
+
     Raises:
         ValueError: If agent not found
     """
@@ -83,7 +83,7 @@ def get_agent_by_name(name: str) -> Type[BaseAgent]:
     from .cline import ClineAgent
     from .aider import AiderAgent
     from .continue_agent import ContinueAgent
-    
+
     agents = {
         "copilot": CopilotAgent,
         "claude": ClaudeAgent,
@@ -94,9 +94,9 @@ def get_agent_by_name(name: str) -> Type[BaseAgent]:
         "aider": AiderAgent,
         "continue": ContinueAgent,
     }
-    
+
     agent_class = agents.get(name.lower())
     if agent_class is None:
         raise ValueError(f"Unknown agent: {name}")
-    
+
     return agent_class

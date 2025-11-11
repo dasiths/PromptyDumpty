@@ -8,7 +8,7 @@ from .base import BaseAgent
 class CursorAgent(BaseAgent):
     """Cursor agent implementation."""
 
-    SUPPORTED_GROUPS: List[str] = ["files", "rules"]
+    SUPPORTED_TYPES: List[str] = ["files", "rules"]
 
     @property
     def name(self) -> str:

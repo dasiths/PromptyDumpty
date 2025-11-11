@@ -8,7 +8,7 @@ from .base import BaseAgent
 class ClineAgent(BaseAgent):
     """Cline agent implementation."""
 
-    SUPPORTED_GROUPS: List[str] = ["files", "rules", "workflows"]
+    SUPPORTED_TYPES: List[str] = ["files", "rules", "workflows"]
 
     @property
     def name(self) -> str:

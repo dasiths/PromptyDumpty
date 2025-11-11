@@ -1,13 +1,13 @@
-name: invalid-group-package
+name: invalid-type-package
 version: 1.0.0
-description: Test package with invalid groups (should fail validation)
+description: Test package with invalid types (should fail validation)
 author: Test Author
 license: MIT
 manifest_version: 1.0
 
 agents:
   copilot:
-    invalid_group:
+    invalid_type:
       - name: test
         description: Test artifact
         file: src/test.md

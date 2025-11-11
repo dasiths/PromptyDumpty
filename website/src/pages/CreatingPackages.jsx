@@ -7,7 +7,7 @@ const tocItems = [
   { id: 'manifest-fields', title: 'Manifest Fields' },
   { id: 'key-features', title: 'Key Features' },
   { id: 'example-package', title: 'Example Package' },
-  { id: 'supported-agents', title: 'Supported Agents & Groups' },
+  { id: 'supported-agents', title: 'Agent-Specific Artifact Types' },
   { id: 'publishing', title: 'Publishing Your Package' },
   { id: 'best-practices', title: 'Best Practices' },
 ]
@@ -39,7 +39,7 @@ export default function CreatingPackages() {
       <section id="manifest-file" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">The Manifest File</h2>
         <p className="text-slate-300 mb-4">
-          The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent. Files are organized by group (prompts, modes, rules, etc.):
+          The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent. Files are organized by type (prompts, modes, rules, etc.):
         </p>
         <div className="border border-slate-700 mb-6">
           <CodeBlock language="yaml">
@@ -91,24 +91,33 @@ agents:
 
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
             <h3 className="text-xl font-semibold mb-2">Agent Configuration</h3>
-            <p className="text-slate-300 mb-3">
-              Each agent key (<code>copilot</code>, <code>claude</code>, <code>cursor</code>, etc.) contains groups of artifacts:
+            <p className="text-slate-300 mb-4">
+              Each agent key (<code>copilot</code>, <code>claude</code>, <code>cursor</code>, etc.) contains artifact types that organize files into appropriate folders.
             </p>
+            
+            <h4 className="text-lg font-semibold mb-2 text-slate-200">Artifact Fields</h4>
             <ul className="space-y-2 text-slate-300 mb-4">
-              <li><strong>Group names</strong> - Organize artifacts by type (e.g., <code>prompts</code>, <code>modes</code>, <code>rules</code>, <code>commands</code>)</li>
-              <li><strong>Universal "files" group</strong> - All agents support "files" for generic artifacts</li>
-            </ul>
-            <p className="text-slate-300 mb-3">Each artifact in a group has:</p>
-            <ul className="space-y-2 text-slate-300">
               <li><code className="text-primary-400">name</code> - Artifact identifier</li>
               <li><code className="text-primary-400">description</code> - What this artifact does</li>
               <li><code className="text-primary-400">file</code> - Source file path in your package</li>
-              <li><code className="text-primary-400">installed_path</code> - Where to install relative to the group folder</li>
+              <li><code className="text-primary-400">installed_path</code> - Where to install relative to the type folder</li>
             </ul>
-            <p className="text-slate-400 mt-3 text-sm">
-              Installation path: <code>{`{agent_dir}/{group}/{package_name}/{installed_path}`}</code>
+            
+            <div className="bg-slate-900/50 rounded p-3 border border-slate-600">
+              <p className="text-slate-400 text-sm mb-2">
+                <strong>Installation path pattern:</strong>
+              </p>
+              <p className="text-slate-400 text-sm">
+                <code className="text-primary-300">{`{agent_dir}/{type}/{package_name}/{installed_path}`}</code>
+              </p>
+              <p className="text-slate-500 text-xs mt-2">
+                Example: <code>.github/prompts/my-package/review.prompt.md</code>
+              </p>
+            </div>
+            
+            <p className="text-slate-400 text-sm mt-4">
+              See the <a href="#supported-agents" className="text-primary-400 hover:text-primary-300 underline">Agent-Specific Artifact Types</a> section for supported types per agent.
             </p>
-          </div>
           </div>
         </div>
       </section>
@@ -214,57 +223,94 @@ agents:
       </section>
 
       <section id="supported-agents" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Supported Agents & Groups</h2>
-        <p className="text-slate-300 mb-6">
-          Each AI agent supports specific artifact groups that align with their special folder structures. All agents support the universal "files" group for generic artifacts.
+        <h2 className="text-3xl font-semibold mb-4">Agent-Specific Artifact Types</h2>
+        <p className="text-slate-300 mb-4">
+          Each AI agent supports specific artifact types that align with their special folder structures. All agents support the universal <code className="bg-slate-700 px-1.5 py-0.5 rounded">files</code> type for generic artifacts.
         </p>
+        
+        <div className="bg-primary-900/20 border border-primary-700/50 rounded-lg p-4 mb-6">
+          <p className="text-slate-300 text-sm">
+            <strong className="text-primary-300">💡 Tip:</strong> Use the <code className="bg-slate-700 px-1.5 py-0.5 rounded">files</code> type for any artifact that doesn't fit into agent-specific categories. It works with all agents as a universal catch-all.
+          </p>
+        </div>
+
         <div className="space-y-4">
-          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
             <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <span className="text-primary-400">GitHub Copilot</span>
-              <code className="text-sm text-slate-400">.github/</code>
+              <code className="text-sm text-slate-400 font-normal">.github/</code>
             </h3>
-            <p className="text-slate-300">Groups: <code>files</code>, <code>prompts</code>, <code>modes</code></p>
+            <p className="text-slate-300 mb-2">
+              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">prompts</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">modes</code>
+            </p>
+            <p className="text-slate-400 text-sm">
+              Supports custom prompts and modes for the Copilot chat interface
+            </p>
           </div>
 
-          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
             <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <span className="text-primary-400">Claude</span>
-              <code className="text-sm text-slate-400">.claude/</code>
+              <code className="text-sm text-slate-400 font-normal">.claude/</code>
             </h3>
-            <p className="text-slate-300">Groups: <code>files</code>, <code>agents</code>, <code>commands</code></p>
+            <p className="text-slate-300 mb-2">
+              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">agents</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">commands</code>
+            </p>
+            <p className="text-slate-400 text-sm">
+              Supports agent configurations and custom commands
+            </p>
           </div>
 
-          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
             <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <span className="text-primary-400">Cursor</span>
-              <code className="text-sm text-slate-400">.cursor/</code>
+              <code className="text-sm text-slate-400 font-normal">.cursor/</code>
             </h3>
-            <p className="text-slate-300">Groups: <code>files</code>, <code>rules</code></p>
+            <p className="text-slate-300 mb-2">
+              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">rules</code>
+            </p>
+            <p className="text-slate-400 text-sm">
+              Supports custom rules that guide Cursor's behavior
+            </p>
           </div>
 
-          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
             <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <span className="text-primary-400">Windsurf</span>
-              <code className="text-sm text-slate-400">.windsurf/</code>
+              <code className="text-sm text-slate-400 font-normal">.windsurf/</code>
             </h3>
-            <p className="text-slate-300">Groups: <code>files</code>, <code>workflows</code>, <code>rules</code></p>
+            <p className="text-slate-300 mb-2">
+              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">workflows</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">rules</code>
+            </p>
+            <p className="text-slate-400 text-sm">
+              Supports custom workflows and rules
+            </p>
           </div>
 
-          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
             <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <span className="text-primary-400">Cline</span>
-              <code className="text-sm text-slate-400">.cline/</code>
+              <code className="text-sm text-slate-400 font-normal">.cline/</code>
             </h3>
-            <p className="text-slate-300">Groups: <code>files</code>, <code>rules</code>, <code>workflows</code></p>
+            <p className="text-slate-300 mb-2">
+              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">rules</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">workflows</code>
+            </p>
+            <p className="text-slate-400 text-sm">
+              Supports rules and workflows for customization
+            </p>
           </div>
 
-          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
             <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
               <span className="text-primary-400">Gemini / Aider / Continue</span>
-              <code className="text-sm text-slate-400">.gemini/ .aider/ .continue/</code>
+              <code className="text-sm text-slate-400 font-normal">.gemini/ .aider/ .continue/</code>
             </h3>
-            <p className="text-slate-300">Groups: <code>files</code> only</p>
+            <p className="text-slate-300 mb-2">
+              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code> only
+            </p>
+            <p className="text-slate-400 text-sm">
+              These agents only support the universal files type for generic artifacts
+            </p>
           </div>
         </div>
       </section>
@@ -297,11 +343,11 @@ agents:
               <div className="text-2xl mr-4">3️⃣</div>
               <div>
                 <h4 className="text-lg font-semibold text-white mb-2">Validate Your Manifest</h4>
-                <p className="mb-2">Before publishing, validate your manifest to ensure groups are correct:</p>
+                <p className="mb-2">Before publishing, validate your manifest to ensure types are correct:</p>
                 <div className="bg-slate-900/50 rounded border border-slate-700 p-3 mt-2">
                   <code className="text-primary-300">dumpty validate-manifest dumpty.package.yaml</code>
                 </div>
-                <p className="mt-2 text-sm text-slate-400">This checks that your manifest can be parsed and all groups are supported by each agent.</p>
+                <p className="mt-2 text-sm text-slate-400">This checks that your manifest can be parsed and all types are supported by each agent.</p>
               </div>
             </div>
           </div>
@@ -334,8 +380,8 @@ agents:
           <ul className="space-y-3 text-slate-300">
             <li>✅ Use semantic versioning (e.g., 1.0.0, 1.1.0, 2.0.0)</li>
             <li>✅ <strong>Validate your manifest</strong> before publishing with <code className="text-primary-300">dumpty validate-manifest</code></li>
-            <li>✅ Use appropriate groups for each agent (e.g., <code>prompts</code> for Copilot, <code>rules</code> for Cursor)</li>
-            <li>✅ Use the universal <code>files</code> group for generic artifacts that don't fit specific categories</li>
+            <li>✅ Use appropriate types for each agent (e.g., <code>prompts</code> for Copilot, <code>rules</code> for Cursor)</li>
+            <li>✅ Use the universal <code>files</code> type for generic artifacts that don't fit specific categories</li>
             <li>✅ Include a descriptive README.md in your package</li>
             <li>✅ Test your package across different agents</li>
             <li>✅ Keep artifact descriptions clear and concise</li>

@@ -204,11 +204,11 @@ def test_base_agent_hooks_can_be_overridden(tmp_path):
     assert agent.post_uninstall_called
 
 
-def test_base_agent_has_supported_groups():
-    """Test that BaseAgent has SUPPORTED_GROUPS class attribute."""
+def test_base_agent_has_supported_types():
+    """Test that BaseAgent has SUPPORTED_TYPES class attribute."""
 
     class TestAgent(BaseAgent):
-        SUPPORTED_GROUPS = ["prompts", "modes"]
+        SUPPORTED_TYPES = ["prompts", "modes"]
 
         @property
         def name(self):
@@ -225,15 +225,15 @@ def test_base_agent_has_supported_groups():
         def is_configured(self, project_root: Path):
             return True
 
-    assert hasattr(TestAgent, "SUPPORTED_GROUPS")
-    assert TestAgent.SUPPORTED_GROUPS == ["prompts", "modes"]
+    assert hasattr(TestAgent, "SUPPORTED_TYPES")
+    assert TestAgent.SUPPORTED_TYPES == ["prompts", "modes"]
 
 
-def test_validate_artifact_group_valid():
-    """Test validate_artifact_group with valid group."""
+def test_validate_artifact_type_valid():
+    """Test validate_artifact_type with valid type."""
 
     class TestAgent(BaseAgent):
-        SUPPORTED_GROUPS = ["prompts", "modes"]
+        SUPPORTED_TYPES = ["prompts", "modes"]
 
         @property
         def name(self):
@@ -250,15 +250,15 @@ def test_validate_artifact_group_valid():
         def is_configured(self, project_root: Path):
             return True
 
-    assert TestAgent.validate_artifact_group("prompts") is True
-    assert TestAgent.validate_artifact_group("modes") is True
+    assert TestAgent.validate_artifact_type("prompts") is True
+    assert TestAgent.validate_artifact_type("modes") is True
 
 
-def test_validate_artifact_group_invalid():
-    """Test validate_artifact_group with invalid group."""
+def test_validate_artifact_type_invalid():
+    """Test validate_artifact_type with invalid type."""
 
     class TestAgent(BaseAgent):
-        SUPPORTED_GROUPS = ["prompts", "modes"]
+        SUPPORTED_TYPES = ["prompts", "modes"]
 
         @property
         def name(self):
@@ -275,15 +275,15 @@ def test_validate_artifact_group_invalid():
         def is_configured(self, project_root: Path):
             return True
 
-    assert TestAgent.validate_artifact_group("rules") is False
-    assert TestAgent.validate_artifact_group("workflows") is False
+    assert TestAgent.validate_artifact_type("rules") is False
+    assert TestAgent.validate_artifact_type("workflows") is False
 
 
-def test_validate_artifact_group_empty_list():
-    """Test validate_artifact_group with empty SUPPORTED_GROUPS."""
+def test_validate_artifact_type_empty_list():
+    """Test validate_artifact_type with empty SUPPORTED_TYPES."""
 
     class TestAgent(BaseAgent):
-        SUPPORTED_GROUPS = []
+        SUPPORTED_TYPES = []
 
         @property
         def name(self):
@@ -300,15 +300,15 @@ def test_validate_artifact_group_empty_list():
         def is_configured(self, project_root: Path):
             return True
 
-    assert TestAgent.validate_artifact_group("prompts") is False
-    assert TestAgent.validate_artifact_group("modes") is False
+    assert TestAgent.validate_artifact_type("prompts") is False
+    assert TestAgent.validate_artifact_type("modes") is False
 
 
-def test_get_group_folder_default():
-    """Test get_group_folder returns group name by default."""
+def test_get_type_folder_default():
+    """Test get_type_folder returns type name by default."""
 
     class TestAgent(BaseAgent):
-        SUPPORTED_GROUPS = ["prompts", "modes"]
+        SUPPORTED_TYPES = ["prompts", "modes"]
 
         @property
         def name(self):
@@ -325,15 +325,15 @@ def test_get_group_folder_default():
         def is_configured(self, project_root: Path):
             return True
 
-    assert TestAgent.get_group_folder("prompts") == "prompts"
-    assert TestAgent.get_group_folder("modes") == "modes"
+    assert TestAgent.get_type_folder("prompts") == "prompts"
+    assert TestAgent.get_type_folder("modes") == "modes"
 
 
-def test_get_group_folder_custom_mapping():
-    """Test get_group_folder with custom mapping."""
+def test_get_type_folder_custom_mapping():
+    """Test get_type_folder with custom mapping."""
 
     class CustomAgent(BaseAgent):
-        SUPPORTED_GROUPS = ["prompts", "rules"]
+        SUPPORTED_TYPES = ["prompts", "rules"]
 
         @property
         def name(self):
@@ -351,14 +351,14 @@ def test_get_group_folder_custom_mapping():
             return True
 
         @classmethod
-        def get_group_folder(cls, group: str) -> str:
-            """Custom mapping for group folders."""
+        def get_type_folder(cls, group: str) -> str:
+            """Custom mapping for type folders."""
             mapping = {
                 "prompts": ".prompts",
                 "rules": "project_rules",
             }
             return mapping.get(group, group)
 
-    assert CustomAgent.get_group_folder("prompts") == ".prompts"
-    assert CustomAgent.get_group_folder("rules") == "project_rules"
-    assert CustomAgent.get_group_folder("other") == "other"  # Falls back to group name
+    assert CustomAgent.get_type_folder("prompts") == ".prompts"
+    assert CustomAgent.get_type_folder("rules") == "project_rules"
+    assert CustomAgent.get_type_folder("other") == "other"  # Falls back to type name
