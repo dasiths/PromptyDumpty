@@ -2,10 +2,7 @@
 
 A lightweight, universal package manager for AI coding assistants (prompts, instructions, rules, workflows, etc.).
 
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/prompty-dumpty)](https://pypi.org/project/prompty-dumpty/)
-
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/prompty-dumpty)](https://pypi.org/project/prompty-dumpty/)
-[![License](https://img.shields.io/pypi/l/prompty-dumpty)](https://github.com/dasiths/PromptyDumpty/blob/main/LICENSE)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/prompty-dumpty)](https://pypi.org/project/prompty-dumpty/) [![PyPI - Downloads](https://img.shields.io/pypi/dm/prompty-dumpty)](https://pypi.org/project/prompty-dumpty/) [![License](https://img.shields.io/pypi/l/prompty-dumpty)](https://github.com/dasiths/PromptyDumpty/blob/main/LICENSE)
 
 ## What is it?
 
