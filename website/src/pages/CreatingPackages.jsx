@@ -7,7 +7,7 @@ const tocItems = [
   { id: 'manifest-fields', title: 'Manifest Fields' },
   { id: 'key-features', title: 'Key Features' },
   { id: 'example-package', title: 'Example Package' },
-  { id: 'supported-agents', title: 'Supported Agents' },
+  { id: 'supported-agents', title: 'Supported Agents & Groups' },
   { id: 'publishing', title: 'Publishing Your Package' },
   { id: 'best-practices', title: 'Best Practices' },
 ]
@@ -39,35 +39,36 @@ export default function CreatingPackages() {
       <section id="manifest-file" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">The Manifest File</h2>
         <p className="text-slate-300 mb-4">
-          The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent:
+          The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent. Files are organized by group (prompts, modes, rules, etc.):
         </p>
         <div className="border border-slate-700 mb-6">
           <CodeBlock language="yaml">
 {`name: my-workflows
 version: 1.0.0
 description: Custom development workflows
+manifest_version: 1.0
 author: Your Name
 repository: https://github.com/org/my-workflows
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: code-review
         description: Code review workflow
         file: src/review.md
-        installed_path: prompts/code-review.prompt.md
-      
+        installed_path: code-review.prompt.md
+    modes:
       - name: standards
-        description: Coding standards
+        description: Coding standards mode
         file: src/standards.md
-        installed_path: rules/standards.md
+        installed_path: standards.md
   
   claude:
-    artifacts:
+    commands:
       - name: code-review
-        description: Code review workflow
+        description: Code review command
         file: src/review.md
-        installed_path: commands/review.md`}
+        installed_path: review.md`}
           </CodeBlock>
         </div>
       </section>
@@ -82,6 +83,7 @@ agents:
               <li><code className="text-primary-400">name</code> - Package name (required)</li>
               <li><code className="text-primary-400">version</code> - Semantic version (required)</li>
               <li><code className="text-primary-400">description</code> - Brief description (required)</li>
+              <li><code className="text-primary-400">manifest_version</code> - Manifest format version, must be 1.0 (required)</li>
               <li><code className="text-primary-400">author</code> - Package author (optional)</li>
               <li><code className="text-primary-400">repository</code> - Git repository URL (optional)</li>
             </ul>
@@ -90,14 +92,23 @@ agents:
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
             <h3 className="text-xl font-semibold mb-2">Agent Configuration</h3>
             <p className="text-slate-300 mb-3">
-              Each agent key (<code>copilot</code>, <code>claude</code>, <code>cursor</code>, etc.) contains an <code>artifacts</code> list:
+              Each agent key (<code>copilot</code>, <code>claude</code>, <code>cursor</code>, etc.) contains groups of artifacts:
             </p>
+            <ul className="space-y-2 text-slate-300 mb-4">
+              <li><strong>Group names</strong> - Organize artifacts by type (e.g., <code>prompts</code>, <code>modes</code>, <code>rules</code>, <code>commands</code>)</li>
+              <li><strong>Universal "files" group</strong> - All agents support "files" for generic artifacts</li>
+            </ul>
+            <p className="text-slate-300 mb-3">Each artifact in a group has:</p>
             <ul className="space-y-2 text-slate-300">
               <li><code className="text-primary-400">name</code> - Artifact identifier</li>
               <li><code className="text-primary-400">description</code> - What this artifact does</li>
               <li><code className="text-primary-400">file</code> - Source file path in your package</li>
-              <li><code className="text-primary-400">installed_path</code> - Where to install relative to agent's root</li>
+              <li><code className="text-primary-400">installed_path</code> - Where to install relative to the group folder</li>
             </ul>
+            <p className="text-slate-400 mt-3 text-sm">
+              Installation path: <code>{`{agent_dir}/{group}/{package_name}/{installed_path}`}</code>
+            </p>
+          </div>
           </div>
         </div>
       </section>
@@ -165,63 +176,93 @@ agents:
 {`name: code-review-workflow
 version: 1.0.0
 description: Comprehensive code review prompts
+manifest_version: 1.0
 author: Development Team
 repository: https://github.com/org/code-review-workflow
 
 agents:
   copilot:
-    artifacts:
+    prompts:
       - name: review-checklist
         description: Code review checklist
         file: src/review-checklist.md
-        installed_path: prompts/review.prompt.md
+        installed_path: review.prompt.md
       
       - name: security-audit
         description: Security review guidelines
         file: src/security-audit.md
-        installed_path: prompts/security.prompt.md
-      
+        installed_path: security.prompt.md
+    rules:
       - name: performance
         description: Performance optimization tips
         file: src/performance-tips.md
-        installed_path: rules/performance.md
+        installed_path: performance.md
 
   claude:
-    artifacts:
+    commands:
       - name: review-checklist
         file: src/review-checklist.md
-        installed_path: commands/code-review.md
+        installed_path: code-review.md
       
       - name: security-audit
         file: src/security-audit.md
-        installed_path: commands/security-audit.md`}
+        installed_path: security-audit.md`}
           </CodeBlock>
         </div>
       </section>
 
       <section id="supported-agents" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Supported Agents</h2>
-        <p className="text-slate-300 mb-4">
-          You can create packages for the following agents:
+        <h2 className="text-3xl font-semibold mb-4">Supported Agents & Groups</h2>
+        <p className="text-slate-300 mb-6">
+          Each AI agent supports specific artifact groups that align with their special folder structures. All agents support the universal "files" group for generic artifacts.
         </p>
-        <div className="grid md:grid-cols-2 gap-4 text-slate-300">
+        <div className="space-y-4">
           <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-            <code className="text-primary-400">copilot</code> - GitHub Copilot
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <span className="text-primary-400">GitHub Copilot</span>
+              <code className="text-sm text-slate-400">.github/</code>
+            </h3>
+            <p className="text-slate-300">Groups: <code>files</code>, <code>prompts</code>, <code>modes</code></p>
           </div>
+
           <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-            <code className="text-primary-400">claude</code> - Claude
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <span className="text-primary-400">Claude</span>
+              <code className="text-sm text-slate-400">.claude/</code>
+            </h3>
+            <p className="text-slate-300">Groups: <code>files</code>, <code>agents</code>, <code>commands</code></p>
           </div>
+
           <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-            <code className="text-primary-400">cursor</code> - Cursor
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <span className="text-primary-400">Cursor</span>
+              <code className="text-sm text-slate-400">.cursor/</code>
+            </h3>
+            <p className="text-slate-300">Groups: <code>files</code>, <code>rules</code></p>
           </div>
+
           <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-            <code className="text-primary-400">gemini</code> - Gemini
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <span className="text-primary-400">Windsurf</span>
+              <code className="text-sm text-slate-400">.windsurf/</code>
+            </h3>
+            <p className="text-slate-300">Groups: <code>files</code>, <code>workflows</code>, <code>rules</code></p>
           </div>
+
           <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-            <code className="text-primary-400">windsurf</code> - Windsurf
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <span className="text-primary-400">Cline</span>
+              <code className="text-sm text-slate-400">.cline/</code>
+            </h3>
+            <p className="text-slate-300">Groups: <code>files</code>, <code>rules</code>, <code>workflows</code></p>
           </div>
+
           <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-            <code className="text-primary-400">cline</code> - Cline
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <span className="text-primary-400">Gemini / Aider / Continue</span>
+              <code className="text-sm text-slate-400">.gemini/ .aider/ .continue/</code>
+            </h3>
+            <p className="text-slate-300">Groups: <code>files</code> only</p>
           </div>
         </div>
       </section>
