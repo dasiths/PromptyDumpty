@@ -83,26 +83,12 @@ class PackageManifest:
         agents = {}
         if "agents" in data:
             for agent_name, agent_data in data["agents"].items():
-                # OLD FORMAT DETECTION (reject with helpful error)
+                # Reject old format with "artifacts" key
                 if "artifacts" in agent_data:
                     raise ValueError(
-                        f"Invalid manifest format detected.\n\n"
-                        f"The old flat format is no longer supported. Please update to nested format:\n\n"
-                        f"Old format:\n"
-                        f"  agents:\n"
-                        f"    {agent_name}:\n"
-                        f"      artifacts:\n"
-                        f"        - name: example\n"
-                        f"          file: src/example.md\n"
-                        f"          installed_path: example.md\n\n"
-                        f"New format (group artifacts by type):\n"
-                        f"  agents:\n"
-                        f"    {agent_name}:\n"
-                        f"      prompts:  # or modes, rules, workflows, etc.\n"
-                        f"        - name: example\n"
-                        f"          file: src/example.md\n"
-                        f"          installed_path: example.md\n\n"
-                        f"See documentation: https://dumpty.dev/docs/manifest-format"
+                        f"Invalid manifest format: 'artifacts' key is not supported.\n"
+                        f"Artifacts must be grouped by type (e.g., prompts, modes, rules, workflows, files).\n"
+                        f"Agent '{agent_name}' uses unsupported 'artifacts' key."
                     )
 
                 # Parse nested groups

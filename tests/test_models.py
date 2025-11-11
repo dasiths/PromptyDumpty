@@ -1,6 +1,7 @@
 """Tests for data models."""
 
 import pytest
+from pathlib import Path
 from dumpty.models import Artifact, PackageManifest, InstalledPackage, InstalledFile
 
 
@@ -292,7 +293,7 @@ agents:
 
 
 def test_package_manifest_old_format_detection(tmp_path):
-    """Test that old flat format is rejected with helpful error."""
+    """Test that old 'artifacts' key is rejected."""
     manifest_content = """
 name: old-package
 version: 1.0.0
@@ -313,9 +314,8 @@ agents:
         PackageManifest.from_file(manifest_path)
     
     error_msg = str(exc_info.value)
-    assert "Invalid manifest format detected" in error_msg
-    assert "old flat format is no longer supported" in error_msg
-    assert "New format" in error_msg
+    assert "Invalid manifest format" in error_msg
+    assert "'artifacts' key is not supported" in error_msg
     assert "copilot" in error_msg  # Should mention the agent name
 
 
@@ -347,7 +347,7 @@ agents:
     error_msg = str(exc_info.value)
     assert "Invalid artifact group 'invalid_group'" in error_msg
     assert "copilot" in error_msg
-    assert "Supported groups: prompts, modes" in error_msg
+    assert "files, prompts, modes" in error_msg
 
 
 def test_package_manifest_unknown_agent_warning(tmp_path, capsys):
@@ -381,7 +381,7 @@ agents:
 
 
 def test_package_manifest_empty_groups_agent(tmp_path):
-    """Test agent with empty SUPPORTED_GROUPS rejects any groups."""
+    """Test agent that only supports 'files' rejects other groups."""
     manifest_content = """
 name: test-package
 version: 1.0.0
@@ -406,8 +406,9 @@ agents:
         PackageManifest.from_file(manifest_path)
     
     error_msg = str(exc_info.value)
-    assert "does not support artifact groups" in error_msg
-    assert "flat structure" in error_msg
+    assert "Invalid artifact group 'prompts'" in error_msg
+    assert "gemini" in error_msg
+    assert "Supported groups: files" in error_msg
 
 
 def test_package_manifest_validate_files_exist_nested(tmp_path):
@@ -458,7 +459,6 @@ def test_package_manifest_missing_version():
 name: test-package
 version: 1.0.0
 description: Test package
-manifest_version: 1.0
 
 agents:
   copilot:
