@@ -151,10 +151,10 @@ dumpty update --all`}
               <CodeBlock language="json">
 {`{
   "chat.promptFilesLocations": {
-    ".github/my-package": true
+    ".github/prompts/my-package": true
   },
   "chat.modeFilesLocations": {
-    ".github/my-package": true
+    ".github/modes/my-package": true
   }
 }`}
               </CodeBlock>
@@ -186,10 +186,10 @@ packages:
     files:
       copilot:
         - source: src/review.md
-          installed: .github/my-workflows/review.prompt.md
+          installed: .github/prompts/my-workflows/review.prompt.md
           checksum: sha256:abc...
         - source: src/standards.md
-          installed: .github/my-workflows/standards.md
+          installed: .github/modes/my-workflows/standards.md
           checksum: sha256:def...
     manifest_checksum: sha256:manifest123...`}
           </CodeBlock>
@@ -202,21 +202,30 @@ packages:
       <section id="package-organization" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Package Organization</h2>
         <p className="text-slate-300 mb-4">
-          Packages are installed with a clear namespace to avoid conflicts:
+          Packages are installed with artifact types in the path to organize files by their purpose:
         </p>
         <div className="border border-slate-700 mb-4">
           <CodeBlock language="bash">
 {`.github/
-└── my-workflows/                  # Package namespace
-    ├── prompts/
-    │   ├── review.prompt.md
-    │   └── planning.prompt.md
-    └── rules/
+├── prompts/
+│   └── my-workflows/              # Package namespace
+│       ├── review.prompt.md
+│       └── planning.prompt.md
+└── modes/
+    └── my-workflows/              # Same package, different type
+        └── standards.md
+
+.cursor/
+└── rules/
+    └── my-workflows/
         └── standards.md`}
           </CodeBlock>
         </div>
+        <p className="text-slate-300 mb-3">
+          Files are organized using the pattern: <code className="bg-slate-700 px-2 py-0.5 rounded text-sm">{`{agent_dir}/{type}/{package_name}/{file}`}</code>
+        </p>
         <p className="text-slate-300">
-          Each package gets its own subdirectory within the agent's directory, making it easy to identify and remove packages cleanly.
+          Each package gets its own subdirectory within the artifact type folder, making it easy to identify, organize, and remove packages cleanly.
         </p>
       </section>
 
