@@ -1,5 +1,6 @@
 import { Link, Outlet } from 'react-router-dom'
 import { useState } from 'react'
+import { VERSION } from '../version'
 
 export default function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -11,7 +12,10 @@ export default function Layout() {
           <div className="flex justify-between h-20 items-center">
             <Link to="/" className="flex items-center space-x-3">
               <div className="text-3xl">🥚</div>
-              <span className="text-xl font-bold text-white">PromptyDumpty</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold text-white">PromptyDumpty</span>
+                <span className="text-xs text-slate-400">v{VERSION}</span>
+              </div>
             </Link>
             
             {/* Desktop Menu */}
