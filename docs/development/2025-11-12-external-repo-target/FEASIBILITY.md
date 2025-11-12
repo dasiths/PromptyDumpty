@@ -74,6 +74,8 @@ name: my-wrapper-package
 version: 1.0.0
 description: Shared prompts for team tools
 manifest_version: 1.0
+author: Your Name
+license: MIT
 external_repository: https://github.com/dasiths/my-repo@v2.1.0
 
 agents:
@@ -268,6 +270,8 @@ Instead of package-level `external_repository`, allow each artifact to specify i
 name: my-wrapper-package
 version: 1.0.0
 manifest_version: 1.0
+author: Your Name
+license: MIT
 
 agents:
   copilot:

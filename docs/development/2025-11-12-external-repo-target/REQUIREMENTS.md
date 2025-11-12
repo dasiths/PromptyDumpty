@@ -269,6 +269,8 @@ name: my-wrapper-package
 version: 1.0.0
 description: Wrapper for third-party repo
 manifest_version: 1.0
+author: Your Name
+license: MIT
 external_repository: https://github.com/dasiths/my-repo@abc123def456789012345678901234567890abcd
 
 agents:

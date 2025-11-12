@@ -134,6 +134,8 @@ name: my-workflows
 version: 1.0.0
 description: Custom development workflows
 manifest_version: 1.0
+author: Your Name
+license: MIT
 
 agents:
   copilot:

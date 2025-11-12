@@ -68,6 +68,8 @@ name: my-workflows
 version: 1.0.0
 description: Custom development workflows
 manifest_version: 1.0
+author: Your Name
+license: MIT
 
 agents:
   copilot:
@@ -108,6 +110,8 @@ Add `external_repository` to your manifest to pull files from another repository
 name: curated-prompts
 version: 1.0.0
 manifest_version: 1.0
+author: Your Name
+license: MIT
 external_repository: https://github.com/community/prompts@a1b2c3d4e5f6789012345678901234567890abcd
 
 agents:

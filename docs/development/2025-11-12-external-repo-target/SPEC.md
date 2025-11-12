@@ -1409,6 +1409,8 @@ name: test-wrapper
 version: 1.0.0
 description: Test
 manifest_version: 1.0
+author: Test Author
+license: MIT
 external_repository: https://github.com/org/code@abc123def456789012345678901234567890abcd
 agents:
   copilot:
@@ -1537,6 +1539,8 @@ def dual_repo_fixture(tmp_path):
 name: test-wrapper
 version: 1.0.0
 manifest_version: 1.0
+author: Test Author
+license: MIT
 external_repository: file://{external_repo}@{commit}
 agents:
   copilot:
@@ -1763,6 +1767,8 @@ name: my-team-prompts
 version: 1.0.0
 description: Curated prompts from company repository
 manifest_version: 1.0
+author: Your Name
+license: MIT
 external_repository: https://github.com/mycompany/prompts@abc123def456789012345678901234567890abcd
 
 agents:
@@ -1979,6 +1985,8 @@ git rev-parse HEAD  # Copy this hash
   <pre><code class="language-yaml">name: my-wrapper
 version: 1.0.0
 manifest_version: 1.0
+author: Your Name
+license: MIT
 external_repository: https://github.com/org/repo@abc123def...
 
 agents:
@@ -2083,6 +2091,8 @@ const features = [
 <pre><code class="language-yaml">name: my-wrapper
 version: 1.0.0
 manifest_version: 1.0
+author: Your Name
+license: MIT
 # Reference external repo with full commit hash
 external_repository: https://github.com/org/repo@abc123def456789012345678901234567890abcd
 
