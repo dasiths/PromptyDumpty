@@ -87,6 +87,7 @@ agents:
               <li><code className="text-primary-400">description</code> - Brief description (required)</li>
               <li><code className="text-primary-400">manifest_version</code> - Manifest format version, must be 1.0 (required)</li>
               <li><code className="text-primary-400">author</code> - Package author (optional)</li>
+              <li><code className="text-primary-400">license</code> - Package license (optional)</li>
               <li><code className="text-primary-400">repository</code> - Git repository URL (optional)</li>
             </ul>
           </div>

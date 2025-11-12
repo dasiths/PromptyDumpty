@@ -12,36 +12,24 @@ class TestExternalRepoInfo:
 
     def test_valid_external_repo_info(self):
         """Valid ExternalRepoInfo with 40-character commit hash."""
-        info = ExternalRepoInfo(
-            source="https://github.com/user/repo.git",
-            commit="a" * 40
-        )
+        info = ExternalRepoInfo(source="https://github.com/user/repo.git", commit="a" * 40)
         assert info.source == "https://github.com/user/repo.git"
         assert info.commit == "a" * 40
 
     def test_invalid_commit_too_short(self):
         """Commit hash must be exactly 40 characters."""
         with pytest.raises(ValueError, match="Commit hash must be 40 characters"):
-            ExternalRepoInfo(
-                source="https://github.com/user/repo.git",
-                commit="abc123"
-            )
+            ExternalRepoInfo(source="https://github.com/user/repo.git", commit="abc123")
 
     def test_invalid_commit_too_long(self):
         """Commit hash must be exactly 40 characters."""
         with pytest.raises(ValueError, match="Commit hash must be 40 characters"):
-            ExternalRepoInfo(
-                source="https://github.com/user/repo.git",
-                commit="a" * 41
-            )
+            ExternalRepoInfo(source="https://github.com/user/repo.git", commit="a" * 41)
 
     def test_invalid_commit_non_hex(self):
         """Commit hash must be hexadecimal."""
         with pytest.raises(ValueError, match="Invalid commit hash"):
-            ExternalRepoInfo(
-                source="https://github.com/user/repo.git",
-                commit="z" * 40
-            )
+            ExternalRepoInfo(source="https://github.com/user/repo.git", commit="z" * 40)
 
 
 class TestPackageManifestExternalRepo:
@@ -49,15 +37,17 @@ class TestPackageManifestExternalRepo:
 
     def test_manifest_without_external_repo(self):
         """Manifest without external_repository works as before."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write("""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(
+                """
 manifest_version: 1.0
 name: test-package
 version: 1.0.0
 description: Test package
 files:
   - src/file1.txt
-""")
+"""
+            )
             f.flush()
             manifest_path = f.name
 
@@ -72,8 +62,9 @@ files:
     def test_manifest_with_external_repo(self):
         """Manifest with external_repository parses correctly."""
         commit = "a" * 40
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write(f"""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(
+                f"""
 manifest_version: 1.0
 name: test-package
 version: 1.0.0
@@ -81,7 +72,8 @@ description: Test package
 external_repository: https://github.com/user/repo.git@{commit}
 files:
   - src/file1.txt
-""")
+"""
+            )
             f.flush()
             manifest_path = f.name
 
@@ -94,8 +86,9 @@ files:
     def test_get_external_repo_url(self):
         """get_external_repo_url() extracts URL correctly."""
         commit = "a" * 40
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write(f"""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(
+                f"""
 manifest_version: 1.0
 name: test-package
 version: 1.0.0
@@ -103,7 +96,8 @@ description: Test package
 external_repository: https://github.com/user/repo.git@{commit}
 files:
   - src/file1.txt
-""")
+"""
+            )
             f.flush()
             manifest_path = f.name
 
@@ -116,8 +110,9 @@ files:
 
     def test_get_external_repo_url_invalid_format(self):
         """get_external_repo_url() raises on invalid format (no @)."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write("""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(
+                """
 manifest_version: 1.0
 name: test-package
 version: 1.0.0
@@ -125,7 +120,8 @@ description: Test package
 external_repository: https://github.com/user/repo.git
 files:
   - src/file1.txt
-""")
+"""
+            )
             f.flush()
             manifest_path = f.name
 
@@ -139,8 +135,9 @@ files:
     def test_get_external_repo_commit(self):
         """get_external_repo_commit() extracts and validates commit hash."""
         commit = "abc123" + "0" * 34  # Valid 40-char hex
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write(f"""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(
+                f"""
 manifest_version: 1.0
 name: test-package
 version: 1.0.0
@@ -148,7 +145,8 @@ description: Test package
 external_repository: https://github.com/user/repo.git@{commit}
 files:
   - src/file1.txt
-""")
+"""
+            )
             f.flush()
             manifest_path = f.name
 
@@ -161,8 +159,9 @@ files:
 
     def test_get_external_repo_commit_invalid_format(self):
         """get_external_repo_commit() raises on invalid format."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write("""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(
+                """
 manifest_version: 1.0
 name: test-package
 version: 1.0.0
@@ -170,7 +169,8 @@ description: Test package
 external_repository: https://github.com/user/repo.git
 files:
   - src/file1.txt
-""")
+"""
+            )
             f.flush()
             manifest_path = f.name
 
@@ -183,8 +183,9 @@ files:
 
     def test_get_external_repo_commit_invalid_hash_length(self):
         """get_external_repo_commit() raises on invalid commit hash length."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write("""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write(
+                """
 manifest_version: 1.0
 name: test-package
 version: 1.0.0
@@ -192,7 +193,8 @@ description: Test package
 external_repository: https://github.com/user/repo.git@abc123
 files:
   - src/file1.txt
-""")
+"""
+            )
             f.flush()
             manifest_path = f.name
 
@@ -207,19 +209,21 @@ files:
         """validate_manifest_only() returns empty list when no external repo."""
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest_path = os.path.join(tmpdir, "dumpty.yaml")
-            with open(manifest_path, 'w') as f:
-                f.write("""
+            with open(manifest_path, "w") as f:
+                f.write(
+                    """
 name: test-package
 version: 1.0.0
 description: Test package
 manifest_version: 1.0
 files:
   - src/file1.txt
-""")
-            
+"""
+                )
+
             # Create some files
             os.makedirs(os.path.join(tmpdir, "src"))
-            with open(os.path.join(tmpdir, "src", "file1.txt"), 'w') as f:
+            with open(os.path.join(tmpdir, "src", "file1.txt"), "w") as f:
                 f.write("content")
 
             manifest = PackageManifest.from_file(manifest_path)
@@ -231,8 +235,9 @@ files:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest_path = os.path.join(tmpdir, "dumpty.package.yaml")
             commit = "a" * 40
-            with open(manifest_path, 'w') as f:
-                f.write(f"""
+            with open(manifest_path, "w") as f:
+                f.write(
+                    f"""
 name: test-package
 version: 1.0.0
 description: Test package
@@ -240,7 +245,8 @@ manifest_version: 1.0
 external_repository: https://github.com/user/repo.git@{commit}
 files:
   - src/file1.txt
-""")
+"""
+                )
 
             manifest = PackageManifest.from_file(manifest_path)
             warnings = manifest.validate_manifest_only(Path(tmpdir))
@@ -251,8 +257,9 @@ files:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest_path = os.path.join(tmpdir, "dumpty.package.yaml")
             commit = "a" * 40
-            with open(manifest_path, 'w') as f:
-                f.write(f"""
+            with open(manifest_path, "w") as f:
+                f.write(
+                    f"""
 name: test-package
 version: 1.0.0
 description: Test package
@@ -260,11 +267,12 @@ manifest_version: 1.0
 external_repository: https://github.com/user/repo.git@{commit}
 files:
   - src/file1.txt
-""")
-            
+"""
+                )
+
             # Create extra files
             os.makedirs(os.path.join(tmpdir, "src"))
-            with open(os.path.join(tmpdir, "src", "file1.txt"), 'w') as f:
+            with open(os.path.join(tmpdir, "src", "file1.txt"), "w") as f:
                 f.write("content")
 
             manifest = PackageManifest.from_file(manifest_path)
@@ -287,7 +295,7 @@ class TestInstalledPackageExternalRepo:
             installed_at="2024-01-01T00:00:00Z",
             installed_for=["copilot"],
             files={},
-            manifest_checksum="checksum123"
+            manifest_checksum="checksum123",
         )
         assert package.external_repo is None
 
@@ -303,10 +311,9 @@ class TestInstalledPackageExternalRepo:
         """InstalledPackage with external_repo serializes correctly."""
         commit = "a" * 40
         external_repo = ExternalRepoInfo(
-            source="https://github.com/external/repo.git",
-            commit=commit
+            source="https://github.com/external/repo.git", commit=commit
         )
-        
+
         package = InstalledPackage(
             name="test-package",
             version="1.0.0",
@@ -317,7 +324,7 @@ class TestInstalledPackageExternalRepo:
             installed_for=["copilot"],
             files={},
             manifest_checksum="checksum123",
-            external_repo=external_repo
+            external_repo=external_repo,
         )
         assert package.external_repo == external_repo
 

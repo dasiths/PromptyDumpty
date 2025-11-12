@@ -279,14 +279,14 @@ def test_external_repo_integration(tmp_path):
     project_dir = tmp_path / "project"
     project_dir.mkdir()
     (project_dir / ".github").mkdir()
-    
+
     repos_dir = tmp_path / "repos"
     repos_dir.mkdir()
-    
+
     # Create manifest repo (wrapper package)
     manifest_repo = repos_dir / "wrapper-package"
     manifest_repo.mkdir()
-    
+
     manifest_content = """
 name: wrapper-package
 version: 1.0.0
@@ -305,56 +305,56 @@ agents:
         installed_path: external.prompt.md
 """
     (manifest_repo / "dumpty.package.yaml").write_text(manifest_content)
-    
+
     # Create external repo
     external_repo = repos_dir / "external-repo"
     external_repo.mkdir()
     (external_repo / "prompts").mkdir()
-    (external_repo / "prompts" / "test.md").write_text("# External Prompt\n\nThis comes from external repo!")
-    
+    (external_repo / "prompts" / "test.md").write_text(
+        "# External Prompt\n\nThis comes from external repo!"
+    )
+
     # Setup components
     git_ops = FileSystemGitOperations(repos_dir)
     cache_dir = tmp_path / "cache"
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
     installer = FileInstaller(project_dir)
     lockfile = LockfileManager(project_dir)
-    
+
     # Download package (should download both repos)
     result = downloader.download("https://github.com/org/wrapper-package")
-    
+
     # Verify dual-repo result
     assert result.manifest_dir.exists()
     assert result.external_dir is not None
     assert result.external_dir.exists()
     assert (result.manifest_dir / "dumpty.package.yaml").exists()
     assert (result.external_dir / "prompts" / "test.md").exists()
-    
+
     # Load manifest
     manifest = PackageManifest.from_file(result.manifest_dir / "dumpty.package.yaml")
     assert manifest.external_repository is not None
     assert manifest.get_external_repo_url() == "https://github.com/org/external-repo"
-    
+
     # Determine source directory (external takes precedence)
     source_dir = result.external_dir if result.external_dir else result.manifest_dir
-    
+
     # Install package
     agent = Agent.COPILOT
     types = manifest.agents["copilot"]
     source_files = []
     for type_name, artifacts in types.items():
         for artifact in artifacts:
-            source_files.append(
-                (source_dir / artifact.file, artifact.installed_path, type_name)
-            )
-    
+            source_files.append((source_dir / artifact.file, artifact.installed_path, type_name))
+
     results = installer.install_package(source_dir, source_files, agent, manifest.name)
-    
+
     # Verify installation
     assert len(results) == 1
     installed_path, checksum = results[0]
     assert installed_path.exists()
     assert (project_dir / ".github" / "prompts" / "wrapper-package" / "external.prompt.md").exists()
-    
+
     # Create lockfile entry
     agent_files = []
     for i, (type_name, artifacts) in enumerate(types.items()):
@@ -368,13 +368,13 @@ agents:
                     checksum=checksum,
                 )
             )
-    
+
     from dumpty.models import ExternalRepoInfo
+
     external_repo_info = ExternalRepoInfo(
-        source=manifest.get_external_repo_url(),
-        commit=result.external_commit
+        source=manifest.get_external_repo_url(), commit=result.external_commit
     )
-    
+
     installed_package = InstalledPackage(
         name=manifest.name,
         version=manifest.version,
@@ -387,15 +387,15 @@ agents:
         manifest_checksum=calculate_checksum(result.manifest_dir / "dumpty.package.yaml"),
         external_repo=external_repo_info,
     )
-    
+
     lockfile.add_package(installed_package)
-    
+
     # Verify lockfile contains external repo info
     saved_package = lockfile.get_package("wrapper-package")
     assert saved_package is not None
     assert saved_package.external_repo is not None
     assert saved_package.external_repo.source == "https://github.com/org/external-repo"
     assert saved_package.external_repo.commit == "0000000000000000000000000000000000000000"
-    
+
     # Verify lockfile version is 1.0
     assert lockfile.data["version"] == 1.0

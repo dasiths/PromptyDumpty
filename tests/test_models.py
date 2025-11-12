@@ -116,9 +116,9 @@ agents:
 """
     manifest_path = tmp_path / "dumpty.package.yaml"
     manifest_path.write_text(manifest_content)
-    
+
     manifest = PackageManifest.from_file(manifest_path)
-    
+
     # Should successfully parse, skipping the metadata dict
     assert manifest.name == "test-package"
     assert "copilot" in manifest.agents

@@ -28,7 +28,7 @@ class LockfileManager:
                 data = yaml.safe_load(f)
                 if not data:
                     return {"version": 1.0, "packages": []}
-                
+
                 # Validate version field
                 if "version" not in data:
                     raise ValueError(
@@ -39,7 +39,7 @@ class LockfileManager:
                         f"  1. Delete dumpty.lock\n"
                         f"  2. Reinstall packages: dumpty install <url>"
                     )
-                
+
                 # Validate version is 1.0
                 if data["version"] != 1.0:
                     raise ValueError(
@@ -48,9 +48,9 @@ class LockfileManager:
                         f"Expected version: 1.0\n\n"
                         f"Please update dumpty or regenerate lockfile."
                     )
-                
+
                 return data
-        
+
         # Create new lockfile with version 1.0
         return {"version": 1.0, "packages": []}
 
@@ -59,7 +59,7 @@ class LockfileManager:
         # Ensure version field exists
         if "version" not in self.data:
             self.data["version"] = 1.0
-        
+
         with open(self.lockfile_path, "w") as f:
             yaml.safe_dump(self.data, f, sort_keys=False, default_flow_style=False)
 

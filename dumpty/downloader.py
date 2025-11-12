@@ -11,6 +11,7 @@ from dumpty.models import PackageManifest
 @dataclass
 class DownloadResult:
     """Result of downloading a package with optional external repo."""
+
     manifest_dir: Path  # Path to cloned manifest repository
     external_dir: Optional[Path] = None  # Path to external repo (if applicable)
     manifest_commit: str = ""  # Resolved commit hash for manifest repo
@@ -260,52 +261,52 @@ class PackageDownloader:
             manifest_dir=target_dir,
             external_dir=external_dir,
             manifest_commit=manifest_commit,
-            external_commit=external_commit
+            external_commit=external_commit,
         )
 
     def clone_external_repo(self, url: str, commit: str) -> Path:
         """
         Clone external repository and checkout specific commit.
-        
+
         Args:
             url: Git repository URL
             commit: Full 40-character commit hash
-        
+
         Returns:
             Path to cloned repository
-        
+
         Raises:
             ValueError: Invalid commit hash format
             RuntimeError: Git clone or checkout failures
         """
         # Validate commit hash format
-        if len(commit) != 40 or not all(c in '0123456789abcdef' for c in commit.lower()):
+        if len(commit) != 40 or not all(c in "0123456789abcdef" for c in commit.lower()):
             raise ValueError(
                 f"Invalid commit hash: {commit}\n"
                 "Must be 40 hexadecimal characters\n"
                 "Get it with: git rev-parse HEAD"
             )
-        
+
         # Extract repo name from URL
         repo_name = url.rstrip("/").split("/")[-1].replace(".git", "")
         short_commit = commit[:7]
-        
+
         # Create cache path: ~/.dumpty/cache/external/<repo-name>-<short-commit>
         external_cache_dir = self.cache_dir / "external"
         external_cache_dir.mkdir(parents=True, exist_ok=True)
         target_dir = external_cache_dir / f"{repo_name}-{short_commit}"
-        
+
         # Always clone fresh - remove existing cache if present
         if target_dir.exists():
             shutil.rmtree(target_dir)
-        
+
         try:
             # Clone repository
             self.git_ops.clone(url, target_dir)
-            
+
             # Checkout specific commit
             self.git_ops.checkout(commit, target_dir)
-            
+
             # Verify commit hash matches
             actual_commit = self.git_ops.get_commit_hash(target_dir)
             if actual_commit != commit:
@@ -314,14 +315,14 @@ class PackageDownloader:
                     f"Expected: {commit}\n"
                     f"Got: {actual_commit}"
                 )
-            
+
             return target_dir
-            
+
         except RuntimeError as e:
             # Clean up partial clone on failure
             if target_dir.exists():
                 shutil.rmtree(target_dir)
-            
+
             error_str = str(e).lower()
             if "not found" in error_str or "not a tree" in error_str:
                 raise RuntimeError(

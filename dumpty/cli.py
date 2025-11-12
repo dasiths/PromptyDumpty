@@ -118,7 +118,7 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             sys.exit(1)
 
         manifest = PackageManifest.from_file(manifest_path)
-        
+
         # Determine source directory (external repo takes precedence)
         if result.external_dir:
             source_dir = result.external_dir
@@ -233,7 +233,9 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
                     )
 
             # Call install_package which will trigger pre/post install hooks
-            results = installer.install_package(source_dir, source_files, target_agent, manifest.name)
+            results = installer.install_package(
+                source_dir, source_files, target_agent, manifest.name
+            )
 
             # Process results for lockfile
             agent_files = []
@@ -271,14 +273,14 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
         # Update lockfile
         commit_hash = downloader.get_resolved_commit(result.manifest_dir)
         manifest_checksum = calculate_checksum(manifest_path)
-        
+
         # Track external repo info if present
         external_repo = None
         if result.external_dir:
             from dumpty.models import ExternalRepoInfo
+
             external_repo = ExternalRepoInfo(
-                source=manifest.get_external_repo_url(),
-                commit=result.external_commit
+                source=manifest.get_external_repo_url(), commit=result.external_commit
             )
 
         installed_package = InstalledPackage(
@@ -626,7 +628,7 @@ def update(
                         continue
 
                     manifest = PackageManifest.from_file(manifest_path)
-                    
+
                     # Determine source directory (external repo takes precedence)
                     if result.external_dir:
                         source_dir = result.external_dir
@@ -722,7 +724,7 @@ def update(
                         continue
 
                     manifest = PackageManifest.from_file(manifest_path)
-                    
+
                     # Determine source directory (external repo takes precedence)
                     if result.external_dir:
                         source_dir = result.external_dir
@@ -804,7 +806,9 @@ def update(
                             )
 
                     # Call install_package which will trigger pre/post install hooks
-                    results = installer.install_package(source_dir, source_files, agent, manifest.name)
+                    results = installer.install_package(
+                        source_dir, source_files, agent, manifest.name
+                    )
 
                     # Process results for lockfile
                     agent_files = []
@@ -834,14 +838,14 @@ def update(
                 # Update lockfile
                 commit_hash = downloader.get_resolved_commit(result.manifest_dir)
                 manifest_checksum = calculate_checksum(manifest_path)
-                
+
                 # Track external repo info if present
                 external_repo = None
                 if result.external_dir:
                     from dumpty.models import ExternalRepoInfo
+
                     external_repo = ExternalRepoInfo(
-                        source=manifest.get_external_repo_url(),
-                        commit=result.external_commit
+                        source=manifest.get_external_repo_url(), commit=result.external_commit
                     )
 
                 updated_package = InstalledPackage(
@@ -938,7 +942,7 @@ def _display_package_info(package: InstalledPackage):
     console.print(f"  Source:      {package.source}")
     console.print(f"  Version:     {package.resolved}")
     console.print(f"  Installed:   {package.installed_at}")
-    
+
     # Display external repo info if present
     if package.external_repo:
         console.print()
@@ -946,7 +950,7 @@ def _display_package_info(package: InstalledPackage):
         console.print(f"  Source:      {package.external_repo.source}")
         console.print(f"  Commit:      {package.external_repo.commit}")
         console.print(f"  [dim]Note: Package files are sourced from external repository[/]")
-    
+
     console.print()
 
     # Installed files grouped by agent

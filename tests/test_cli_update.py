@@ -185,7 +185,7 @@ class TestUpdateCommand:
                 manifest_dir=new_pkg_dir,
                 external_dir=None,
                 manifest_commit="commit123",
-                external_commit=None
+                external_commit=None,
             )
 
         import dumpty.downloader
@@ -251,7 +251,7 @@ agents:
                 manifest_dir=pkg_dir,
                 external_dir=None,
                 manifest_commit="commit123",
-                external_commit=None
+                external_commit=None,
             )
 
         import dumpty.downloader
@@ -565,7 +565,7 @@ agents:
                 manifest_dir=new_pkg_dir,
                 external_dir=None,
                 manifest_commit="commit123",
-                external_commit=None
+                external_commit=None,
             )
 
         dumpty.downloader.PackageDownloader.__init__ = mock_init

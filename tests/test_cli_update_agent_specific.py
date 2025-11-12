@@ -109,7 +109,7 @@ agents:
             manifest_dir=new_pkg_dir,
             external_dir=None,
             manifest_commit="new_commit_hash",
-            external_commit=None
+            external_commit=None,
         )
 
     def mock_get_commit(self, package_dir):
@@ -260,7 +260,7 @@ agents:
             manifest_dir=new_pkg_dir,
             external_dir=None,
             manifest_commit="new_commit_hash",
-            external_commit=None
+            external_commit=None,
         )
 
     def mock_get_commit(self, package_dir):

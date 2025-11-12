@@ -9,10 +9,10 @@ import yaml
 @dataclass
 class ExternalRepoInfo:
     """Information about an external repository."""
-    
+
     source: str  # Git URL
     commit: str  # 40-character commit hash
-    
+
     def __post_init__(self):
         """Validate commit hash format."""
         if len(self.commit) != 40:
@@ -20,7 +20,7 @@ class ExternalRepoInfo:
                 f"Commit hash must be 40 characters, got {len(self.commit)}\n"
                 f"Use full commit hash: git rev-parse HEAD"
             )
-        if not all(c in '0123456789abcdef' for c in self.commit.lower()):
+        if not all(c in "0123456789abcdef" for c in self.commit.lower()):
             raise ValueError(f"Invalid commit hash: {self.commit}")
 
 
@@ -191,23 +191,23 @@ class PackageManifest:
         """Extract Git URL from external_repository field."""
         if not self.external_repository:
             return None
-        if '@' not in self.external_repository:
+        if "@" not in self.external_repository:
             raise ValueError(
                 f"Invalid external_repository format: {self.external_repository}\n"
                 "Expected: <git-url>@<commit-hash>"
             )
-        return self.external_repository.split('@')[0]
+        return self.external_repository.split("@")[0]
 
     def get_external_repo_commit(self) -> Optional[str]:
         """Extract commit hash from external_repository field."""
         if not self.external_repository:
             return None
-        if '@' not in self.external_repository:
+        if "@" not in self.external_repository:
             raise ValueError(
                 f"Invalid external_repository format: {self.external_repository}\n"
                 "Expected: <git-url>@<commit-hash>"
             )
-        commit = self.external_repository.split('@')[1]
+        commit = self.external_repository.split("@")[1]
         # Validate format using ExternalRepoInfo (triggers validation)
         ExternalRepoInfo(source="temp", commit=commit)
         return commit
@@ -219,31 +219,31 @@ class PackageManifest:
         """
         if not self.external_repository:
             return []
-        
+
         unexpected = []
         allowed_patterns = {
-            'dumpty.package.yaml',
-            '.git',
-            '.gitignore',
-            'README.md',
-            'README',
-            'LICENSE',
-            'LICENSE.txt',
-            'LICENSE.md'
+            "dumpty.package.yaml",
+            ".git",
+            ".gitignore",
+            "README.md",
+            "README",
+            "LICENSE",
+            "LICENSE.txt",
+            "LICENSE.md",
         }
-        
-        for item in manifest_root.rglob('*'):
+
+        for item in manifest_root.rglob("*"):
             if item.is_file():
                 rel_path = str(item.relative_to(manifest_root))
                 # Check if file or its parent directory matches allowed patterns
                 is_allowed = False
                 for pattern in allowed_patterns:
-                    if rel_path == pattern or rel_path.startswith(pattern + '/'):
+                    if rel_path == pattern or rel_path.startswith(pattern + "/"):
                         is_allowed = True
                         break
                 if not is_allowed:
                     unexpected.append(rel_path)
-        
+
         return unexpected
 
 
@@ -303,7 +303,7 @@ class InstalledPackage:
         if self.external_repo:
             result["external_repo"] = {
                 "source": self.external_repo.source,
-                "commit": self.external_repo.commit
+                "commit": self.external_repo.commit,
             }
         if self.description:
             result["description"] = self.description
@@ -330,8 +330,7 @@ class InstalledPackage:
         external_repo = None
         if "external_repo" in data:
             external_repo = ExternalRepoInfo(
-                source=data["external_repo"]["source"],
-                commit=data["external_repo"]["commit"]
+                source=data["external_repo"]["source"], commit=data["external_repo"]["commit"]
             )
 
         return cls(

@@ -15,16 +15,16 @@ from dumpty.utils import (
 
 def test_calculate_checksum():
     """Test file checksum calculation."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
         f.write("test content\n")
         f.flush()
         temp_path = Path(f.name)
-    
+
     try:
         checksum = calculate_checksum(temp_path)
         assert checksum.startswith("sha256:")
         assert len(checksum) == 71  # "sha256:" + 64 hex chars
-        
+
         # Verify consistency
         checksum2 = calculate_checksum(temp_path)
         assert checksum == checksum2
@@ -39,9 +39,9 @@ def test_parse_git_tags_basic():
         "refs/tags/v2.0.0",
         "refs/tags/v1.5.0",
     ]
-    
+
     versions = parse_git_tags(tags)
-    
+
     assert len(versions) == 3
     # Should be sorted newest first
     assert versions[0][0] == "v2.0.0"
@@ -55,9 +55,9 @@ def test_parse_git_tags_without_v_prefix():
         "refs/tags/1.0.0",
         "refs/tags/2.0.0",
     ]
-    
+
     versions = parse_git_tags(tags)
-    
+
     assert len(versions) == 2
     assert versions[0][0] == "2.0.0"
     assert versions[1][0] == "1.0.0"
@@ -69,9 +69,9 @@ def test_parse_git_tags_with_annotated_tags():
         "refs/tags/v1.0.0^{}",
         "refs/tags/v2.0.0^{}",
     ]
-    
+
     versions = parse_git_tags(tags)
-    
+
     assert len(versions) == 2
     # Tag names include the ^{} suffix
     assert versions[0][0] == "v2.0.0^{}"
@@ -86,9 +86,9 @@ def test_parse_git_tags_ignores_invalid():
         "refs/tags/v2.0.0",
         "refs/heads/main",
     ]
-    
+
     versions = parse_git_tags(tags)
-    
+
     assert len(versions) == 2
     assert versions[0][0] == "v2.0.0"
     assert versions[1][0] == "v1.0.0"
@@ -101,9 +101,9 @@ def test_parse_git_tags_with_prerelease():
         "refs/tags/v2.0.0-alpha.1",
         "refs/tags/v2.0.0-beta.1",
     ]
-    
+
     versions = parse_git_tags(tags)
-    
+
     # All should be parsed
     assert len(versions) == 3
     # Prerelease versions should sort correctly
@@ -119,7 +119,7 @@ def test_get_latest_version():
         "refs/tags/v2.0.0",
         "refs/tags/v1.5.0",
     ]
-    
+
     latest = get_latest_version(tags)
     assert latest == "v2.0.0"
 
@@ -127,7 +127,7 @@ def test_get_latest_version():
 def test_get_latest_version_empty():
     """Test getting latest version with no valid tags."""
     tags = ["refs/heads/main", "refs/tags/invalid"]
-    
+
     latest = get_latest_version(tags)
     assert latest is None
 
@@ -176,7 +176,7 @@ def test_get_project_root_with_explicit_path():
 def test_get_project_root_explicit_path_not_exists():
     """Test getting project root with non-existent explicit path."""
     fake_path = Path("/nonexistent/path/that/does/not/exist")
-    
+
     with pytest.raises(SystemExit):
         get_project_root(explicit_path=fake_path, warn=False)
 
@@ -185,7 +185,7 @@ def test_get_project_root_explicit_path_not_directory():
     """Test getting project root with file instead of directory."""
     with tempfile.NamedTemporaryFile(delete=False) as f:
         temp_file = Path(f.name)
-    
+
     try:
         with pytest.raises(SystemExit):
             get_project_root(explicit_path=temp_file, warn=False)
@@ -197,12 +197,13 @@ def test_get_project_root_fallback_to_cwd(monkeypatch):
     """Test getting project root falls back to cwd."""
     with tempfile.TemporaryDirectory() as tmpdir:
         monkeypatch.chdir(tmpdir)
-        
+
         # Mock find_git_root to return None
         import dumpty.utils
+
         original_find_git_root = dumpty.utils.find_git_root
         dumpty.utils.find_git_root = lambda start_path=None: None
-        
+
         try:
             result = get_project_root(warn=False)
             assert result == Path(tmpdir)

@@ -226,14 +226,14 @@ class TestInitCommand:
 
 class TestInstallCommand:
     """Tests for the install command."""
-    
+
     @staticmethod
     def mock_download_result(package_dir):
         """Helper to create a DownloadResult for mocking."""
         from dumpty.downloader import DownloadResult
+
         return DownloadResult(
-            manifest_dir=package_dir,
-            manifest_commit="0000000000000000000000000000000000000000"
+            manifest_dir=package_dir, manifest_commit="0000000000000000000000000000000000000000"
         )
 
     def test_install_requires_manifest(self, cli_runner, tmp_path, monkeypatch):

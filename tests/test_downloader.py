@@ -203,14 +203,12 @@ def test_package_downloader_no_version_no_validation(test_repos_dir, tmp_path):
 
 # Phase 2 Tests: Download Infrastructure with External Repo Support
 
+
 def test_download_result_single_repo(test_repos_dir, tmp_path):
     """Test DownloadResult for single-repo package."""
     from dumpty.downloader import DownloadResult
-    
-    result = DownloadResult(
-        manifest_dir=tmp_path / "manifest",
-        manifest_commit="abc123"
-    )
+
+    result = DownloadResult(manifest_dir=tmp_path / "manifest", manifest_commit="abc123")
     assert result.manifest_dir == tmp_path / "manifest"
     assert result.external_dir is None
     assert result.manifest_commit == "abc123"
@@ -220,12 +218,12 @@ def test_download_result_single_repo(test_repos_dir, tmp_path):
 def test_download_result_dual_repo(test_repos_dir, tmp_path):
     """Test DownloadResult for dual-repo package."""
     from dumpty.downloader import DownloadResult
-    
+
     result = DownloadResult(
         manifest_dir=tmp_path / "manifest",
         external_dir=tmp_path / "external",
         manifest_commit="abc123",
-        external_commit="def456"
+        external_commit="def456",
     )
     assert result.manifest_dir == tmp_path / "manifest"
     assert result.external_dir == tmp_path / "external"
@@ -238,10 +236,11 @@ def test_download_single_repo_returns_download_result(test_repos_dir, tmp_path):
     cache_dir = tmp_path / "cache"
     git_ops = FileSystemGitOperations(test_repos_dir)
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
-    
+
     result = downloader.download("https://github.com/org/sample-package")
-    
+
     from dumpty.downloader import DownloadResult
+
     assert isinstance(result, DownloadResult)
     assert result.manifest_dir.exists()
     assert result.external_dir is None
@@ -256,18 +255,15 @@ def test_clone_external_repo_success(test_repos_dir, tmp_path):
     external_repo.mkdir()
     (external_repo / "src").mkdir()
     (external_repo / "src" / "test.md").write_text("# Test content")
-    
+
     cache_dir = tmp_path / "cache"
     git_ops = FileSystemGitOperations(test_repos_dir)
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
-    
+
     # Use mock commit hash that FileSystemGitOperations returns
     commit = "0000000000000000000000000000000000000000"
-    result_path = downloader.clone_external_repo(
-        "https://github.com/org/external-repo",
-        commit
-    )
-    
+    result_path = downloader.clone_external_repo("https://github.com/org/external-repo", commit)
+
     assert result_path.exists()
     assert result_path.parent.name == "external"
     assert "external-repo" in result_path.name
@@ -279,12 +275,9 @@ def test_clone_external_repo_invalid_commit_length(test_repos_dir, tmp_path):
     cache_dir = tmp_path / "cache"
     git_ops = FileSystemGitOperations(test_repos_dir)
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
-    
+
     with pytest.raises(ValueError, match="Invalid commit hash"):
-        downloader.clone_external_repo(
-            "https://github.com/org/repo",
-            "abc123"  # Too short
-        )
+        downloader.clone_external_repo("https://github.com/org/repo", "abc123")  # Too short
 
 
 def test_clone_external_repo_invalid_commit_hex(test_repos_dir, tmp_path):
@@ -292,11 +285,10 @@ def test_clone_external_repo_invalid_commit_hex(test_repos_dir, tmp_path):
     cache_dir = tmp_path / "cache"
     git_ops = FileSystemGitOperations(test_repos_dir)
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
-    
+
     with pytest.raises(ValueError, match="Invalid commit hash"):
         downloader.clone_external_repo(
-            "https://github.com/org/repo",
-            "zzzz567890123456789012345678901234567890"  # Invalid hex
+            "https://github.com/org/repo", "zzzz567890123456789012345678901234567890"  # Invalid hex
         )
 
 
@@ -305,18 +297,15 @@ def test_clone_external_repo_cache_location(test_repos_dir, tmp_path):
     external_repo = test_repos_dir / "my-repo"
     external_repo.mkdir()
     (external_repo / "file.txt").write_text("content")
-    
+
     cache_dir = tmp_path / "cache"
     git_ops = FileSystemGitOperations(test_repos_dir)
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
-    
+
     # Use mock commit hash that FileSystemGitOperations returns
     commit = "0000000000000000000000000000000000000000"
-    result_path = downloader.clone_external_repo(
-        "https://github.com/org/my-repo",
-        commit
-    )
-    
+    result_path = downloader.clone_external_repo("https://github.com/org/my-repo", commit)
+
     # Should be in cache/external/<repo-name>-<short-commit>
     expected_path = cache_dir / "external" / "my-repo-0000000"
     assert result_path == expected_path
@@ -344,19 +333,19 @@ agents:
         installed_path: test.md
 """
     )
-    
+
     # Create external repo
     external_repo = test_repos_dir / "external-repo"
     external_repo.mkdir()
     (external_repo / "src").mkdir()
     (external_repo / "src" / "test.md").write_text("# External content")
-    
+
     cache_dir = tmp_path / "cache"
     git_ops = FileSystemGitOperations(test_repos_dir)
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
-    
+
     result = downloader.download("https://github.com/org/wrapper-package")
-    
+
     assert result.manifest_dir.exists()
     assert result.external_dir is not None
     assert result.external_dir.exists()
@@ -387,17 +376,16 @@ agents:
         installed_path: test.md
 """
     )
-    
+
     external_repo = test_repos_dir / "ext"
     external_repo.mkdir()
     (external_repo / "test.md").write_text("content")
-    
+
     cache_dir = tmp_path / "cache"
     git_ops = FileSystemGitOperations(test_repos_dir)
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
-    
+
     result = downloader.download("https://github.com/org/wrapper-pkg")
-    
+
     assert result.manifest_commit != ""
     assert result.external_commit == "0000000000000000000000000000000000000000"
-
