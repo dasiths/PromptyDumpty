@@ -76,19 +76,19 @@ def test_complete_installation_workflow(tmp_path, test_package):
     cache_dir = tmp_path / "cache"
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
 
-    package_dir = downloader.download("https://github.com/org/my-package")
-    assert package_dir.exists()
-    assert (package_dir / "dumpty.package.yaml").exists()
+    result = downloader.download("https://github.com/org/my-package")
+    assert result.manifest_dir.exists()
+    assert (result.manifest_dir / "dumpty.package.yaml").exists()
 
     # Load and validate manifest
-    manifest = PackageManifest.from_file(package_dir / "dumpty.package.yaml")
+    manifest = PackageManifest.from_file(result.manifest_dir / "dumpty.package.yaml")
     assert manifest.name == "my-package"
     assert manifest.version == "1.0.0"
     assert "copilot" in manifest.agents
     assert "claude" in manifest.agents
 
     # Validate files exist
-    missing = manifest.validate_files_exist(package_dir)
+    missing = manifest.validate_files_exist(result.manifest_dir)
     assert len(missing) == 0
 
     # Install files
@@ -99,7 +99,7 @@ def test_complete_installation_workflow(tmp_path, test_package):
     copilot_files = []
     for artifact_type, artifacts in manifest.agents["copilot"].items():
         for artifact in artifacts:
-            source_file = package_dir / artifact.file
+            source_file = result.manifest_dir / artifact.file
             dest_path, checksum = installer.install_file(
                 source_file,
                 Agent.COPILOT,
@@ -120,7 +120,7 @@ def test_complete_installation_workflow(tmp_path, test_package):
     claude_files = []
     for artifact_type, artifacts in manifest.agents["claude"].items():
         for artifact in artifacts:
-            source_file = package_dir / artifact.file
+            source_file = result.manifest_dir / artifact.file
             dest_path, checksum = installer.install_file(
                 source_file,
                 Agent.CLAUDE,
@@ -139,8 +139,8 @@ def test_complete_installation_workflow(tmp_path, test_package):
 
     # Update lockfile
     lockfile = LockfileManager(project_dir)
-    commit_hash = downloader.get_resolved_commit(package_dir)
-    manifest_checksum = calculate_checksum(package_dir / "dumpty.package.yaml")
+    commit_hash = downloader.get_resolved_commit(result.manifest_dir)
+    manifest_checksum = calculate_checksum(result.manifest_dir / "dumpty.package.yaml")
 
     installed_package = InstalledPackage(
         name=manifest.name,
@@ -194,14 +194,14 @@ def test_uninstall_workflow(tmp_path, test_package):
     # Create some files
     git_ops = FileSystemGitOperations(test_package)
     downloader = PackageDownloader(cache_dir=tmp_path / "cache", git_ops=git_ops)
-    package_dir = downloader.download("https://github.com/org/my-package")
+    result = downloader.download("https://github.com/org/my-package")
 
-    manifest = PackageManifest.from_file(package_dir / "dumpty.package.yaml")
+    manifest = PackageManifest.from_file(result.manifest_dir / "dumpty.package.yaml")
 
     # Install files
     for type_name, artifacts in manifest.agents["copilot"].items():
         for artifact in artifacts:
-            source_file = package_dir / artifact.file
+            source_file = result.manifest_dir / artifact.file
             installer.install_file(
                 source_file, Agent.COPILOT, manifest.name, artifact.installed_path, type_name
             )
@@ -271,3 +271,131 @@ def test_version_mismatch_on_install(tmp_path, test_package):
         match="Version mismatch: requested 'v2.0.0' but manifest declares version '1.0.0'",
     ):
         downloader.download("https://github.com/org/my-package", version="v2.0.0")
+
+
+def test_external_repo_integration(tmp_path):
+    """Test complete workflow with external repository references."""
+    # Setup directories
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    (project_dir / ".github").mkdir()
+    
+    repos_dir = tmp_path / "repos"
+    repos_dir.mkdir()
+    
+    # Create manifest repo (wrapper package)
+    manifest_repo = repos_dir / "wrapper-package"
+    manifest_repo.mkdir()
+    
+    manifest_content = """
+name: wrapper-package
+version: 1.0.0
+description: Wrapper package that references external repo
+manifest_version: 1.0
+author: Test Author
+license: MIT
+external_repository: https://github.com/org/external-repo@0000000000000000000000000000000000000000
+
+agents:
+  copilot:
+    prompts:
+      - name: external-prompt
+        description: Prompt from external repo
+        file: prompts/test.md
+        installed_path: external.prompt.md
+"""
+    (manifest_repo / "dumpty.package.yaml").write_text(manifest_content)
+    
+    # Create external repo
+    external_repo = repos_dir / "external-repo"
+    external_repo.mkdir()
+    (external_repo / "prompts").mkdir()
+    (external_repo / "prompts" / "test.md").write_text("# External Prompt\n\nThis comes from external repo!")
+    
+    # Setup components
+    git_ops = FileSystemGitOperations(repos_dir)
+    cache_dir = tmp_path / "cache"
+    downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
+    installer = FileInstaller(project_dir)
+    lockfile = LockfileManager(project_dir)
+    
+    # Download package (should download both repos)
+    result = downloader.download("https://github.com/org/wrapper-package")
+    
+    # Verify dual-repo result
+    assert result.manifest_dir.exists()
+    assert result.external_dir is not None
+    assert result.external_dir.exists()
+    assert (result.manifest_dir / "dumpty.package.yaml").exists()
+    assert (result.external_dir / "prompts" / "test.md").exists()
+    
+    # Load manifest
+    manifest = PackageManifest.from_file(result.manifest_dir / "dumpty.package.yaml")
+    assert manifest.external_repository is not None
+    assert manifest.get_external_repo_url() == "https://github.com/org/external-repo"
+    
+    # Determine source directory (external takes precedence)
+    source_dir = result.external_dir if result.external_dir else result.manifest_dir
+    
+    # Install package
+    agent = Agent.COPILOT
+    types = manifest.agents["copilot"]
+    source_files = []
+    for type_name, artifacts in types.items():
+        for artifact in artifacts:
+            source_files.append(
+                (source_dir / artifact.file, artifact.installed_path, type_name)
+            )
+    
+    results = installer.install_package(source_dir, source_files, agent, manifest.name)
+    
+    # Verify installation
+    assert len(results) == 1
+    installed_path, checksum = results[0]
+    assert installed_path.exists()
+    assert (project_dir / ".github" / "prompts" / "wrapper-package" / "external.prompt.md").exists()
+    
+    # Create lockfile entry
+    agent_files = []
+    for i, (type_name, artifacts) in enumerate(types.items()):
+        for artifact in artifacts:
+            dest_path, checksum = results[i]
+            rel_path = dest_path.relative_to(project_dir)
+            agent_files.append(
+                InstalledFile(
+                    source=artifact.file,
+                    installed=str(rel_path),
+                    checksum=checksum,
+                )
+            )
+    
+    from dumpty.models import ExternalRepoInfo
+    external_repo_info = ExternalRepoInfo(
+        source=manifest.get_external_repo_url(),
+        commit=result.external_commit
+    )
+    
+    installed_package = InstalledPackage(
+        name=manifest.name,
+        version=manifest.version,
+        source="https://github.com/org/wrapper-package",
+        source_type="git",
+        resolved=result.manifest_commit,
+        installed_at=datetime.utcnow().isoformat() + "Z",
+        installed_for=["copilot"],
+        files={"copilot": agent_files},
+        manifest_checksum=calculate_checksum(result.manifest_dir / "dumpty.package.yaml"),
+        external_repo=external_repo_info,
+    )
+    
+    lockfile.add_package(installed_package)
+    
+    # Verify lockfile contains external repo info
+    saved_package = lockfile.get_package("wrapper-package")
+    assert saved_package is not None
+    assert saved_package.external_repo is not None
+    assert saved_package.external_repo.source == "https://github.com/org/external-repo"
+    assert saved_package.external_repo.commit == "0000000000000000000000000000000000000000"
+    
+    # Verify lockfile version is 1.0
+    assert lockfile.data["version"] == 1.0

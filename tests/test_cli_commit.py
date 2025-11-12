@@ -6,6 +6,7 @@ from click.testing import CliRunner
 from dumpty.cli import cli
 from dumpty.lockfile import LockfileManager
 from dumpty.models import InstalledPackage, InstalledFile
+from dumpty.downloader import DownloadResult
 
 
 @pytest.fixture
@@ -58,7 +59,12 @@ agents:
         # Verify validate_version is False when using commit
         if version and version.startswith("abc123"):
             assert not validate_version, "validate_version should be False for commits"
-        return package_dir
+        return DownloadResult(
+            manifest_dir=package_dir,
+            external_dir=None,
+            manifest_commit="abc123def456",
+            external_commit=None
+        )
 
     def mock_get_commit(self, package_dir):
         return "abc123def456"
@@ -178,7 +184,12 @@ agents:
         # Verify validate_version is False when using commit
         if version and version.startswith("def789"):
             assert not validate_version, "validate_version should be False for commits"
-        return new_pkg_dir
+        return DownloadResult(
+            manifest_dir=new_pkg_dir,
+            external_dir=None,
+            manifest_commit="def789abc012",
+            external_commit=None
+        )
 
     def mock_get_commit(self, package_dir):
         return "def789abc012"

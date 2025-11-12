@@ -226,6 +226,15 @@ class TestInitCommand:
 
 class TestInstallCommand:
     """Tests for the install command."""
+    
+    @staticmethod
+    def mock_download_result(package_dir):
+        """Helper to create a DownloadResult for mocking."""
+        from dumpty.downloader import DownloadResult
+        return DownloadResult(
+            manifest_dir=package_dir,
+            manifest_commit="0000000000000000000000000000000000000000"
+        )
 
     def test_install_requires_manifest(self, cli_runner, tmp_path, monkeypatch):
         """Test install fails when dumpty.package.yaml is missing."""
@@ -239,7 +248,7 @@ class TestInstallCommand:
 
         # Mock the downloader to use our test package
         def mock_download(self, url, version=None, validate_version=True):
-            return package_dir
+            return TestInstallCommand.mock_download_result(package_dir)
 
         import dumpty.downloader
 
@@ -282,7 +291,7 @@ agents:
 
         # Mock the downloader
         def mock_download(self, url, version=None, validate_version=True):
-            return package_dir
+            return TestInstallCommand.mock_download_result(package_dir)
 
         import dumpty.downloader
 
@@ -312,7 +321,7 @@ agents:
 
         # Mock the downloader
         def mock_download(self, url, version=None, validate_version=True):
-            return sample_package_dir
+            return TestInstallCommand.mock_download_result(sample_package_dir)
 
         def mock_get_commit(self, package_dir):
             return "abc123def456"
@@ -354,7 +363,7 @@ agents:
 
         # Mock the downloader
         def mock_download(self, url, version=None, validate_version=True):
-            return sample_package_dir
+            return TestInstallCommand.mock_download_result(sample_package_dir)
 
         import dumpty.downloader
 
@@ -414,7 +423,7 @@ agents:
 
         # Mock the downloader
         def mock_download(self, url, version=None, validate_version=True):
-            return package_dir
+            return TestInstallCommand.mock_download_result(package_dir)
 
         def mock_get_commit(self, package_dir):
             return "new_commit_hash"
@@ -496,7 +505,7 @@ agents:
 
         # Mock the downloader
         def mock_download(self, url, version=None, validate_version=True):
-            return package_dir
+            return TestInstallCommand.mock_download_result(package_dir)
 
         def mock_get_commit(self, package_dir):
             return "new_commit_hash"

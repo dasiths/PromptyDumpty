@@ -171,9 +171,11 @@ dumpty update --all`}
         <p className="text-slate-300 mb-4">
           PromptyDumpty maintains a <code>dumpty.lock</code> file to track installed packages:
         </p>
-        <div className="border border-slate-700 mb-4">
+        
+        <h3 className="text-xl font-semibold mb-3">Standard Package</h3>
+        <div className="border border-slate-700 mb-6">
           <CodeBlock language="yaml">
-{`version: "1.0"
+{`version: 1.0
 packages:
   - name: my-workflows
     version: 1.0.0
@@ -188,14 +190,35 @@ packages:
         - source: src/review.md
           installed: .github/prompts/my-workflows/review.prompt.md
           checksum: sha256:abc...
-        - source: src/standards.md
-          installed: .github/modes/my-workflows/standards.md
-          checksum: sha256:def...
     manifest_checksum: sha256:manifest123...`}
           </CodeBlock>
         </div>
+
+        <h3 className="text-xl font-semibold mb-3">Package with External Repository</h3>
+        <div className="border border-slate-700 mb-4">
+          <CodeBlock language="yaml">
+{`version: 1.0
+packages:
+  - name: curated-prompts
+    version: 1.0.0
+    source: https://github.com/org/curated-prompts
+    source_type: git
+    resolved: https://github.com/org/curated-prompts/commit/def456
+    external_repo:
+      url: https://github.com/community/prompts
+      commit: a1b2c3d4e5f6789012345678901234567890abcd
+    installed_at: "2025-11-12T10:30:00Z"
+    installed_for:
+      - copilot
+    files:
+      copilot:
+        - source: prompts/refactoring.md
+          installed: .github/prompts/curated-prompts/refactoring.prompt.md
+          checksum: sha256:xyz...`}
+          </CodeBlock>
+        </div>
         <p className="text-slate-300">
-          This file ensures clean updates and removals, and helps track what's installed in your project.
+          This file ensures clean updates and removals, and helps track what's installed in your project. For packages with external repositories, both the manifest and external repository commits are tracked.
         </p>
       </section>
 

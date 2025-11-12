@@ -42,7 +42,7 @@ manifest_version: 1.0
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
 
     # Download with version "1.0.0" (without 'v')
-    result_dir = downloader.download("https://github.com/test/package", version="1.0.0")
+    result = downloader.download("https://github.com/test/package", version="1.0.0")
 
     # Verify checkout was called twice - first without 'v', then with 'v'
     assert git_ops.checkout.call_count == 2
@@ -50,8 +50,9 @@ manifest_version: 1.0
     assert git_ops.checkout.call_args_list[1][0][0] == "v1.0.0"
 
     # Verify download succeeded
-    assert result_dir.exists()
-    assert (result_dir / "dumpty.package.yaml").exists()
+    assert result.manifest_dir.exists()
+    assert (result.manifest_dir / "dumpty.package.yaml").exists()
+    assert result.external_dir is None
 
 
 def test_checkout_version_with_v_does_not_fallback(tmp_path):
@@ -82,15 +83,16 @@ manifest_version: 1.0
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
 
     # Download with version "v1.0.0" (with 'v')
-    result_dir = downloader.download("https://github.com/test/package", version="v1.0.0")
+    result = downloader.download("https://github.com/test/package", version="v1.0.0")
 
     # Verify checkout was called only once
     assert git_ops.checkout.call_count == 1
     assert git_ops.checkout.call_args_list[0][0][0] == "v1.0.0"
 
     # Verify download succeeded
-    assert result_dir.exists()
-    assert (result_dir / "dumpty.package.yaml").exists()
+    assert result.manifest_dir.exists()
+    assert (result.manifest_dir / "dumpty.package.yaml").exists()
+    assert result.external_dir is None
 
 
 def test_checkout_fails_with_both_versions(tmp_path):
@@ -178,7 +180,7 @@ manifest_version: 1.0
     downloader = PackageDownloader(cache_dir=cache_dir, git_ops=git_ops)
 
     # Download with commit hash - validate_version=False to skip version checking
-    result_dir = downloader.download(
+    result = downloader.download(
         "https://github.com/test/package", version="abc123def456", validate_version=False
     )
 
@@ -187,5 +189,6 @@ manifest_version: 1.0
     assert git_ops.checkout.call_args_list[0][0][0] == "abc123def456"
 
     # Verify download succeeded
-    assert result_dir.exists()
-    assert (result_dir / "dumpty.package.yaml").exists()
+    assert result.manifest_dir.exists()
+    assert (result.manifest_dir / "dumpty.package.yaml").exists()
+    assert result.external_dir is None

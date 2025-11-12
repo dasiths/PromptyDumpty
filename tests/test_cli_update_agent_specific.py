@@ -6,6 +6,7 @@ from click.testing import CliRunner
 from dumpty.cli import cli
 from dumpty.lockfile import LockfileManager
 from dumpty.models import InstalledPackage, InstalledFile
+from dumpty.downloader import DownloadResult
 
 
 @pytest.fixture
@@ -104,7 +105,12 @@ agents:
         self.cache_dir = Path(cache_dir) if cache_dir else Path.home() / ".dumpty" / "cache"
 
     def mock_download(self, url, version=None, validate_version=True):
-        return new_pkg_dir
+        return DownloadResult(
+            manifest_dir=new_pkg_dir,
+            external_dir=None,
+            manifest_commit="new_commit_hash",
+            external_commit=None
+        )
 
     def mock_get_commit(self, package_dir):
         return "new_commit_hash"
@@ -250,7 +256,12 @@ agents:
         self.cache_dir = Path(cache_dir) if cache_dir else Path.home() / ".dumpty" / "cache"
 
     def mock_download(self, url, version=None, validate_version=True):
-        return new_pkg_dir
+        return DownloadResult(
+            manifest_dir=new_pkg_dir,
+            external_dir=None,
+            manifest_commit="new_commit_hash",
+            external_commit=None
+        )
 
     def mock_get_commit(self, package_dir):
         return "new_commit_hash"

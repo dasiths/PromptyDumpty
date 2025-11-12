@@ -64,42 +64,42 @@ dumpty list`}
             <FeatureCard
               icon="🔄"
               title="Universal"
-              description="One package works across multiple AI coding assistants. No more maintaining separate versions."
+              description="One package works across multiple AI assistants. Write once, use everywhere."
             />
             <FeatureCard
               icon="📦"
               title="Simple"
-              description="Just YAML files and Git repos. No complex infrastructure or dependencies."
+              description="Just YAML and Git. No complex setup or dependencies required."
             />
             <FeatureCard
               icon="🎯"
-              title="Smart Detection"
-              description="Automatically detects your AI agent and installs files to the right locations."
+              title="Auto-Detection"
+              description="Detects your AI agent and installs files to the correct locations automatically."
             />
             <FeatureCard
               icon="🔒"
-              title="Safe"
-              description="Clean installation and removal with full tracking via lockfiles."
+              title="Safe & Tracked"
+              description="Clean installs and removals. Everything tracked in lockfiles."
             />
             <FeatureCard
               icon="🚀"
-              title="Easy Sharing"
-              description="Package and distribute your team's prompts with simple Git workflows."
-            />
-            <FeatureCard
-              icon="🔧"
-              title="Flexible"
-              description="Organize your package files however you want. Full control over installed paths."
+              title="Git-Based"
+              description="Leverage Git for versioning, distribution, and collaboration."
             />
             <FeatureCard
               icon="📝"
-              title="Well Documented"
-              description="Clear documentation and examples to get you started quickly."
+              title="External References"
+              description="Reference and curate content from any Git repository without forking."
+            />
+            <FeatureCard
+              icon="🔧"
+              title="Flexible Structure"
+              description="Organize source files your way. Full control over installation paths."
             />
             <FeatureCard
               icon="🌐"
               title="Open Source"
-              description="MIT licensed. Community-driven development on GitHub."
+              description="MIT licensed with community-driven development."
             />
           </div>
         </div>

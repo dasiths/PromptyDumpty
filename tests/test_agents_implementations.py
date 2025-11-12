@@ -45,6 +45,200 @@ class TestCopilotAgent:
         expected = tmp_path / ".github"
         assert agent.get_directory(tmp_path) == expected
 
+    def test_post_install_creates_settings(self, tmp_path):
+        """Test post_install creates VS Code settings."""
+        import json
+        
+        agent = CopilotAgent()
+        install_dir = tmp_path / ".github" / "prompts" / "test-package"
+        install_dir.mkdir(parents=True)
+        
+        # Call post_install
+        agent.post_install(
+            project_root=tmp_path,
+            package_name="test-package",
+            install_dirs=[install_dir],
+            files=[],
+        )
+        
+        # Verify settings file was created
+        settings_file = tmp_path / ".vscode" / "settings.json"
+        assert settings_file.exists()
+        
+        # Verify content
+        with open(settings_file) as f:
+            settings = json.load(f)
+        
+        assert "chat.promptFilesLocations" in settings
+        assert ".github/prompts/test-package" in settings["chat.promptFilesLocations"]
+        assert settings["chat.promptFilesLocations"][".github/prompts/test-package"] is True
+        
+        assert "chat.modeFilesLocations" in settings
+        assert ".github/prompts/test-package" in settings["chat.modeFilesLocations"]
+        assert settings["chat.modeFilesLocations"][".github/prompts/test-package"] is True
+
+    def test_post_install_updates_existing_settings(self, tmp_path):
+        """Test post_install updates existing VS Code settings."""
+        import json
+        
+        # Create existing settings
+        settings_file = tmp_path / ".vscode" / "settings.json"
+        settings_file.parent.mkdir(parents=True)
+        
+        existing_settings = {
+            "editor.fontSize": 14,
+            "chat.promptFilesLocations": {
+                "existing/path": True
+            }
+        }
+        with open(settings_file, 'w') as f:
+            json.dump(existing_settings, f)
+        
+        agent = CopilotAgent()
+        install_dir = tmp_path / ".github" / "prompts" / "new-package"
+        install_dir.mkdir(parents=True)
+        
+        # Call post_install
+        agent.post_install(
+            project_root=tmp_path,
+            package_name="new-package",
+            install_dirs=[install_dir],
+            files=[],
+        )
+        
+        # Verify settings were preserved and updated
+        with open(settings_file) as f:
+            settings = json.load(f)
+        
+        assert settings["editor.fontSize"] == 14
+        assert "existing/path" in settings["chat.promptFilesLocations"]
+        assert ".github/prompts/new-package" in settings["chat.promptFilesLocations"]
+
+    def test_post_install_handles_corrupt_settings(self, tmp_path):
+        """Test post_install handles corrupt settings file."""
+        import json
+        
+        # Create corrupt settings file
+        settings_file = tmp_path / ".vscode" / "settings.json"
+        settings_file.parent.mkdir(parents=True)
+        settings_file.write_text("{ corrupt json")
+        
+        agent = CopilotAgent()
+        install_dir = tmp_path / ".github" / "prompts" / "test-package"
+        install_dir.mkdir(parents=True)
+        
+        # Should not raise, just create new settings
+        agent.post_install(
+            project_root=tmp_path,
+            package_name="test-package",
+            install_dirs=[install_dir],
+            files=[],
+        )
+        
+        # Verify new settings were created
+        with open(settings_file) as f:
+            settings = json.load(f)
+        
+        assert "chat.promptFilesLocations" in settings
+
+    def test_post_install_multiple_directories(self, tmp_path):
+        """Test post_install with multiple install directories."""
+        import json
+        
+        agent = CopilotAgent()
+        install_dir1 = tmp_path / ".github" / "prompts" / "package1"
+        install_dir2 = tmp_path / ".github" / "modes" / "package2"
+        install_dir1.mkdir(parents=True)
+        install_dir2.mkdir(parents=True)
+        
+        # Call post_install with multiple dirs
+        agent.post_install(
+            project_root=tmp_path,
+            package_name="test-package",
+            install_dirs=[install_dir1, install_dir2],
+            files=[],
+        )
+        
+        # Verify both paths are added
+        settings_file = tmp_path / ".vscode" / "settings.json"
+        with open(settings_file) as f:
+            settings = json.load(f)
+        
+        assert ".github/prompts/package1" in settings["chat.promptFilesLocations"]
+        assert ".github/modes/package2" in settings["chat.promptFilesLocations"]
+
+    def test_post_uninstall_removes_paths(self, tmp_path):
+        """Test post_uninstall removes package paths from settings."""
+        import json
+        
+        # Create settings with package paths
+        settings_file = tmp_path / ".vscode" / "settings.json"
+        settings_file.parent.mkdir(parents=True)
+        
+        settings = {
+            "chat.promptFilesLocations": {
+                ".github/prompts/test-package": True,
+                ".github/prompts/other-package": True,
+            },
+            "chat.modeFilesLocations": {
+                ".github/prompts/test-package": True,
+                ".github/prompts/other-package": True,
+            }
+        }
+        with open(settings_file, 'w') as f:
+            json.dump(settings, f)
+        
+        agent = CopilotAgent()
+        install_dir = tmp_path / ".github" / "prompts" / "test-package"
+        
+        # Call post_uninstall
+        agent.post_uninstall(
+            project_root=tmp_path,
+            package_name="test-package",
+            install_dirs=[install_dir],
+            files=[],
+        )
+        
+        # Verify test-package was removed but other-package remains
+        with open(settings_file) as f:
+            settings = json.load(f)
+        
+        assert ".github/prompts/test-package" not in settings["chat.promptFilesLocations"]
+        assert ".github/prompts/other-package" in settings["chat.promptFilesLocations"]
+        assert ".github/prompts/test-package" not in settings["chat.modeFilesLocations"]
+        assert ".github/prompts/other-package" in settings["chat.modeFilesLocations"]
+
+    def test_post_uninstall_no_settings_file(self, tmp_path):
+        """Test post_uninstall when settings file doesn't exist."""
+        agent = CopilotAgent()
+        install_dir = tmp_path / ".github" / "prompts" / "test-package"
+        
+        # Should not raise
+        agent.post_uninstall(
+            project_root=tmp_path,
+            package_name="test-package",
+            install_dirs=[install_dir],
+            files=[],
+        )
+
+    def test_post_uninstall_corrupt_settings(self, tmp_path):
+        """Test post_uninstall handles corrupt settings file."""
+        # Create corrupt settings file
+        settings_file = tmp_path / ".vscode" / "settings.json"
+        settings_file.parent.mkdir(parents=True)
+        settings_file.write_text("{ corrupt json")
+        
+        agent = CopilotAgent()
+        install_dir = tmp_path / ".github" / "prompts" / "test-package"
+        
+        # Should not raise
+        agent.post_uninstall(
+            project_root=tmp_path,
+            package_name="test-package",
+            install_dirs=[install_dir],
+            files=[],
+        )
+
 
 class TestClaudeAgent:
     """Tests for ClaudeAgent."""
