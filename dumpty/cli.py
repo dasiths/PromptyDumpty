@@ -109,15 +109,22 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
         ref = pkg_commit if pkg_commit else pkg_version
         # Skip version validation for commits
         validate_version = not bool(pkg_commit)
-        package_dir = downloader.download(package_url, ref, validate_version=validate_version)
+        result = downloader.download(package_url, ref, validate_version=validate_version)
 
         # Load manifest
-        manifest_path = package_dir / "dumpty.package.yaml"
+        manifest_path = result.manifest_dir / "dumpty.package.yaml"
         if not manifest_path.exists():
             console.print("[red]Error:[/] No dumpty.package.yaml found in package")
             sys.exit(1)
 
         manifest = PackageManifest.from_file(manifest_path)
+
+        # Determine source directory (external repo takes precedence)
+        if result.external_dir:
+            source_dir = result.external_dir
+            console.print(f"  [dim]Using external repository for source files[/]")
+        else:
+            source_dir = result.manifest_dir
 
         # Validate types for each agent before installation
         console.print("[blue]Validating manifest types...[/]")
@@ -147,8 +154,8 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             sys.exit(1)
         console.print("  [green]✓[/] All types are valid")
 
-        # Validate files exist
-        missing_files = manifest.validate_files_exist(package_dir)
+        # Validate files exist (check in source directory)
+        missing_files = manifest.validate_files_exist(source_dir)
         if missing_files:
             console.print("[red]Error:[/] Package manifest references missing files:")
             for missing in missing_files:
@@ -222,11 +229,13 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             for type_name, artifacts in types.items():
                 for artifact in artifacts:
                     source_files.append(
-                        (package_dir / artifact.file, artifact.installed_path, type_name)
+                        (source_dir / artifact.file, artifact.installed_path, type_name)
                     )
 
             # Call install_package which will trigger pre/post install hooks
-            results = installer.install_package(source_files, target_agent, manifest.name)
+            results = installer.install_package(
+                source_dir, source_files, target_agent, manifest.name
+            )
 
             # Process results for lockfile
             agent_files = []
@@ -262,8 +271,17 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             sys.exit(1)
 
         # Update lockfile
-        commit_hash = downloader.get_resolved_commit(package_dir)
+        commit_hash = downloader.get_resolved_commit(result.manifest_dir)
         manifest_checksum = calculate_checksum(manifest_path)
+
+        # Track external repo info if present
+        external_repo = None
+        if result.external_dir:
+            from dumpty.models import ExternalRepoInfo
+
+            external_repo = ExternalRepoInfo(
+                source=manifest.get_external_repo_url(), commit=result.external_commit
+            )
 
         installed_package = InstalledPackage(
             name=manifest.name,
@@ -279,6 +297,7 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             author=manifest.author,
             homepage=manifest.homepage,
             license=manifest.license,
+            external_repo=external_repo,
         )
 
         lockfile.add_package(installed_package)
@@ -286,7 +305,9 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
         console.print(f"\n[green]✓ Installation complete![/] {total_installed} files installed.")
 
         # Clean up cache after successful installation
-        downloader.cleanup_cache(package_dir)
+        downloader.cleanup_cache(result.manifest_dir)
+        if result.external_dir:
+            downloader.cleanup_cache(result.external_dir)
 
     except Exception as e:
         console.print(f"[red]Error:[/] {e}")
@@ -596,17 +617,23 @@ def update(
                     console.print(f"  [cyan]Updating to commit:[/] {target_commit[:8]}...")
 
                     # Download at specific commit
-                    package_dir = downloader.download(
+                    result = downloader.download(
                         package.source, target_commit, validate_version=False
                     )
 
                     # Load manifest (without version validation)
-                    manifest_path = package_dir / "dumpty.package.yaml"
+                    manifest_path = result.manifest_dir / "dumpty.package.yaml"
                     if not manifest_path.exists():
                         console.print("  [red]Error:[/] No dumpty.package.yaml found in package")
                         continue
 
                     manifest = PackageManifest.from_file(manifest_path)
+
+                    # Determine source directory (external repo takes precedence)
+                    if result.external_dir:
+                        source_dir = result.external_dir
+                    else:
+                        source_dir = result.manifest_dir
 
                     # Continue with installation logic (skip to uninstall/install section)
                     target_version_str = manifest.version
@@ -685,18 +712,24 @@ def update(
 
                     # Download new version
                     console.print(f"  [blue]Downloading v{target_version_str}...[/]")
-                    package_dir = downloader.download(package.source, target_tag)
+                    result = downloader.download(package.source, target_tag)
 
-                # For commits, package_dir was already downloaded above
+                # For commits, result was already downloaded above
 
                 # Load manifest (only if not already loaded for commit)
                 if not target_commit:
-                    manifest_path = package_dir / "dumpty.package.yaml"
+                    manifest_path = result.manifest_dir / "dumpty.package.yaml"
                     if not manifest_path.exists():
                         console.print("  [red]Error:[/] No dumpty.package.yaml found in package")
                         continue
 
                     manifest = PackageManifest.from_file(manifest_path)
+
+                    # Determine source directory (external repo takes precedence)
+                    if result.external_dir:
+                        source_dir = result.external_dir
+                    else:
+                        source_dir = result.manifest_dir
 
                 # Validate types for each agent before update
                 from dumpty.agents.registry import get_agent_by_name
@@ -725,8 +758,8 @@ def update(
                     )
                     continue
 
-                # Validate files exist
-                missing_files = manifest.validate_files_exist(package_dir)
+                # Validate files exist (check in source directory)
+                missing_files = manifest.validate_files_exist(source_dir)
                 if missing_files:
                     console.print("  [red]Error:[/] Package manifest references missing files:")
                     for missing in missing_files:
@@ -769,11 +802,13 @@ def update(
                     for type_name, artifacts in types.items():
                         for artifact in artifacts:
                             source_files.append(
-                                (package_dir / artifact.file, artifact.installed_path, type_name)
+                                (source_dir / artifact.file, artifact.installed_path, type_name)
                             )
 
                     # Call install_package which will trigger pre/post install hooks
-                    results = installer.install_package(source_files, agent, manifest.name)
+                    results = installer.install_package(
+                        source_dir, source_files, agent, manifest.name
+                    )
 
                     # Process results for lockfile
                     agent_files = []
@@ -801,8 +836,17 @@ def update(
                     installed_files[agent_name] = agent_files
 
                 # Update lockfile
-                commit_hash = downloader.get_resolved_commit(package_dir)
+                commit_hash = downloader.get_resolved_commit(result.manifest_dir)
                 manifest_checksum = calculate_checksum(manifest_path)
+
+                # Track external repo info if present
+                external_repo = None
+                if result.external_dir:
+                    from dumpty.models import ExternalRepoInfo
+
+                    external_repo = ExternalRepoInfo(
+                        source=manifest.get_external_repo_url(), commit=result.external_commit
+                    )
 
                 updated_package = InstalledPackage(
                     name=manifest.name,
@@ -818,6 +862,7 @@ def update(
                     author=manifest.author,
                     homepage=manifest.homepage,
                     license=manifest.license,
+                    external_repo=external_repo,
                 )
 
                 lockfile.add_package(updated_package)
@@ -828,7 +873,9 @@ def update(
                 updated_count += 1
 
                 # Clean up cache after successful update
-                downloader.cleanup_cache(package_dir)
+                downloader.cleanup_cache(result.manifest_dir)
+                if result.external_dir:
+                    downloader.cleanup_cache(result.external_dir)
 
             except Exception as e:
                 console.print(f"  [red]Error updating {package.name}:[/] {e}")
@@ -895,6 +942,15 @@ def _display_package_info(package: InstalledPackage):
     console.print(f"  Source:      {package.source}")
     console.print(f"  Version:     {package.resolved}")
     console.print(f"  Installed:   {package.installed_at}")
+
+    # Display external repo info if present
+    if package.external_repo:
+        console.print()
+        console.print("[bold]External Repository[/]")
+        console.print(f"  Source:      {package.external_repo.source}")
+        console.print(f"  Commit:      {package.external_repo.commit}")
+        console.print(f"  [dim]Note: Package files are sourced from external repository[/]")
+
     console.print()
 
     # Installed files grouped by agent

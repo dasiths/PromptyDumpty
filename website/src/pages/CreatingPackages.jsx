@@ -6,6 +6,7 @@ const tocItems = [
   { id: 'manifest-file', title: 'The Manifest File' },
   { id: 'manifest-fields', title: 'Manifest Fields' },
   { id: 'key-features', title: 'Key Features' },
+  { id: 'external-repos', title: 'External Repository References' },
   { id: 'example-package', title: 'Example Package' },
   { id: 'supported-agents', title: 'Agent-Specific Artifact Types' },
   { id: 'publishing', title: 'Publishing Your Package' },
@@ -47,6 +48,7 @@ export default function CreatingPackages() {
 version: 1.0.0
 description: Custom development workflows
 manifest_version: 1.0
+license: MIT
 author: Your Name
 repository: https://github.com/org/my-workflows
 
@@ -85,6 +87,7 @@ agents:
               <li><code className="text-primary-400">description</code> - Brief description (required)</li>
               <li><code className="text-primary-400">manifest_version</code> - Manifest format version, must be 1.0 (required)</li>
               <li><code className="text-primary-400">author</code> - Package author (optional)</li>
+              <li><code className="text-primary-400">license</code> - Package license (optional)</li>
               <li><code className="text-primary-400">repository</code> - Git repository URL (optional)</li>
             </ul>
           </div>
@@ -160,6 +163,78 @@ agents:
         </div>
       </section>
 
+      <section id="external-repos" className="mb-12 scroll-mt-24">
+        <h2 className="text-3xl font-semibold mb-4">External Repository References</h2>
+        
+        <p className="text-slate-300 mb-4">
+          Create "wrapper packages" that reference files from repositories you don't own. Perfect for curating content from large community repositories or version-locking third-party prompts.
+        </p>
+
+        <h3 className="text-xl font-semibold mb-3">How It Works</h3>
+        <p className="text-slate-300 mb-4">
+          Add <code className="bg-slate-700 px-1.5 py-0.5 rounded">external_repository</code> to your manifest:
+        </p>
+        
+        <div className="border border-slate-700 mb-6">
+          <CodeBlock language="yaml">
+{`name: curated-prompts
+version: 1.0.0
+manifest_version: 1.0
+author: Your Name
+license: MIT
+external_repository: https://github.com/community/prompts@a1b2c3d4e5f6789012345678901234567890abcd
+
+agents:
+  copilot:
+    prompts:
+      - name: refactoring
+        file: prompts/refactoring.md
+        installed_path: refactoring.prompt.md`}
+          </CodeBlock>
+        </div>
+
+        <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700 mb-6">
+          <h4 className="text-lg font-semibold mb-2">Format</h4>
+          <p className="text-slate-300 mb-3">
+            <code className="bg-slate-700 px-1.5 py-0.5 rounded text-primary-300">&lt;git-url&gt;@&lt;40-char-commit-hash&gt;</code>
+          </p>
+          <ul className="space-y-2 text-slate-300 text-sm">
+            <li>✅ Must use full 40-character commit hash</li>
+            <li>✅ All file paths resolve from external repo</li>
+            <li>✅ Both repos tracked in lockfile</li>
+            <li>❌ No tags or branches (commits only)</li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-semibold mb-3">Use Cases</h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+            <p className="text-slate-300 text-sm">
+              <strong className="text-white">Curate Collections</strong><br />
+              Select specific prompts from large community repos
+            </p>
+          </div>
+          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+            <p className="text-slate-300 text-sm">
+              <strong className="text-white">Version Lock</strong><br />
+              Pin third-party content to specific commits
+            </p>
+          </div>
+          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+            <p className="text-slate-300 text-sm">
+              <strong className="text-white">Team Views</strong><br />
+              Create team-specific views of shared content
+            </p>
+          </div>
+          <div className="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+            <p className="text-slate-300 text-sm">
+              <strong className="text-white">Lightweight</strong><br />
+              Your repo only contains the manifest
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section id="example-package" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">Example Package</h2>
         <p className="text-slate-300 mb-4">
@@ -186,6 +261,7 @@ agents:
 version: 1.0.0
 description: Comprehensive code review prompts
 manifest_version: 1.0
+license: MIT
 author: Development Team
 repository: https://github.com/org/code-review-workflow
 

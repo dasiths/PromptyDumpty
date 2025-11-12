@@ -69,7 +69,7 @@ if [ "$USE_LOCAL" = false ] && ! command -v dumpty &> /dev/null; then
 fi
 
 # Package details
-PACKAGE_URL="https://github.com/dasiths/jordans_tools"
+PACKAGE_URL="https://github.com/dasiths/jordan_tools_prompty_dumpty"
 PACKAGE_NAME="jk-tools-commands"
 
 echo "📦 Package: $PACKAGE_NAME"

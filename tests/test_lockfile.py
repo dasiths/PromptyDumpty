@@ -6,13 +6,10 @@ from dumpty.models import InstalledPackage, InstalledFile
 
 
 def test_create_empty_lockfile(tmp_path):
-    """Test creating a new lockfile."""
+    """Test creating an empty lockfile."""
     project_root = tmp_path
     manager = LockfileManager(project_root)
-
-    assert manager.lockfile_path == project_root / "dumpty.lock"
-    assert manager.data["version"] == 1
-    assert manager.data["packages"] == []
+    assert manager.data["version"] == 1.0
 
 
 def test_load_existing_lockfile(tmp_path):
@@ -245,3 +242,139 @@ def test_lockfile_uses_current_directory_by_default():
     """Test that lockfile manager uses current directory if not specified."""
     manager = LockfileManager()
     assert manager.lockfile_path == Path.cwd() / "dumpty.lock"
+
+
+# Phase 4 Tests: Lockfile Version Integration
+
+
+def test_lockfile_version_validation_creates_v1_0(tmp_path):
+    """Test that new lockfiles are created with version 1.0."""
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
+
+    assert manager.data["version"] == 1.0
+
+    # Save and reload to verify persistence
+    manager._save()
+
+    import yaml
+
+    with open(project_root / "dumpty.lock", "r") as f:
+        saved_data = yaml.safe_load(f)
+
+    assert saved_data["version"] == 1.0
+
+
+def test_lockfile_version_validation_missing_version(tmp_path):
+    """Test that lockfile without version field raises error."""
+    project_root = tmp_path
+    lockfile_path = project_root / "dumpty.lock"
+
+    # Create lockfile without version field
+    lockfile_path.write_text(
+        """
+packages:
+  - name: test-pkg
+    version: 1.0.0
+"""
+    )
+
+    try:
+        manager = LockfileManager(project_root)
+        assert False, "Expected ValueError for missing version"
+    except ValueError as e:
+        assert "missing version field" in str(e).lower()
+        assert "regenerate lockfile" in str(e).lower()
+
+
+def test_lockfile_version_validation_unsupported_version(tmp_path):
+    """Test that unsupported version raises error."""
+    project_root = tmp_path
+    lockfile_path = project_root / "dumpty.lock"
+
+    # Create lockfile with future version
+    lockfile_path.write_text(
+        """
+version: 2.0
+packages: []
+"""
+    )
+
+    try:
+        manager = LockfileManager(project_root)
+        assert False, "Expected ValueError for unsupported version"
+    except ValueError as e:
+        assert "unsupported lockfile version" in str(e).lower()
+        assert "2.0" in str(e)
+
+
+def test_lockfile_version_validation_accepts_v1_0(tmp_path):
+    """Test that version 1.0 is accepted."""
+    project_root = tmp_path
+    lockfile_path = project_root / "dumpty.lock"
+
+    lockfile_path.write_text(
+        """
+version: 1.0
+packages: []
+"""
+    )
+
+    manager = LockfileManager(project_root)
+    assert manager.data["version"] == 1.0
+
+
+def test_lockfile_save_ensures_version(tmp_path):
+    """Test that _save() ensures version field exists."""
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
+
+    # Remove version field manually
+    del manager.data["version"]
+
+    # Save should restore it
+    manager._save()
+
+    assert manager.data["version"] == 1.0
+
+    # Reload and verify
+    manager2 = LockfileManager(project_root)
+    assert manager2.data["version"] == 1.0
+
+
+def test_lockfile_empty_file_creates_v1_0(tmp_path):
+    """Test that empty lockfile is treated as new lockfile with v1.0."""
+    project_root = tmp_path
+    lockfile_path = project_root / "dumpty.lock"
+
+    # Create empty lockfile
+    lockfile_path.write_text("")
+
+    manager = LockfileManager(project_root)
+    assert manager.data["version"] == 1.0
+    assert manager.data["packages"] == []
+
+
+def test_lockfile_version_persisted_on_add_package(tmp_path):
+    """Test that version is persisted when adding packages."""
+    project_root = tmp_path
+    manager = LockfileManager(project_root)
+
+    package = InstalledPackage(
+        name="test-pkg",
+        version="1.0.0",
+        source="https://github.com/test/pkg",
+        source_type="git",
+        resolved="https://github.com/test/pkg/commit/abc",
+        installed_at="2025-11-04T10:00:00Z",
+        installed_for=["copilot"],
+        files={},
+        manifest_checksum="sha256:abc",
+    )
+
+    manager.add_package(package)
+
+    # Reload and verify version persists
+    manager2 = LockfileManager(project_root)
+    assert manager2.data["version"] == 1.0
+    assert len(manager2.data["packages"]) == 1

@@ -228,7 +228,7 @@ def test_install_package_calls_hooks(tmp_path):
         ]
 
         # Install package
-        results = installer.install_package(source_files, Agent.COPILOT, "test-package")
+        results = installer.install_package(tmp_path, source_files, Agent.COPILOT, "test-package")
 
         # Verify hooks were called
         assert tracked_agent.pre_install_called
@@ -334,7 +334,7 @@ def test_copilot_vscode_settings_integration(tmp_path):
     source_files = [(test_file, "prompt.md", "prompts")]
 
     # Install package
-    installer.install_package(source_files, Agent.COPILOT, "test-prompts")
+    installer.install_package(tmp_path, source_files, Agent.COPILOT, "test-prompts")
 
     # Verify VS Code settings were created/updated
     settings_file = tmp_path / ".vscode" / "settings.json"
@@ -401,7 +401,7 @@ def test_install_package_without_group(tmp_path):
     ]
 
     # Install package
-    results = installer.install_package(source_files, Agent.GEMINI, "test-package")
+    results = installer.install_package(tmp_path, source_files, Agent.GEMINI, "test-package")
 
     # Verify files were installed in files/ directory (not flat structure)
     assert len(results) == 1
@@ -448,7 +448,7 @@ def test_install_package_multiple_groups_multiple_dirs(tmp_path):
         ]
 
         # Install package
-        results = installer.install_package(source_files, Agent.COPILOT, "test-package")
+        results = installer.install_package(tmp_path, source_files, Agent.COPILOT, "test-package")
 
         # Verify hooks received multiple directories
         assert len(tracked_agent.install_dirs) == 2

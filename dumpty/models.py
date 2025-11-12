@@ -7,6 +7,24 @@ import yaml
 
 
 @dataclass
+class ExternalRepoInfo:
+    """Information about an external repository."""
+
+    source: str  # Git URL
+    commit: str  # 40-character commit hash
+
+    def __post_init__(self):
+        """Validate commit hash format."""
+        if len(self.commit) != 40:
+            raise ValueError(
+                f"Commit hash must be 40 characters, got {len(self.commit)}\n"
+                f"Use full commit hash: git rev-parse HEAD"
+            )
+        if not all(c in "0123456789abcdef" for c in self.commit.lower()):
+            raise ValueError(f"Invalid commit hash: {self.commit}")
+
+
+@dataclass
 class Artifact:
     """Represents a single artifact in a package."""
 
@@ -50,6 +68,7 @@ class PackageManifest:
     homepage: Optional[str] = None
     license: Optional[str] = None
     dumpty_version: Optional[str] = None
+    external_repository: Optional[str] = None  # Format: url@commit
     agents: Dict[str, Dict[str, List[Artifact]]] = field(default_factory=dict)
 
     @classmethod
@@ -115,6 +134,7 @@ class PackageManifest:
             homepage=data.get("homepage"),
             license=data.get("license"),
             dumpty_version=data.get("dumpty_version"),
+            external_repository=data.get("external_repository"),
             agents=agents,
         )
 
@@ -167,6 +187,65 @@ class PackageManifest:
                         missing.append(f"{agent_name}/{type_name}/{artifact.name}: {artifact.file}")
         return missing
 
+    def get_external_repo_url(self) -> Optional[str]:
+        """Extract Git URL from external_repository field."""
+        if not self.external_repository:
+            return None
+        if "@" not in self.external_repository:
+            raise ValueError(
+                f"Invalid external_repository format: {self.external_repository}\n"
+                "Expected: <git-url>@<commit-hash>"
+            )
+        return self.external_repository.split("@")[0]
+
+    def get_external_repo_commit(self) -> Optional[str]:
+        """Extract commit hash from external_repository field."""
+        if not self.external_repository:
+            return None
+        if "@" not in self.external_repository:
+            raise ValueError(
+                f"Invalid external_repository format: {self.external_repository}\n"
+                "Expected: <git-url>@<commit-hash>"
+            )
+        commit = self.external_repository.split("@")[1]
+        # Validate format using ExternalRepoInfo (triggers validation)
+        ExternalRepoInfo(source="temp", commit=commit)
+        return commit
+
+    def validate_manifest_only(self, manifest_root: Path) -> List[str]:
+        """
+        Validate that manifest repo contains only manifest file.
+        Returns list of unexpected files found (for warning, not error).
+        """
+        if not self.external_repository:
+            return []
+
+        unexpected = []
+        allowed_patterns = {
+            "dumpty.package.yaml",
+            ".git",
+            ".gitignore",
+            "README.md",
+            "README",
+            "LICENSE",
+            "LICENSE.txt",
+            "LICENSE.md",
+        }
+
+        for item in manifest_root.rglob("*"):
+            if item.is_file():
+                rel_path = str(item.relative_to(manifest_root))
+                # Check if file or its parent directory matches allowed patterns
+                is_allowed = False
+                for pattern in allowed_patterns:
+                    if rel_path == pattern or rel_path.startswith(pattern + "/"):
+                        is_allowed = True
+                        break
+                if not is_allowed:
+                    unexpected.append(rel_path)
+
+        return unexpected
+
 
 @dataclass
 class InstalledFile:
@@ -190,6 +269,7 @@ class InstalledPackage:
     installed_for: List[str]  # List of agent names
     files: Dict[str, List[InstalledFile]]  # agent_name -> files
     manifest_checksum: str
+    external_repo: Optional[ExternalRepoInfo] = None  # External repository info
     description: Optional[str] = None
     author: Optional[str] = None
     homepage: Optional[str] = None
@@ -220,6 +300,11 @@ class InstalledPackage:
         }
 
         # Add optional fields if present
+        if self.external_repo:
+            result["external_repo"] = {
+                "source": self.external_repo.source,
+                "commit": self.external_repo.commit,
+            }
         if self.description:
             result["description"] = self.description
         if self.author:
@@ -241,6 +326,13 @@ class InstalledPackage:
                 for f in file_list
             ]
 
+        # Parse optional external_repo
+        external_repo = None
+        if "external_repo" in data:
+            external_repo = ExternalRepoInfo(
+                source=data["external_repo"]["source"], commit=data["external_repo"]["commit"]
+            )
+
         return cls(
             name=data["name"],
             version=data["version"],
@@ -251,6 +343,7 @@ class InstalledPackage:
             installed_for=data["installed_for"],
             files=files,
             manifest_checksum=data["manifest_checksum"],
+            external_repo=external_repo,
             description=data.get("description"),
             author=data.get("author"),
             homepage=data.get("homepage"),

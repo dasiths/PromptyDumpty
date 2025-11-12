@@ -95,6 +95,37 @@ manifest_version: 1.0
         PackageManifest.from_file(manifest_path)
 
 
+def test_package_manifest_with_metadata_fields(tmp_path):
+    """Test that non-list metadata fields are skipped during parsing."""
+    manifest_content = """
+name: test-package
+version: 1.0.0
+description: A test package
+manifest_version: 1.0
+
+agents:
+  copilot:
+    metadata:
+      author: "Test Author"
+      license: "MIT"
+    prompts:
+      - name: test-prompt
+        description: Test prompt
+        file: src/test.md
+        installed_path: test.prompt.md
+"""
+    manifest_path = tmp_path / "dumpty.package.yaml"
+    manifest_path.write_text(manifest_content)
+
+    manifest = PackageManifest.from_file(manifest_path)
+
+    # Should successfully parse, skipping the metadata dict
+    assert manifest.name == "test-package"
+    assert "copilot" in manifest.agents
+    assert "prompts" in manifest.agents["copilot"]
+    assert len(manifest.agents["copilot"]["prompts"]) == 1
+
+
 def test_package_manifest_validate_files_exist(tmp_path):
     """Test validation of artifact source files."""
     # Create manifest with NESTED format

@@ -4,7 +4,18 @@ import subprocess
 import shutil
 from pathlib import Path
 from typing import List, Optional, Protocol
+from dataclasses import dataclass
 from dumpty.models import PackageManifest
+
+
+@dataclass
+class DownloadResult:
+    """Result of downloading a package with optional external repo."""
+
+    manifest_dir: Path  # Path to cloned manifest repository
+    external_dir: Optional[Path] = None  # Path to external repo (if applicable)
+    manifest_commit: str = ""  # Resolved commit hash for manifest repo
+    external_commit: str = ""  # Resolved commit hash for external repo
 
 
 class GitOperations(Protocol):
@@ -170,9 +181,9 @@ class PackageDownloader:
 
     def download(
         self, url: str, version: Optional[str] = None, validate_version: bool = True
-    ) -> Path:
+    ) -> DownloadResult:
         """
-        Download package from URL.
+        Download package from URL with optional external repository.
 
         Args:
             url: Git repository URL
@@ -180,7 +191,7 @@ class PackageDownloader:
             validate_version: Whether to validate version matches manifest (default True)
 
         Returns:
-            Path to downloaded package directory
+            DownloadResult with paths to both repos (if applicable)
 
         Raises:
             ValueError: If validate_version is True and version doesn't match manifest
@@ -213,14 +224,18 @@ class PackageDownloader:
                 else:
                     raise
 
-        # Validate manifest version matches requested version (only for semantic versions)
+        # Get manifest repo commit
+        manifest_commit = self.git_ops.get_commit_hash(target_dir)
+
+        # Load manifest to check for external repo
+        manifest_path = target_dir / "dumpty.package.yaml"
+        if not manifest_path.exists():
+            raise RuntimeError(f"No dumpty.package.yaml found in package at {url}")
+
+        manifest = PackageManifest.from_file(manifest_path)
+
+        # Validate version if requested (only for semantic versions)
         if version and validate_version:
-            manifest_path = target_dir / "dumpty.package.yaml"
-            if not manifest_path.exists():
-                raise RuntimeError(f"No dumpty.package.yaml found in package at {url}")
-
-            manifest = PackageManifest.from_file(manifest_path)
-
             # Normalize version strings for comparison (remove 'v' prefix if present)
             requested_version = version.lstrip("v")
             manifest_version = manifest.version.lstrip("v")
@@ -230,7 +245,99 @@ class PackageDownloader:
                     f"Version mismatch: requested '{version}' but manifest declares version '{manifest.version}'"
                 )
 
-        return target_dir
+        # Check if external repo is specified
+        external_dir = None
+        external_commit = ""
+
+        if manifest.external_repository:
+            external_url = manifest.get_external_repo_url()
+            external_commit_hash = manifest.get_external_repo_commit()
+
+            # Clone external repository
+            external_dir = self.clone_external_repo(external_url, external_commit_hash)
+            external_commit = external_commit_hash
+
+        return DownloadResult(
+            manifest_dir=target_dir,
+            external_dir=external_dir,
+            manifest_commit=manifest_commit,
+            external_commit=external_commit,
+        )
+
+    def clone_external_repo(self, url: str, commit: str) -> Path:
+        """
+        Clone external repository and checkout specific commit.
+
+        Args:
+            url: Git repository URL
+            commit: Full 40-character commit hash
+
+        Returns:
+            Path to cloned repository
+
+        Raises:
+            ValueError: Invalid commit hash format
+            RuntimeError: Git clone or checkout failures
+        """
+        # Validate commit hash format
+        if len(commit) != 40 or not all(c in "0123456789abcdef" for c in commit.lower()):
+            raise ValueError(
+                f"Invalid commit hash: {commit}\n"
+                "Must be 40 hexadecimal characters\n"
+                "Get it with: git rev-parse HEAD"
+            )
+
+        # Extract repo name from URL
+        repo_name = url.rstrip("/").split("/")[-1].replace(".git", "")
+        short_commit = commit[:7]
+
+        # Create cache path: ~/.dumpty/cache/external/<repo-name>-<short-commit>
+        external_cache_dir = self.cache_dir / "external"
+        external_cache_dir.mkdir(parents=True, exist_ok=True)
+        target_dir = external_cache_dir / f"{repo_name}-{short_commit}"
+
+        # Always clone fresh - remove existing cache if present
+        if target_dir.exists():
+            shutil.rmtree(target_dir)
+
+        try:
+            # Clone repository
+            self.git_ops.clone(url, target_dir)
+
+            # Checkout specific commit
+            self.git_ops.checkout(commit, target_dir)
+
+            # Verify commit hash matches
+            actual_commit = self.git_ops.get_commit_hash(target_dir)
+            if actual_commit != commit:
+                raise RuntimeError(
+                    f"Commit mismatch after checkout\n"
+                    f"Expected: {commit}\n"
+                    f"Got: {actual_commit}"
+                )
+
+            return target_dir
+
+        except RuntimeError as e:
+            # Clean up partial clone on failure
+            if target_dir.exists():
+                shutil.rmtree(target_dir)
+
+            error_str = str(e).lower()
+            if "not found" in error_str or "not a tree" in error_str:
+                raise RuntimeError(
+                    f"Commit not found in external repository\n"
+                    f"Repository: {url}\n"
+                    f"Commit: {commit}\n"
+                    "Verify commit exists with: git log --oneline"
+                )
+            else:
+                raise RuntimeError(
+                    f"Failed to clone external repository\n"
+                    f"URL: {url}\n"
+                    f"Error: {e}\n"
+                    "Check repository access and network connectivity"
+                )
 
     def cleanup_cache(self, package_dir: Path) -> None:
         """

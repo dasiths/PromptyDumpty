@@ -5,6 +5,7 @@ from click.testing import CliRunner
 from dumpty.cli import cli
 from dumpty.lockfile import LockfileManager
 from dumpty.models import InstalledPackage, InstalledFile
+from dumpty.downloader import DownloadResult
 
 
 @pytest.fixture
@@ -180,7 +181,12 @@ class TestUpdateCommand:
 
         # Mock the downloader
         def mock_download(self, url, version=None, validate_version=True):
-            return new_pkg_dir
+            return DownloadResult(
+                manifest_dir=new_pkg_dir,
+                external_dir=None,
+                manifest_commit="commit123",
+                external_commit=None,
+            )
 
         import dumpty.downloader
 
@@ -240,9 +246,13 @@ agents:
 
         # Mock the downloader
         def mock_download(self, url, version=None, validate_version=True):
-            if version == "v1.1.0":
-                return v110_dir
-            return new_pkg_dir
+            pkg_dir = v110_dir if version == "v1.1.0" else new_pkg_dir
+            return DownloadResult(
+                manifest_dir=pkg_dir,
+                external_dir=None,
+                manifest_commit="commit123",
+                external_commit=None,
+            )
 
         import dumpty.downloader
 
@@ -551,7 +561,12 @@ agents:
         original_download = dumpty.downloader.PackageDownloader.download
 
         def mock_download(self, url, version=None, validate_version=True):
-            return new_pkg_dir
+            return DownloadResult(
+                manifest_dir=new_pkg_dir,
+                external_dir=None,
+                manifest_commit="commit123",
+                external_commit=None,
+            )
 
         dumpty.downloader.PackageDownloader.__init__ = mock_init
         dumpty.downloader.PackageDownloader.download = mock_download

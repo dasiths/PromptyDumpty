@@ -63,6 +63,7 @@ class FileInstaller:
 
     def install_package(
         self,
+        source_dir: Path,
         source_files: List[tuple[Path, str, str]],
         agent: Agent,
         package_name: str,
@@ -71,7 +72,11 @@ class FileInstaller:
         Install a complete package with hooks support.
 
         Args:
-            source_files: List of (source_file, installed_path, artifact_type) tuples
+            source_dir: Directory containing source files (manifest_dir or external_dir).
+                       For dual-repo packages with external_repository, this should be
+                       the external_dir. For single-repo packages, this is the manifest_dir.
+            source_files: List of (source_file, installed_path, artifact_type) tuples.
+                         Source file paths should be absolute paths resolved relative to source_dir.
             agent: Target agent
             package_name: Package name
 

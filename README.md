@@ -68,6 +68,8 @@ name: my-workflows
 version: 1.0.0
 description: Custom development workflows
 manifest_version: 1.0
+author: Your Name
+license: MIT
 
 agents:
   copilot:
@@ -97,6 +99,40 @@ agents:
 - Explicitly map each file to its install location per agent
 - Reuse the same source file for multiple agents
 - Installation paths: `{agent_dir}/{type}/{package}/{file}`
+
+## External Repository References
+
+Reference files from external repositories without forking.
+
+Add `external_repository` to your manifest to pull files from another repository:
+
+```yaml
+name: curated-prompts
+version: 1.0.0
+manifest_version: 1.0
+author: Your Name
+license: MIT
+external_repository: https://github.com/community/prompts@a1b2c3d4e5f6789012345678901234567890abcd
+
+agents:
+  copilot:
+    prompts:
+      - name: refactoring
+        file: prompts/refactoring.md
+        installed_path: refactoring.prompt.md
+```
+
+**Format:** `<git-url>@<40-char-commit-hash>`
+
+When external repo is specified:
+- All file paths resolve from the external repository
+- Both repos are tracked in lockfile
+- Use full commit hashes only (no tags/branches)
+
+**Use cases:**
+- Curate content from large community repositories
+- Version-lock third-party prompts
+- Create team-specific views of shared content
 
 ## Documentation
 
