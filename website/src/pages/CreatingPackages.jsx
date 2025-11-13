@@ -50,7 +50,7 @@ description: Custom development workflows
 manifest_version: 1.0
 license: MIT
 author: Your Name
-repository: https://github.com/org/my-workflows
+homepage: https://github.com/org/my-workflows
 
 agents:
   copilot:
@@ -263,7 +263,7 @@ description: Comprehensive code review prompts
 manifest_version: 1.0
 license: MIT
 author: Development Team
-repository: https://github.com/org/code-review-workflow
+homepage: https://github.com/org/code-review-workflow
 
 agents:
   copilot:

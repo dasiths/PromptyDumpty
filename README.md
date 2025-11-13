@@ -70,6 +70,7 @@ description: Custom development workflows
 manifest_version: 1.0
 author: Your Name
 license: MIT
+homepage: https://github.com/org/my-workflows
 
 agents:
   copilot:

@@ -262,7 +262,7 @@ class InstalledPackage:
 
     name: str
     version: str
-    source: str  # Git URL or path
+    source: str  # Git URL passed to install command
     source_type: str  # 'git', 'local', etc.
     resolved: str  # Full resolved URL/commit
     installed_at: str  # ISO timestamp
@@ -270,10 +270,10 @@ class InstalledPackage:
     files: Dict[str, List[InstalledFile]]  # agent_name -> files
     manifest_checksum: str
     external_repo: Optional[ExternalRepoInfo] = None  # External repository info
-    description: Optional[str] = None
-    author: Optional[str] = None
-    homepage: Optional[str] = None
-    license: Optional[str] = None
+    description: Optional[str] = None  # From manifest.description field
+    author: Optional[str] = None  # From manifest.author field
+    homepage: Optional[str] = None  # From manifest.homepage field (not the install source)
+    license: Optional[str] = None  # From manifest.license field
 
     def to_dict(self) -> dict:
         """Convert to dictionary for YAML serialization."""
