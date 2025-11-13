@@ -40,7 +40,7 @@ export default function CreatingPackages() {
       <section id="manifest-file" className="mb-12 scroll-mt-24">
         <h2 className="text-3xl font-semibold mb-4">The Manifest File</h2>
         <p className="text-slate-300 mb-4">
-          The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent. Files are organized by type (prompts, modes, rules, etc.):
+          The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent. Files are organized by type (prompts, agents, rules, etc.):
         </p>
         <div className="border border-slate-700 mb-6">
           <CodeBlock language="yaml">
@@ -59,11 +59,11 @@ agents:
         description: Code review workflow
         file: src/review.md
         installed_path: code-review.prompt.md
-    modes:
+    agents:
       - name: standards
-        description: Coding standards mode
+        description: Coding standards agent
         file: src/standards.md
-        installed_path: standards.md
+        installed_path: standards.agent.md
   
   claude:
     commands:
@@ -277,11 +277,11 @@ agents:
         description: Security review guidelines
         file: src/security-audit.md
         installed_path: security.prompt.md
-    modes:
+    agents:
       - name: review-mode
-        description: Code review assistant mode
+        description: Code review assistant agent
         file: src/review-mode.md
-        installed_path: code-review.md
+        installed_path: code-review.agent.md
 
   cursor:
     rules:
@@ -317,10 +317,10 @@ agents:
               <code className="text-sm text-slate-400 font-normal">.github/</code>
             </h3>
             <p className="text-slate-300 mb-2">
-              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">prompts</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">modes</code>
+              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">prompts</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">agents</code>
             </p>
             <p className="text-slate-400 text-sm">
-              Supports custom prompts and modes for the Copilot chat interface
+              Supports custom prompts and agents for the Copilot chat interface
             </p>
           </div>
 

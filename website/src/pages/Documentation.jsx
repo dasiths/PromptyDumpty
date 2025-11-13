@@ -144,7 +144,7 @@ dumpty update --all`}
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
             <h3 className="text-lg font-semibold mb-2 text-primary-400">GitHub Copilot</h3>
             <p className="text-slate-300 mb-3">
-              Automatically updates VS Code workspace settings to register package directories for prompts and modes.
+              Automatically updates VS Code workspace settings to register package directories for prompts and custom agents.
             </p>
             <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
               <p className="text-xs text-slate-400 mb-2">Updates <code>.vscode/settings.json</code>:</p>
@@ -153,14 +153,14 @@ dumpty update --all`}
   "chat.promptFilesLocations": {
     ".github/prompts/my-package": true
   },
-  "chat.modeFilesLocations": {
-    ".github/modes/my-package": true
+  "chat.agentFilesLocations": {
+    ".github/agents/my-package": true
   }
 }`}
               </CodeBlock>
             </div>
             <p className="text-slate-400 text-sm mt-3">
-              This ensures GitHub Copilot can discover and use the installed prompts and modes. Both settings are automatically cleaned up on uninstall.
+              This ensures GitHub Copilot can discover and use the installed prompts and custom agents. Both settings are automatically cleaned up on uninstall.
             </p>
           </div>
         </div>
@@ -234,9 +234,9 @@ packages:
 │   └── my-workflows/              # Package namespace
 │       ├── review.prompt.md
 │       └── planning.prompt.md
-└── modes/
+└── agents/
     └── my-workflows/              # Same package, different type
-        └── standards.md
+        └── standards.agent.md
 
 .cursor/
 └── rules/

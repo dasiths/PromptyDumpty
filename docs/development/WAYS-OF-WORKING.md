@@ -39,7 +39,7 @@ Development work is organized into deliberate phases that ensure thorough unders
 - Probe assumptions and scrutinize constraints
 - Investigate technical trade-offs and implications
 
-**Chat Modes**:
+**Prompts**:
 - **`/1-requirements-discovery`** - For discovering and clarifying requirements (outputs REQUIREMENTS.md)
 - **`/1-feasibility-research`** - For researching technical feasibility and approaches (outputs FEASIBILITY.md)
 
@@ -62,7 +62,7 @@ Development work is organized into deliberate phases that ensure thorough unders
 - Document architectural choices
 - Establish acceptance criteria
 
-**Chat Modes**:
+**Prompts**:
 - **`/2-requirements-refiner`** - For refining Phase 1 requirements with exploration insights (updates REQUIREMENTS.md)
 - **`/2-prd-generator`** - For creating product requirements documents (outputs PRD.md)
 - **`/2-specification-writer`** - For writing technical specifications (outputs SPEC.md)
@@ -89,7 +89,7 @@ Development work is organized into deliberate phases that ensure thorough unders
 - Implement features per specification
 - Validate against success criteria from Phase 2
 
-**Chat Modes**:
+**Prompts**:
 - **`/3-implementation-planner`** - For breaking down specifications into executable tasks (outputs IMPLEMENTATION-PLAN.md)
 - **`/3-github-issue-generator`** - For creating issues for autonomous coding agents (outputs GITHUB-ISSUE.md)
 

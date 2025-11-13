@@ -108,7 +108,7 @@ class PackageManifest:
                 if "artifacts" in agent_data:
                     raise ValueError(
                         f"Invalid manifest format: 'artifacts' key is not supported.\n"
-                        f"Artifacts must be organized by type (e.g., prompts, modes, rules, workflows, files).\n"
+                        f"Artifacts must be organized by type (e.g., prompts, agents, rules, workflows, files).\n"
                         f"Agent '{agent_name}' uses unsupported 'artifacts' key."
                     )
 

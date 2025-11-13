@@ -8,7 +8,7 @@ from typing import List
 class BaseAgent(ABC):
     """Abstract base class for AI agent implementations."""
 
-    # Supported artifact types for this agent (e.g., ["prompts", "modes"])
+    # Supported artifact types for this agent (e.g., ["prompts", "agents"])
     # All agents support "files" as a catch-all for flat structure
     SUPPORTED_TYPES: List[str] = ["files"]
 
@@ -80,10 +80,10 @@ class BaseAgent(ABC):
         Override this method in subclasses to customize folder mapping.
 
         Args:
-            artifact_type: Type name (e.g., 'prompts', 'modes', 'files')
+            artifact_type: Type name (e.g., 'prompts', 'agents', 'files')
 
         Returns:
-            Folder name for the type (e.g., 'prompts', 'modes', 'files')
+            Folder name for the type (e.g., 'prompts', 'agents', 'files')
 
         Example:
             A custom agent might map 'prompts' -> '.prompts' or 'rules' -> 'project_rules'
@@ -105,7 +105,7 @@ class BaseAgent(ABC):
             package_name: Name of the package being installed
             install_dirs: List of directories where package files will be installed.
                          With types, there may be multiple directories (e.g.,
-                         [.github/prompts/pkg, .github/modes/pkg])
+                         [.github/prompts/pkg, .github/agents/pkg])
             files: List of file paths that will be installed (relative to project root)
 
         Note:
@@ -133,7 +133,7 @@ class BaseAgent(ABC):
             package_name: Name of the package that was installed
             install_dirs: List of directories where package files were installed.
                          With types, there may be multiple directories (e.g.,
-                         [.github/prompts/pkg, .github/modes/pkg])
+                         [.github/prompts/pkg, .github/agents/pkg])
             files: List of file paths that were installed (relative to project root)
 
         Note:

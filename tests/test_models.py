@@ -288,10 +288,10 @@ agents:
       - name: review
         file: src/review.md
         installed_path: review.prompt.md
-    modes:
+    agents:
       - name: debug
         file: src/debug.md
-        installed_path: debug.md
+        installed_path: debug.agent.md
   
   cursor:
     rules:
@@ -320,16 +320,16 @@ agents:
 
     # Check nested structure
     assert "prompts" in manifest.agents["copilot"]
-    assert "modes" in manifest.agents["copilot"]
+    assert "agents" in manifest.agents["copilot"]
     assert "rules" in manifest.agents["cursor"]
 
     # Check artifacts in types
     assert len(manifest.agents["copilot"]["prompts"]) == 2
-    assert len(manifest.agents["copilot"]["modes"]) == 1
+    assert len(manifest.agents["copilot"]["agents"]) == 1
     assert len(manifest.agents["cursor"]["rules"]) == 1
 
     assert manifest.agents["copilot"]["prompts"][0].name == "planning"
-    assert manifest.agents["copilot"]["modes"][0].name == "debug"
+    assert manifest.agents["copilot"]["agents"][0].name == "debug"
 
 
 def test_package_manifest_old_format_detection(tmp_path):
@@ -387,7 +387,7 @@ agents:
     error_msg = str(exc_info.value)
     assert "Invalid artifact type 'invalid_group'" in error_msg
     assert "copilot" in error_msg
-    assert "files, prompts, modes" in error_msg
+    assert "files, prompts, agents" in error_msg
 
 
 def test_package_manifest_unknown_agent_warning(tmp_path, capsys):
@@ -468,10 +468,10 @@ agents:
       - name: missing
         file: src/missing.md
         installed_path: missing.prompt.md
-    modes:
+    agents:
       - name: debug
         file: src/debug.md
-        installed_path: debug.md
+        installed_path: debug.agent.md
 """
     manifest_path = tmp_path / "dumpty.package.yaml"
     manifest_path.write_text(manifest_content)

@@ -35,7 +35,7 @@ class FileInstaller:
             agent: Target agent
             package_name: Package name (for organizing files)
             installed_path: Relative path within package directory (from manifest)
-            artifact_type: Artifact type (e.g., 'prompts', 'modes', 'files')
+            artifact_type: Artifact type (e.g., 'prompts', 'agents', 'files')
 
         Returns:
             Tuple of (installed file path, checksum)

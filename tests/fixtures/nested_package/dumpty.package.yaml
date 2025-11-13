@@ -16,11 +16,11 @@ agents:
         description: Review prompt
         file: src/review.md
         installed_path: review.prompt.md
-    modes:
+    agents:
       - name: debug
-        description: Debug mode
+        description: Debug agent
         file: src/debug.md
-        installed_path: debug.md
+        installed_path: debug.agent.md
   
   cursor:
     rules:

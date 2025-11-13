@@ -78,11 +78,11 @@ agents:
         description: Code review workflow
         file: src/review.md
         installed_path: code-review.prompt.md
-    modes:
+    agents:
       - name: standards
-        description: Coding standards mode
+        description: Coding standards agent
         file: src/standards.md
-        installed_path: standards.md
+        installed_path: standards.agent.md
   
   claude:
     commands:
@@ -94,7 +94,7 @@ agents:
 
 **Key Features:**
 - Organize files however makes sense to you
-- Organize artifacts by type (prompts, modes, rules, commands, etc.)
+- Organize artifacts by type (prompts, agents, rules, commands, etc.)
 - Use "files" type for generic artifacts
 - Explicitly map each file to its install location per agent
 - Reuse the same source file for multiple agents

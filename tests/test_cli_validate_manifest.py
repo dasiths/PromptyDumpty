@@ -127,10 +127,10 @@ agents:
       - name: prompt1
         file: src/prompt1.md
         installed_path: prompt1.md
-    modes:
-      - name: mode1
-        file: src/mode1.md
-        installed_path: mode1.md
+    agents:
+      - name: agent1
+        file: src/agent1.md
+        installed_path: agent1.md
   
   cursor:
     rules:
@@ -153,7 +153,7 @@ agents:
     # Create referenced files
     src_dir = tmp_path / "src"
     src_dir.mkdir()
-    for fname in ["prompt1.md", "mode1.md", "rule1.md", "workflow1.md", "file1.md"]:
+    for fname in ["prompt1.md", "agent1.md", "rule1.md", "workflow1.md", "file1.md"]:
         (src_dir / fname).write_text("content")
 
     runner = CliRunner()
@@ -163,7 +163,7 @@ agents:
     assert "✓ Manifest is valid!" in result.output
     assert "copilot:" in result.output
     assert "✓ prompts (1 artifact)" in result.output
-    assert "✓ modes (1 artifact)" in result.output
+    assert "✓ agents (1 artifact)" in result.output
     assert "cursor:" in result.output
     assert "✓ rules (1 artifact)" in result.output
     assert "windsurf:" in result.output

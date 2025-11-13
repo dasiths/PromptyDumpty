@@ -348,8 +348,8 @@ def test_copilot_vscode_settings_integration(tmp_path):
     expected_path = ".github/prompts/test-prompts"
     assert "chat.promptFilesLocations" in settings
     assert expected_path in settings["chat.promptFilesLocations"]
-    assert "chat.modeFilesLocations" in settings
-    assert expected_path in settings["chat.modeFilesLocations"]
+    assert "chat.agentFilesLocations" in settings
+    assert expected_path in settings["chat.agentFilesLocations"]
 
     # Note: With typed structure, uninstall now properly handles multiple directories
 
@@ -362,8 +362,8 @@ def test_install_multiple_groups(tmp_path):
     # Create test files
     prompt_file = source_dir / "prompt.md"
     prompt_file.write_text("# Prompt")
-    mode_file = source_dir / "mode.md"
-    mode_file.write_text("# Mode")
+    agent_file = source_dir / "agent.md"
+    agent_file.write_text("# Agent")
 
     project_root = tmp_path / "project"
     project_root.mkdir()
@@ -375,12 +375,12 @@ def test_install_multiple_groups(tmp_path):
         prompt_file, Agent.COPILOT, "pkg", "prompt.md", artifact_type="prompts"
     )
     dest2, _ = installer.install_file(
-        mode_file, Agent.COPILOT, "pkg", "mode.md", artifact_type="modes"
+        agent_file, Agent.COPILOT, "pkg", "agent.md", artifact_type="agents"
     )
 
     # Verify files are in different type directories
     assert dest1 == project_root / ".github" / "prompts" / "pkg" / "prompt.md"
-    assert dest2 == project_root / ".github" / "modes" / "pkg" / "mode.md"
+    assert dest2 == project_root / ".github" / "agents" / "pkg" / "agent.md"
     assert dest1.exists()
     assert dest2.exists()
 
