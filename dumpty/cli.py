@@ -130,8 +130,12 @@ def select_categories(
             choices.append(cat.name)
         console.print()
 
-        # Get user input
-        selection = Prompt.ask('Enter numbers separated by spaces (e.g., "1 2")')
+        # Get user input - use plain input() to avoid any Click interaction
+        try:
+            selection = input('Enter numbers separated by spaces (e.g., "1 2"): ')
+        except (EOFError, KeyboardInterrupt):
+            console.print("\n[yellow]Installation cancelled[/]")
+            sys.exit(0)
 
         # Parse selection
         try:
@@ -148,7 +152,15 @@ def select_categories(
             sys.exit(1)
 
         # Convert to category names (deduplicate)
-        selected = list(dict.fromkeys([choices[i - 1] for i in indices]))
+        # IMPORTANT: We avoid dict.fromkeys() here due to a bizarre bug where it
+        # triggers Click's argument parser, causing category names to be interpreted
+        # as command-line arguments (e.g., "Got unexpected extra arguments (documentation planning)")
+        # Using manual deduplication instead.
+        temp_list = [choices[i - 1] for i in indices]
+        selected = []
+        for item in temp_list:
+            if item not in selected:
+                selected.append(item)
 
         return selected
 
