@@ -5,10 +5,10 @@ const tocItems = [
   { id: 'package-structure', title: 'Package Structure' },
   { id: 'manifest-file', title: 'The Manifest File' },
   { id: 'manifest-fields', title: 'Manifest Fields' },
-  { id: 'supported-agents', title: 'Agent-Specific Artifact Types' },
   { id: 'artifact-categories', title: 'Artifact Categories' },
   { id: 'external-repos', title: 'External Repository References' },
   { id: 'example-package', title: 'Complete Example' },
+  { id: 'supported-agents', title: 'Agent-Specific Artifact Types' },
   { id: 'publishing', title: 'Publishing Your Package' },
   { id: 'best-practices', title: 'Best Practices' },
 ]

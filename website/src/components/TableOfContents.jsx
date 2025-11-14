@@ -4,24 +4,41 @@ export default function TableOfContents({ items }) {
   const [activeId, setActiveId] = useState('')
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id)
-          }
-        })
-      },
-      { rootMargin: '-80px 0px -80% 0px' }
-    )
+    const handleScroll = () => {
+      // Get all section elements
+      const sections = items.map(item => ({
+        id: item.id,
+        element: document.getElementById(item.id)
+      })).filter(s => s.element)
 
-    // Observe all section headings
-    items.forEach((item) => {
-      const element = document.getElementById(item.id)
-      if (element) observer.observe(element)
-    })
+      // Find which section is currently in view
+      // We consider a section "active" if its top is above the middle of the screen
+      const scrollPosition = window.scrollY + 150 // 150px offset from top
 
-    return () => observer.disconnect()
+      // Go through sections in reverse order to find the last one that's above scroll position
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i]
+        const sectionTop = section.element.offsetTop
+
+        if (scrollPosition >= sectionTop) {
+          setActiveId(section.id)
+          return
+        }
+      }
+
+      // If we're at the very top, activate the first section
+      if (sections.length > 0) {
+        setActiveId(sections[0].id)
+      }
+    }
+
+    // Initial check
+    handleScroll()
+
+    // Add scroll listener
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [items])
 
   const scrollToSection = (id) => {
