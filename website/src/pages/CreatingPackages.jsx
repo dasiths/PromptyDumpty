@@ -154,19 +154,27 @@ agents:
   copilot:
     prompts:
       - name: code-review
+        description: Code review workflow
         file: src/review.md
+        installed_path: code-review.prompt.md
         categories: [development]
       
       - name: test-generator
+        description: Test generation prompt
         file: src/test-gen.md
+        installed_path: test-gen.prompt.md
         categories: [testing]
       
       - name: multi-tool
+        description: Multi-purpose development tool
         file: src/multi.md
+        installed_path: multi-tool.prompt.md
         categories: [development, testing]
       
       - name: standards
+        description: Universal coding standards
         file: src/standards.md
+        installed_path: standards.prompt.md
         # No categories = universal (always installed)`}
           </CodeBlock>
         </div>
@@ -315,9 +323,9 @@ agents:
       </section>
 
       <section id="example-package" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Example Package</h2>
+        <h2 className="text-3xl font-semibold mb-4">Complete Example</h2>
         <p className="text-slate-300 mb-4">
-          Here's a complete example of a code review workflow package:
+          Here's a complete example of a code review workflow package with categories:
         </p>
         
         <h3 className="text-xl font-semibold mb-3">Directory Structure</h3>
@@ -329,7 +337,8 @@ agents:
 └── src/                     # Organize however you want!
     ├── review-checklist.md
     ├── security-audit.md
-    └── performance-tips.md`}
+    ├── performance-tips.md
+    └── coding-standards.md`}
           </CodeBlock>
         </div>
 
@@ -344,6 +353,14 @@ license: MIT
 author: Development Team
 homepage: https://github.com/org/code-review-workflow
 
+categories:
+  - name: security
+    description: Security review and audit tools
+  - name: performance
+    description: Performance optimization workflows
+  - name: quality
+    description: Code quality and review standards
+
 agents:
   copilot:
     prompts:
@@ -351,28 +368,47 @@ agents:
         description: Code review checklist
         file: src/review-checklist.md
         installed_path: review.prompt.md
+        categories: [quality]
       
       - name: security-audit
         description: Security review guidelines
         file: src/security-audit.md
         installed_path: security.prompt.md
+        categories: [security]
+      
+      - name: performance-tips
+        description: Performance optimization guide
+        file: src/performance-tips.md
+        installed_path: performance.prompt.md
+        categories: [performance]
+      
+      - name: coding-standards
+        description: Universal coding standards (always installed)
+        file: src/coding-standards.md
+        installed_path: standards.prompt.md
+        # No categories = universal (always installed)
     agents:
       - name: review-mode
         description: Code review assistant agent
-        file: src/review-mode.md
+        file: src/review-checklist.md
         installed_path: code-review.agent.md
+        categories: [quality]
 
   cursor:
     rules:
       - name: review-standards
+        description: Code review standards
         file: src/review-checklist.md
         installed_path: review-standards.md
+        categories: [quality]
   
   claude:
     commands:
       - name: security-audit
+        description: Security audit command
         file: src/security-audit.md
-        installed_path: security-audit.md`}
+        installed_path: security-audit.md
+        categories: [security]`}
           </CodeBlock>
         </div>
       </section>
