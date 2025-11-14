@@ -1,0 +1,52 @@
+name: test-categorized
+version: 1.0.0
+description: Test package with categories
+manifest_version: 1.0
+author: Test Author
+license: MIT
+
+categories:
+  - name: development
+    description: Development workflows and planning
+  - name: testing
+    description: Testing and quality assurance
+  - name: documentation
+    description: Documentation generation
+
+agents:
+  copilot:
+    prompts:
+      - name: planning
+        description: Planning workflow
+        file: src/planning.md
+        installed_path: planning.prompt.md
+        categories: ["development"]
+      
+      - name: code-review
+        description: Code review prompt
+        file: src/review.md
+        installed_path: review.prompt.md
+        categories: ["development"]
+      
+      - name: test-generator
+        description: Test generation
+        file: src/test-gen.md
+        installed_path: test-gen.prompt.md
+        categories: ["testing"]
+      
+      - name: doc-generator
+        description: Documentation generator
+        file: src/doc-gen.md
+        installed_path: doc-gen.prompt.md
+        categories: ["documentation"]
+      
+      - name: multi-category
+        description: Useful for multiple workflows
+        file: src/multi.md
+        installed_path: multi.prompt.md
+        categories: ["development", "testing"]
+      
+      - name: standards
+        description: Universal standards (no categories)
+        file: src/standards.md
+        installed_path: standards.prompt.md

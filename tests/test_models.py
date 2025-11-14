@@ -578,3 +578,371 @@ def test_package_manifest_with_invalid_group_fixture():
         error_msg = str(exc_info.value)
         # Should fail because 'invalid_type' is not in Copilot's SUPPORTED_TYPES
         assert "invalid_type" in error_msg or "not supported" in error_msg
+
+
+# ============================================================================
+# Category Tests
+# ============================================================================
+
+
+def test_category_creation():
+    """Test creating Category instances."""
+    from dumpty.models import Category
+
+    cat = Category(name="development", description="Development workflows")
+    assert cat.name == "development"
+    assert cat.description == "Development workflows"
+
+
+def test_artifact_with_categories():
+    """Test creating Artifact with categories field."""
+    data = {
+        "name": "test-artifact",
+        "file": "src/test.md",
+        "installed_path": "test.md",
+        "categories": ["development", "testing"],
+    }
+    artifact = Artifact.from_dict(data)
+
+    assert artifact.categories == ["development", "testing"]
+
+
+def test_artifact_without_categories():
+    """Test creating Artifact without categories (universal)."""
+    data = {
+        "name": "test-artifact",
+        "file": "src/test.md",
+        "installed_path": "test.md",
+    }
+    artifact = Artifact.from_dict(data)
+
+    assert artifact.categories is None
+
+
+def test_artifact_categories_not_list():
+    """Test that non-list categories field raises error."""
+    data = {
+        "name": "test-artifact",
+        "file": "src/test.md",
+        "installed_path": "test.md",
+        "categories": "development",  # Should be list
+    }
+
+    with pytest.raises(ValueError, match="categories must be a list"):
+        Artifact.from_dict(data)
+
+
+def test_artifact_empty_categories_array(capsys):
+    """Test that empty categories array shows warning and becomes None."""
+    data = {
+        "name": "test-artifact",
+        "file": "src/test.md",
+        "installed_path": "test.md",
+        "categories": [],
+    }
+    artifact = Artifact.from_dict(data)
+
+    assert artifact.categories is None
+    captured = capsys.readouterr()
+    assert "Warning" in captured.out
+    assert "empty categories array" in captured.out
+
+
+def test_artifact_matches_categories_universal():
+    """Test universal artifact (no categories) always matches."""
+    artifact = Artifact(
+        name="test", description="", file="test.md", installed_path="test.md", categories=None
+    )
+
+    # Universal matches any selection
+    assert artifact.matches_categories(["dev"]) is True
+    assert artifact.matches_categories(["test", "prod"]) is True
+    assert artifact.matches_categories([]) is True
+    assert artifact.matches_categories(None) is True
+
+
+def test_artifact_matches_categories_all_selected():
+    """Test artifact matches when all categories selected (None)."""
+    artifact = Artifact(
+        name="test",
+        description="",
+        file="test.md",
+        installed_path="test.md",
+        categories=["development"],
+    )
+
+    assert artifact.matches_categories(None) is True
+
+
+def test_artifact_matches_categories_single_match():
+    """Test artifact with single category."""
+    artifact = Artifact(
+        name="test",
+        description="",
+        file="test.md",
+        installed_path="test.md",
+        categories=["development"],
+    )
+
+    assert artifact.matches_categories(["development"]) is True
+    assert artifact.matches_categories(["testing"]) is False
+    assert artifact.matches_categories(["development", "testing"]) is True
+
+
+def test_artifact_matches_categories_multiple():
+    """Test artifact with multiple categories."""
+    artifact = Artifact(
+        name="test",
+        description="",
+        file="test.md",
+        installed_path="test.md",
+        categories=["development", "testing"],
+    )
+
+    # Matches if ANY category is in selection
+    assert artifact.matches_categories(["development"]) is True
+    assert artifact.matches_categories(["testing"]) is True
+    assert artifact.matches_categories(["development", "testing"]) is True
+    assert artifact.matches_categories(["documentation"]) is False
+
+
+def test_manifest_with_categories(tmp_path):
+    """Test loading manifest with categories section."""
+    manifest_content = """
+name: test-package
+version: 1.0.0
+description: Test package with categories
+manifest_version: 1.0
+
+categories:
+  - name: development
+    description: Development workflows
+  - name: testing
+    description: Testing tools
+
+agents:
+  copilot:
+    prompts:
+      - name: dev-prompt
+        file: src/dev.md
+        installed_path: dev.md
+        categories: ["development"]
+      - name: test-prompt
+        file: src/test.md
+        installed_path: test.md
+        categories: ["testing"]
+"""
+    manifest_path = tmp_path / "dumpty.package.yaml"
+    manifest_path.write_text(manifest_content)
+
+    # Create source files
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "dev.md").write_text("# Dev")
+    (src_dir / "test.md").write_text("# Test")
+
+    manifest = PackageManifest.from_file(manifest_path)
+
+    assert manifest.categories is not None
+    assert len(manifest.categories) == 2
+    assert manifest.categories[0].name == "development"
+    assert manifest.categories[0].description == "Development workflows"
+    assert manifest.categories[1].name == "testing"
+
+
+def test_manifest_without_categories(tmp_path):
+    """Test loading manifest without categories (backward compat)."""
+    manifest_content = """
+name: test-package
+version: 1.0.0
+description: Test package
+manifest_version: 1.0
+
+agents:
+  copilot:
+    prompts:
+      - name: test-prompt
+        file: src/test.md
+        installed_path: test.md
+"""
+    manifest_path = tmp_path / "dumpty.package.yaml"
+    manifest_path.write_text(manifest_content)
+
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "test.md").write_text("# Test")
+
+    manifest = PackageManifest.from_file(manifest_path)
+
+    assert manifest.categories is None
+
+
+def test_manifest_invalid_category_name(tmp_path):
+    """Test that invalid category names are rejected."""
+    manifest_content = """
+name: test-package
+version: 1.0.0
+description: Test
+manifest_version: 1.0
+
+categories:
+  - name: dev/test
+    description: Invalid name with slash
+"""
+    manifest_path = tmp_path / "dumpty.package.yaml"
+    manifest_path.write_text(manifest_content)
+
+    with pytest.raises(ValueError, match="Invalid category name"):
+        PackageManifest.from_file(manifest_path)
+
+
+def test_manifest_duplicate_category_names(tmp_path):
+    """Test that duplicate category names are rejected."""
+    manifest_content = """
+name: test-package
+version: 1.0.0
+description: Test
+manifest_version: 1.0
+
+categories:
+  - name: development
+    description: First
+  - name: development
+    description: Duplicate
+"""
+    manifest_path = tmp_path / "dumpty.package.yaml"
+    manifest_path.write_text(manifest_content)
+
+    with pytest.raises(ValueError, match="Duplicate category name"):
+        PackageManifest.from_file(manifest_path)
+
+
+def test_manifest_undefined_category_reference(tmp_path):
+    """Test that undefined category references are caught."""
+    manifest_content = """
+name: test-package
+version: 1.0.0
+description: Test
+manifest_version: 1.0
+
+categories:
+  - name: development
+    description: Dev
+
+agents:
+  copilot:
+    prompts:
+      - name: test-prompt
+        file: src/test.md
+        installed_path: test.md
+        categories: ["testing"]
+"""
+    manifest_path = tmp_path / "dumpty.package.yaml"
+    manifest_path.write_text(manifest_content)
+
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (src_dir / "test.md").write_text("# Test")
+
+    with pytest.raises(ValueError, match="references undefined category"):
+        PackageManifest.from_file(manifest_path)
+
+
+def test_manifest_category_missing_name(tmp_path):
+    """Test that category without name is rejected."""
+    manifest_content = """
+name: test-package
+version: 1.0.0
+description: Test
+manifest_version: 1.0
+
+categories:
+  - description: Missing name
+"""
+    manifest_path = tmp_path / "dumpty.package.yaml"
+    manifest_path.write_text(manifest_content)
+
+    with pytest.raises(ValueError, match="Category missing required field: name"):
+        PackageManifest.from_file(manifest_path)
+
+
+def test_manifest_category_missing_description(tmp_path):
+    """Test that category without description is rejected."""
+    manifest_content = """
+name: test-package
+version: 1.0.0
+description: Test
+manifest_version: 1.0
+
+categories:
+  - name: development
+"""
+    manifest_path = tmp_path / "dumpty.package.yaml"
+    manifest_path.write_text(manifest_content)
+
+    with pytest.raises(ValueError, match="missing required field: description"):
+        PackageManifest.from_file(manifest_path)
+
+
+def test_installed_package_with_categories():
+    """Test InstalledPackage with installed_categories."""
+    package = InstalledPackage(
+        name="test-pkg",
+        version="1.0.0",
+        source="https://github.com/test/pkg",
+        source_type="git",
+        resolved="https://github.com/test/pkg@abc123",
+        installed_at="2025-01-01T00:00:00",
+        installed_for=["copilot"],
+        files={},
+        manifest_checksum="abc123",
+        installed_categories=["development", "testing"],
+    )
+
+    data = package.to_dict()
+    assert data["installed_categories"] == ["development", "testing"]
+
+    # Round-trip
+    restored = InstalledPackage.from_dict(data)
+    assert restored.installed_categories == ["development", "testing"]
+
+
+def test_installed_package_without_categories():
+    """Test InstalledPackage without categories (backward compat)."""
+    package = InstalledPackage(
+        name="test-pkg",
+        version="1.0.0",
+        source="https://github.com/test/pkg",
+        source_type="git",
+        resolved="https://github.com/test/pkg@abc123",
+        installed_at="2025-01-01T00:00:00",
+        installed_for=["copilot"],
+        files={},
+        manifest_checksum="abc123",
+    )
+
+    data = package.to_dict()
+    assert "installed_categories" not in data
+
+    # Round-trip
+    restored = InstalledPackage.from_dict(data)
+    assert restored.installed_categories is None
+
+
+def test_installed_package_from_old_lockfile():
+    """Test loading InstalledPackage from old lockfile without categories."""
+    data = {
+        "name": "test-pkg",
+        "version": "1.0.0",
+        "source": "https://github.com/test/pkg",
+        "source_type": "git",
+        "resolved": "https://github.com/test/pkg@abc123",
+        "installed_at": "2025-01-01T00:00:00",
+        "installed_for": ["copilot"],
+        "files": {},
+        "manifest_checksum": "abc123",
+        # No installed_categories field
+    }
+
+    package = InstalledPackage.from_dict(data)
+    assert package.installed_categories is None

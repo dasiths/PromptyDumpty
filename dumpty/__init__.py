@@ -2,6 +2,7 @@
 
 try:
     from importlib.metadata import version
+
     __version__ = version("prompty-dumpty")
 except Exception:
     # Fallback for development/editable installs

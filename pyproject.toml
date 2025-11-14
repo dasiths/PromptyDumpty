@@ -7,7 +7,7 @@ packages = ["dumpty"]
 
 [project]
 name = "prompty-dumpty"
-version = "0.6.0"
+version = "0.6.1"
 description = "Universal package manager for AI coding assistants"
 readme = "PYPI_README.md"
 requires-python = ">=3.8"

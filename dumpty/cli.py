@@ -4,15 +4,17 @@ import click
 import sys
 from pathlib import Path
 from datetime import datetime
+from typing import List, Optional
 from rich.console import Console
 from rich.table import Table
+from rich.prompt import Confirm, Prompt
 
 from dumpty import __version__
 from dumpty.agent_detector import Agent, AgentDetector
 from dumpty.downloader import PackageDownloader
 from dumpty.installer import FileInstaller
 from dumpty.lockfile import LockfileManager
-from dumpty.models import PackageManifest, InstalledPackage, InstalledFile
+from dumpty.models import PackageManifest, InstalledPackage, InstalledFile, Artifact
 from dumpty.utils import (
     calculate_checksum,
     parse_git_tags,
@@ -30,6 +32,148 @@ ASCII_ART = r"""
 ██████╔╝╚██████╔╝██║ ╚═╝ ██║██║        ██║      ██║           ╚██████╗███████╗██║
 ╚═════╝  ╚═════╝ ╚═╝     ╚═╝╚═╝        ╚═╝      ╚═╝            ╚═════╝╚══════╝╚═╝
 """
+
+
+def select_categories(
+    manifest: PackageManifest,
+    all_categories_flag: bool = False,
+    categories_flag: Optional[str] = None,
+    previous_selection: Optional[List[str]] = None,
+    is_update: bool = False,
+) -> Optional[List[str]]:
+    """Select categories for installation.
+
+    Args:
+        manifest: Package manifest with optional categories
+        all_categories_flag: If True, select all (skip prompts)
+        categories_flag: Comma-separated category names (e.g., "dev,test")
+        previous_selection: Previously installed categories (for updates)
+        is_update: Whether this is an update operation
+
+    Returns:
+        None for "all categories"
+        List of category names for specific selection
+
+    Raises:
+        ValueError: If categories_flag contains invalid category names
+        SystemExit: If user cancels (Ctrl+C)
+    """
+    # No categories in manifest - return None (install all)
+    if manifest.categories is None:
+        return None
+
+    # Handle CLI flags
+    if all_categories_flag:
+        return None  # Install all
+
+    if categories_flag:
+        # Parse and validate
+        selected = [c.strip() for c in categories_flag.split(",")]
+        defined = {cat.name for cat in manifest.categories}
+
+        invalid = set(selected) - defined
+        if invalid:
+            raise ValueError(
+                f"Invalid categories: {', '.join(invalid)}\n"
+                f"Available: {', '.join(sorted(defined))}"
+            )
+
+        return selected
+
+    # Non-interactive (no TTY) - default to all with warning
+    if not sys.stdin.isatty():
+        console.print("[yellow]Warning:[/] Non-interactive mode, installing all categories")
+        return None
+
+    # Interactive mode
+    console.print(f"\n[bold]Package:[/] {manifest.name} v{manifest.version}")
+    console.print(f"{manifest.description}\n")
+    console.print("This package has categorized artifacts:")
+
+    for cat in manifest.categories:
+        console.print(f"  - [cyan]{cat.name}[/]: {cat.description}")
+    console.print()
+
+    try:
+        # Step 1: Ask if user wants all
+        install_all = Confirm.ask("Install all categories?", default=True)
+
+        if install_all:
+            return None
+
+        # Step 2: For updates, offer previous selection
+        if is_update and previous_selection:
+            console.print(f"\nPreviously installed: [cyan]{', '.join(previous_selection)}[/]")
+            use_previous = Confirm.ask("Use previous selection?", default=True)
+
+            if use_previous:
+                # Validate previous selection still valid
+                defined = {cat.name for cat in manifest.categories}
+                still_valid = [cat for cat in previous_selection if cat in defined]
+
+                if len(still_valid) < len(previous_selection):
+                    removed = set(previous_selection) - set(still_valid)
+                    console.print(
+                        f"[yellow]Warning:[/] Categories removed from package: {', '.join(removed)}"
+                    )
+
+                if still_valid:
+                    return still_valid
+                else:
+                    console.print("[yellow]All previous categories removed, showing picker[/]\n")
+
+        # Step 3: Show category picker
+        console.print("\nSelect categories to install:")
+        choices = []
+        for i, cat in enumerate(manifest.categories, 1):
+            console.print(f"  {i}. [cyan]{cat.name}[/] - {cat.description}")
+            choices.append(cat.name)
+        console.print()
+
+        # Get user input
+        selection = Prompt.ask('Enter numbers separated by spaces (e.g., "1 2")')
+
+        # Parse selection
+        try:
+            indices = [int(x.strip()) for x in selection.split()]
+        except ValueError:
+            console.print("[red]Error:[/] Invalid input. Please enter numbers only.")
+            sys.exit(1)
+
+        # Validate indices
+        invalid_indices = [i for i in indices if i < 1 or i > len(choices)]
+        if invalid_indices:
+            console.print(f"[red]Error:[/] Invalid selection: {invalid_indices}")
+            console.print(f"Valid range: 1-{len(choices)}")
+            sys.exit(1)
+
+        # Convert to category names (deduplicate)
+        selected = list(dict.fromkeys([choices[i - 1] for i in indices]))
+
+        return selected
+
+    except (KeyboardInterrupt, EOFError):
+        console.print("\n[yellow]Installation cancelled[/]")
+        sys.exit(0)
+
+
+def filter_artifacts(
+    artifacts: List[Artifact], selected_categories: Optional[List[str]]
+) -> List[Artifact]:
+    """Filter artifacts based on category selection.
+
+    Args:
+        artifacts: List of artifacts to filter
+        selected_categories: None for all, or list of category names
+
+    Returns:
+        Filtered list of artifacts (preserves order)
+    """
+    if selected_categories is None:
+        # Install all
+        return artifacts
+
+    return [artifact for artifact in artifacts if artifact.matches_categories(selected_categories)]
 
 
 @click.group(
@@ -63,9 +207,34 @@ def cli(ctx):
     type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
     help="Project root directory. Defaults to git repository root or current directory.",
 )
-def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, project_root: Path):
+@click.option(
+    "--all-categories",
+    is_flag=True,
+    help="Install all categories without prompting (for categorized packages)",
+)
+@click.option(
+    "--categories",
+    help="Comma-separated category names to install (e.g., 'development,testing')",
+)
+def install(
+    package_url: str,
+    agent: str,
+    pkg_version: str,
+    pkg_commit: str,
+    project_root: Path,
+    all_categories: bool,
+    categories: str,
+):
     """Install a package from a Git repository."""
     try:
+        # Validate mutually exclusive category flags
+        if all_categories and categories:
+            console.print("[red]Error:[/] Cannot use both --all-categories and --categories")
+            console.print("Use one or the other:")
+            console.print("  --all-categories        : Install all categories")
+            console.print("  --categories dev,test   : Install specific categories")
+            sys.exit(1)
+
         # Determine project root
         project_root = get_project_root(project_root)
 
@@ -162,6 +331,26 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
                 console.print(f"  - {missing}")
             sys.exit(1)
 
+        # Category selection (only if manifest has categories)
+        selected_categories = select_categories(
+            manifest=manifest,
+            all_categories_flag=all_categories,
+            categories_flag=categories,
+            previous_selection=None,
+            is_update=False,
+        )
+
+        # Display selected categories
+        if manifest.categories and selected_categories is not None:
+            console.print(
+                f"\n[blue]Installing {manifest.name} v{manifest.version} for categories:[/] "
+                f"[cyan]{', '.join(selected_categories)}[/]"
+            )
+        elif manifest.categories:
+            console.print(
+                f"\n[blue]Installing {manifest.name} v{manifest.version} (all categories)[/]"
+            )
+
         # Install files for each agent
         installer = FileInstaller(project_root)
         lockfile = LockfileManager(project_root)
@@ -220,13 +409,26 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             # Get types and artifacts for this agent
             types = manifest.agents[agent_name]
 
-            # Count total artifacts across all types
-            total_artifacts = sum(len(artifacts) for artifacts in types.values())
+            # Apply category filtering to all artifacts
+            filtered_types = {}
+            total_artifacts = 0
+            for type_name, artifacts in types.items():
+                filtered = filter_artifacts(artifacts, selected_categories)
+                if filtered:  # Only include types with remaining artifacts
+                    filtered_types[type_name] = filtered
+                    total_artifacts += len(filtered)
+
+            if total_artifacts == 0:
+                console.print(
+                    f"[yellow]Warning:[/] No artifacts match selected categories for {target_agent.display_name}, skipping"
+                )
+                continue
+
             console.print(f"\n[cyan]{target_agent.display_name}[/] ({total_artifacts} artifacts):")
 
             # Prepare source files list for install_package (now with types)
             source_files = []
-            for type_name, artifacts in types.items():
+            for type_name, artifacts in filtered_types.items():
                 for artifact in artifacts:
                     source_files.append(
                         (source_dir / artifact.file, artifact.installed_path, type_name)
@@ -240,7 +442,7 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             # Process results for lockfile
             agent_files = []
             artifact_idx = 0
-            for type_name, artifacts in types.items():
+            for type_name, artifacts in filtered_types.items():
                 for artifact in artifacts:
                     dest_path, checksum = results[artifact_idx]
                     artifact_idx += 1
@@ -293,6 +495,7 @@ def install(package_url: str, agent: str, pkg_version: str, pkg_commit: str, pro
             installed_for=[a.name.lower() for a in target_agents],
             files=installed_files,
             manifest_checksum=manifest_checksum,
+            installed_categories=selected_categories,
             description=manifest.description,
             author=manifest.author,
             homepage=manifest.homepage,
@@ -550,11 +753,34 @@ def uninstall(package_name: str, agent: str, project_root: Path):
     type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
     help="Project root directory. Defaults to git repository root or current directory.",
 )
+@click.option(
+    "--all-categories",
+    is_flag=True,
+    help="Install all categories without prompting (for categorized packages)",
+)
+@click.option(
+    "--categories",
+    help="Comma-separated category names to install (e.g., 'development,testing')",
+)
 def update(
-    package_name: str, update_all: bool, target_version: str, target_commit: str, project_root: Path
+    package_name: str,
+    update_all: bool,
+    target_version: str,
+    target_commit: str,
+    project_root: Path,
+    all_categories: bool,
+    categories: str,
 ):
     """Update installed packages to newer versions."""
     try:
+        # Validate mutually exclusive category flags
+        if all_categories and categories:
+            console.print("[red]Error:[/] Cannot use both --all-categories and --categories")
+            console.print("Use one or the other:")
+            console.print("  --all-categories        : Install all categories")
+            console.print("  --categories dev,test   : Install specific categories")
+            sys.exit(1)
+
         # Determine project root
         project_root = get_project_root(project_root, warn=False)
 
@@ -766,6 +992,23 @@ def update(
                         console.print(f"    - {missing}")
                     continue
 
+                # Category selection (offer previous selection for updates)
+                selected_categories = select_categories(
+                    manifest=manifest,
+                    all_categories_flag=all_categories,
+                    categories_flag=categories,
+                    previous_selection=package.installed_categories,
+                    is_update=True,
+                )
+
+                # Display selected categories
+                if manifest.categories and selected_categories is not None:
+                    console.print(
+                        f"  [blue]Using categories:[/] [cyan]{', '.join(selected_categories)}[/]"
+                    )
+                elif manifest.categories:
+                    console.print(f"  [blue]Using all categories[/]")
+
                 # Uninstall old version
                 console.print("  [blue]Removing old version...[/]")
                 for agent_name in package.installed_for:
@@ -797,9 +1040,22 @@ def update(
                     # Get types and artifacts for this agent (nested structure)
                     types = manifest.agents[agent_name]
 
+                    # Apply category filtering to all artifacts
+                    filtered_types = {}
+                    for type_name, artifacts in types.items():
+                        filtered = filter_artifacts(artifacts, selected_categories)
+                        if filtered:  # Only include types with remaining artifacts
+                            filtered_types[type_name] = filtered
+
+                    if not filtered_types:
+                        console.print(
+                            f"    [yellow]Warning:[/] No artifacts match selected categories for {agent.display_name}, skipping"
+                        )
+                        continue
+
                     # Prepare source files list for install_package (now with types)
                     source_files = []
-                    for type_name, artifacts in types.items():
+                    for type_name, artifacts in filtered_types.items():
                         for artifact in artifacts:
                             source_files.append(
                                 (source_dir / artifact.file, artifact.installed_path, type_name)
@@ -813,7 +1069,7 @@ def update(
                     # Process results for lockfile
                     agent_files = []
                     artifact_idx = 0
-                    for type_name, artifacts in types.items():
+                    for type_name, artifacts in filtered_types.items():
                         for artifact in artifacts:
                             dest_path, checksum = results[artifact_idx]
                             artifact_idx += 1
@@ -858,6 +1114,7 @@ def update(
                     installed_for=package.installed_for,
                     files=installed_files,
                     manifest_checksum=manifest_checksum,
+                    installed_categories=selected_categories,
                     description=manifest.description,
                     author=manifest.author,
                     homepage=manifest.homepage,

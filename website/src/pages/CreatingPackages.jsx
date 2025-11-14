@@ -5,10 +5,10 @@ const tocItems = [
   { id: 'package-structure', title: 'Package Structure' },
   { id: 'manifest-file', title: 'The Manifest File' },
   { id: 'manifest-fields', title: 'Manifest Fields' },
-  { id: 'key-features', title: 'Key Features' },
-  { id: 'external-repos', title: 'External Repository References' },
-  { id: 'example-package', title: 'Example Package' },
   { id: 'supported-agents', title: 'Agent-Specific Artifact Types' },
+  { id: 'artifact-categories', title: 'Artifact Categories' },
+  { id: 'external-repos', title: 'External Repository References' },
+  { id: 'example-package', title: 'Complete Example' },
   { id: 'publishing', title: 'Publishing Your Package' },
   { id: 'best-practices', title: 'Best Practices' },
 ]
@@ -125,41 +125,120 @@ agents:
         </div>
       </section>
 
-      <section id="key-features" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Key Features</h2>
+      <section id="artifact-categories" className="mb-12 scroll-mt-24">
+        <h2 className="text-3xl font-semibold mb-4">Artifact Categories</h2>
         
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
-            <div className="text-3xl mb-3">🗂️</div>
-            <h3 className="text-xl font-semibold mb-2">Flexible Organization</h3>
-            <p className="text-slate-300">
-              Organize your source files however makes sense. The manifest maps them to installation paths.
+        <p className="text-slate-300 mb-4">
+          Categories allow users to selectively install artifacts from your package based on their workflow needs. For example, you might have development tools, testing tools, and documentation generators in one package.
+        </p>
+
+        <h3 className="text-xl font-semibold mb-3">Defining Categories</h3>
+        <p className="text-slate-300 mb-4">
+          Add a <code className="bg-slate-700 px-1.5 py-0.5 rounded">categories</code> section to your manifest:
+        </p>
+        <div className="border border-slate-700 mb-6">
+          <CodeBlock language="yaml">
+{`name: dev-tools
+version: 1.0.0
+manifest_version: 1.0
+
+categories:
+  - name: development
+    description: Tools for active development work
+  - name: testing
+    description: Testing and quality assurance prompts
+  - name: documentation
+    description: Documentation generation tools
+
+agents:
+  copilot:
+    prompts:
+      - name: code-review
+        file: src/review.md
+        categories: [development]
+      
+      - name: test-generator
+        file: src/test-gen.md
+        categories: [testing]
+      
+      - name: multi-tool
+        file: src/multi.md
+        categories: [development, testing]
+      
+      - name: standards
+        file: src/standards.md
+        # No categories = universal (always installed)`}
+          </CodeBlock>
+        </div>
+
+        <h3 className="text-xl font-semibold mb-3">Category Rules</h3>
+        <div className="space-y-4">
+          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
+            <h4 className="text-lg font-semibold mb-2 text-slate-200">Category Names</h4>
+            <p className="text-slate-300 text-sm mb-2">
+              Must match pattern: <code className="bg-slate-700 px-1.5 py-0.5 rounded text-primary-300">^[a-z0-9-]+$</code>
+            </p>
+            <p className="text-slate-400 text-sm">
+              ✅ Valid: <code className="text-slate-300">development</code>, <code className="text-slate-300">code-review</code>, <code className="text-slate-300">testing123</code><br />
+              ❌ Invalid: <code className="text-slate-300">Code Review</code>, <code className="text-slate-300">dev_tools</code>, <code className="text-slate-300">TESTING</code>
             </p>
           </div>
 
-          <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
-            <div className="text-3xl mb-3">♻️</div>
-            <h3 className="text-xl font-semibold mb-2">File Reuse</h3>
-            <p className="text-slate-300">
-              Use the same source file for multiple agents by mapping it to different installed paths.
+          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
+            <h4 className="text-lg font-semibold mb-2 text-slate-200">Universal Artifacts</h4>
+            <p className="text-slate-300 text-sm">
+              Artifacts without categories are <strong>always installed</strong>, regardless of user selection. Use this for essential files everyone needs (like coding standards or general guidelines).
             </p>
           </div>
 
-          <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
-            <div className="text-3xl mb-3">🎯</div>
-            <h3 className="text-xl font-semibold mb-2">Precise Control</h3>
-            <p className="text-slate-300">
-              Explicitly define where each file should be installed for each agent.
+          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
+            <h4 className="text-lg font-semibold mb-2 text-slate-200">Multi-Category Artifacts</h4>
+            <p className="text-slate-300 text-sm">
+              Artifacts can belong to multiple categories. They'll be installed if the user selects <strong>any</strong> of those categories.
             </p>
           </div>
+        </div>
 
-          <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
-            <div className="text-3xl mb-3">📦</div>
-            <h3 className="text-xl font-semibold mb-2">Multi-Agent Support</h3>
-            <p className="text-slate-300">
-              Create one package that works across all supported AI coding assistants.
-            </p>
-          </div>
+        <h3 className="text-xl font-semibold mb-3 mt-6">User Experience</h3>
+        <p className="text-slate-300 mb-4">
+          When users install a categorized package, they'll be prompted:
+        </p>
+        <div className="border border-slate-700 mb-4">
+          <CodeBlock language="bash">
+{`$ dumpty install https://github.com/org/dev-tools
+
+Install all categories? [Y/n]: n
+
+Select categories to install:
+  1. development - Tools for active development work
+  2. testing - Testing and quality assurance prompts
+  3. documentation - Documentation generation tools
+
+Enter category numbers (comma-separated): 1,2`}
+          </CodeBlock>
+        </div>
+
+        <h3 className="text-xl font-semibold mb-3">CLI Flags</h3>
+        <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
+          <ul className="space-y-2 text-slate-300 text-sm">
+            <li>
+              <code className="bg-slate-700 px-1.5 py-0.5 rounded text-primary-300">--all-categories</code> - Skip prompts, install all categories
+            </li>
+            <li>
+              <code className="bg-slate-700 px-1.5 py-0.5 rounded text-primary-300">--categories dev,test</code> - Install specific categories without prompts
+            </li>
+          </ul>
+        </div>
+
+        <h3 className="text-xl font-semibold mb-3 mt-6">Best Practices</h3>
+        <div className="bg-primary-900/30 border border-primary-700/50 rounded-lg p-5">
+          <ul className="space-y-2 text-slate-300 text-sm">
+            <li>✅ Keep it simple: 2-5 categories per package</li>
+            <li>✅ Use descriptive category names: <code className="text-slate-300">development</code> not <code className="text-slate-300">group1</code></li>
+            <li>✅ Leave universal artifacts untagged (no categories field)</li>
+            <li>✅ Multi-category sparingly - only for truly cross-cutting artifacts</li>
+            <li>✅ Validate with <code className="text-primary-300">dumpty validate-manifest</code></li>
+          </ul>
         </div>
       </section>
 

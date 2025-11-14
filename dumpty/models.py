@@ -3,7 +3,28 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 from pathlib import Path
+import re
 import yaml
+
+
+@dataclass
+class Category:
+    """Represents a category definition in manifest.
+
+    Categories allow package authors to organize artifacts into logical groups
+    (e.g., 'development', 'testing', 'documentation') so users can selectively
+    install only the categories they need.
+
+    Attributes:
+        name: Category identifier (alphanumeric, hyphens, underscores only)
+        description: Human-readable description shown during installation
+
+    Example:
+        Category(name="development", description="Development workflows and planning")
+    """
+
+    name: str
+    description: str
 
 
 @dataclass
@@ -26,16 +47,37 @@ class ExternalRepoInfo:
 
 @dataclass
 class Artifact:
-    """Represents a single artifact in a package."""
+    """Represents a single artifact in a package.
+
+    Attributes:
+        name: Artifact identifier
+        description: Human-readable description
+        file: Source file path (relative to package root)
+        installed_path: Destination path (relative to agent directory)
+        categories: Optional list of category names this artifact belongs to.
+                   If None or omitted, artifact is "universal" (always installed).
+                   If present, must reference categories defined in manifest.
+    """
 
     name: str
     description: str
     file: str  # Source file path (relative to package root)
     installed_path: str  # Destination path (relative to agent directory)
+    categories: Optional[List[str]] = None
 
     @classmethod
     def from_dict(cls, data: dict) -> "Artifact":
-        """Create Artifact from dictionary."""
+        """Create Artifact from dictionary.
+
+        Args:
+            data: Dictionary from YAML manifest
+
+        Returns:
+            Artifact instance
+
+        Raises:
+            ValueError: If paths are invalid or categories field is malformed
+        """
         # Validate paths for security
         file_path = data["file"]
         installed_path = data["installed_path"]
@@ -48,12 +90,61 @@ class Artifact:
                 f"Invalid installed path (absolute or contains '..'): {installed_path}"
             )
 
+        # Parse categories (optional field)
+        categories = data.get("categories")
+        if categories is not None:
+            if not isinstance(categories, list):
+                raise ValueError(
+                    f"Artifact '{data['name']}': categories must be a list, got {type(categories).__name__}"
+                )
+            if len(categories) == 0:
+                # Empty list - warn but treat as None (universal)
+                print(
+                    f"Warning: Artifact '{data['name']}' has empty categories array (treated as universal)"
+                )
+                categories = None
+
         return cls(
             name=data["name"],
             description=data.get("description", ""),
             file=file_path,
             installed_path=installed_path,
+            categories=categories,
         )
+
+    def matches_categories(self, selected: Optional[List[str]]) -> bool:
+        """Check if artifact should be installed for selected categories.
+
+        Args:
+            selected: List of selected category names, or None for "all categories"
+
+        Returns:
+            True if artifact should be installed, False otherwise
+
+        Logic:
+            - If artifact has no categories (universal): always True
+            - If selected is None (install all): always True
+            - Otherwise: True if any artifact category is in selected categories
+
+        Example:
+            artifact = Artifact(name="test", categories=["dev", "testing"])
+            artifact.matches_categories(["dev"])  # True (dev matches)
+            artifact.matches_categories(["docs"])  # False (no match)
+            artifact.matches_categories(None)  # True (install all)
+
+            universal = Artifact(name="std", categories=None)
+            universal.matches_categories(["dev"])  # True (universal)
+        """
+        # No categories on artifact = universal (always install)
+        if self.categories is None:
+            return True
+
+        # No selection (install all) = install everything
+        if selected is None:
+            return True
+
+        # Check if any of artifact's categories match selection
+        return any(cat in selected for cat in self.categories)
 
 
 @dataclass
@@ -69,6 +160,7 @@ class PackageManifest:
     license: Optional[str] = None
     dumpty_version: Optional[str] = None
     external_repository: Optional[str] = None  # Format: url@commit
+    categories: Optional[List[Category]] = None  # Category definitions
     agents: Dict[str, Dict[str, List[Artifact]]] = field(default_factory=dict)
 
     @classmethod
@@ -99,6 +191,41 @@ class PackageManifest:
                 f"This version of dumpty only supports manifest_version: 1.0\n"
                 f"Please update your manifest or use a compatible version of dumpty."
             )
+
+        # Parse categories (optional)
+        categories = None
+        if "categories" in data:
+            if not isinstance(data["categories"], list):
+                raise ValueError("categories must be a list")
+
+            categories = []
+            seen_names = set()
+
+            for cat_data in data["categories"]:
+                if not isinstance(cat_data, dict):
+                    raise ValueError(f"Category must be a dict, got {type(cat_data).__name__}")
+
+                if "name" not in cat_data:
+                    raise ValueError("Category missing required field: name")
+                if "description" not in cat_data:
+                    raise ValueError(
+                        f"Category '{cat_data.get('name')}' missing required field: description"
+                    )
+
+                name = cat_data["name"]
+
+                # Validate name format
+                if not re.match(r"^[a-zA-Z0-9_-]+$", name):
+                    raise ValueError(
+                        f"Invalid category name '{name}': must contain only letters, numbers, hyphens, and underscores"
+                    )
+
+                # Check for duplicates
+                if name in seen_names:
+                    raise ValueError(f"Duplicate category name: {name}")
+                seen_names.add(name)
+
+                categories.append(Category(name=name, description=cat_data["description"]))
 
         # Parse agents and artifacts with NESTED structure
         agents = {}
@@ -135,11 +262,15 @@ class PackageManifest:
             license=data.get("license"),
             dumpty_version=data.get("dumpty_version"),
             external_repository=data.get("external_repository"),
+            categories=categories,
             agents=agents,
         )
 
         # Validate types against agent registry
         manifest.validate_types()
+
+        # Validate category references
+        manifest.validate_categories()
 
         return manifest
 
@@ -172,6 +303,34 @@ class PackageManifest:
                         f"Invalid artifact type '{type_name}' for agent '{agent_name}'.\n"
                         f"Supported types: {', '.join(supported)}"
                     )
+
+    def validate_categories(self) -> None:
+        """Validate that artifact category references are defined.
+
+        Checks that all category names referenced by artifacts are actually
+        defined in the manifest's categories section.
+
+        Raises:
+            ValueError: If artifact references undefined category
+        """
+        if self.categories is None:
+            # No categories defined - artifacts shouldn't reference any
+            defined_names = set()
+        else:
+            defined_names = {cat.name for cat in self.categories}
+
+        # Check all artifacts
+        for agent_name, types in self.agents.items():
+            for type_name, artifacts in types.items():
+                for artifact in artifacts:
+                    if artifact.categories:
+                        for cat_name in artifact.categories:
+                            if cat_name not in defined_names:
+                                raise ValueError(
+                                    f"Artifact '{agent_name}/{type_name}/{artifact.name}' "
+                                    f"references undefined category: '{cat_name}'\n"
+                                    f"Defined categories: {', '.join(sorted(defined_names)) if defined_names else '(none)'}"
+                                )
 
     def validate_files_exist(self, package_root: Path) -> List[str]:
         """
@@ -269,6 +428,7 @@ class InstalledPackage:
     installed_for: List[str]  # List of agent names
     files: Dict[str, List[InstalledFile]]  # agent_name -> files
     manifest_checksum: str
+    installed_categories: Optional[List[str]] = None  # Categories selected during installation
     external_repo: Optional[ExternalRepoInfo] = None  # External repository info
     description: Optional[str] = None  # From manifest.description field
     author: Optional[str] = None  # From manifest.author field
@@ -300,6 +460,8 @@ class InstalledPackage:
         }
 
         # Add optional fields if present
+        if self.installed_categories is not None:
+            result["installed_categories"] = self.installed_categories
         if self.external_repo:
             result["external_repo"] = {
                 "source": self.external_repo.source,
@@ -343,6 +505,7 @@ class InstalledPackage:
             installed_for=data["installed_for"],
             files=files,
             manifest_checksum=data["manifest_checksum"],
+            installed_categories=data.get("installed_categories"),
             external_repo=external_repo,
             description=data.get("description"),
             author=data.get("author"),

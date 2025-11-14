@@ -1,0 +1,12 @@
+name: test-simple
+version: 1.0.0
+description: Test package without categories (backward compatibility)
+manifest_version: 1.0
+
+agents:
+  copilot:
+    prompts:
+      - name: simple-prompt
+        file: src/simple.md
+        installed_path: simple.md
+        description: A simple uncategorized prompt

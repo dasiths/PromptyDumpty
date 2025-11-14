@@ -40,12 +40,16 @@ export default function Documentation() {
               { flag: "--agent", description: "Install for specific agent (copilot, claude, etc.)" },
               { flag: "--version", description: "Install specific version tag (e.g., 1.2.0 or v1.2.0)" },
               { flag: "--commit", description: "Install from specific commit hash (skips version validation)" },
+              { flag: "--all-categories", description: "Install all artifact categories (skip category selection prompt)" },
+              { flag: "--categories", description: "Install specific categories (comma-separated, e.g., 'dev,test')" },
               { flag: "--project-root", description: "Project root directory. Defaults to git repository root or current directory." }
             ]}
             example={`dumpty install https://github.com/org/my-prompts
 dumpty install https://github.com/org/my-prompts --version 1.2.0
 dumpty install https://github.com/org/my-prompts --commit abc123def
-dumpty install https://github.com/org/my-prompts --agent copilot`}
+dumpty install https://github.com/org/my-prompts --agent copilot
+dumpty install https://github.com/org/my-prompts --categories development,testing
+dumpty install https://github.com/org/my-prompts --all-categories`}
           />
 
           <CommandDoc
@@ -70,14 +74,18 @@ dumpty install https://github.com/org/my-prompts --agent copilot`}
             command="dumpty update PACKAGE_NAME"
             description="Update a package to the latest version. Use the package name from the manifest (not the URL)."
             options={[
-              { flag: "--all", description: "Update all installed packages" },
+              { flag: "--all", description: "Update all installed packages (use instead of PACKAGE_NAME)" },
               { flag: "--version", description: "Update to specific version tag (e.g., 2.0.0 or v2.0.0)" },
               { flag: "--commit", description: "Update to specific commit hash (skips version validation)" },
+              { flag: "--all-categories", description: "Install all artifact categories without prompting (for categorized packages)" },
+              { flag: "--categories", description: "Install specific categories (comma-separated, e.g., 'development,testing')" },
               { flag: "--project-root", description: "Project root directory. Defaults to git repository root or current directory." }
             ]}
             example={`dumpty update my-prompts
 dumpty update my-prompts --version 2.0.0
 dumpty update my-prompts --commit abc123def
+dumpty update my-prompts --categories testing,documentation
+dumpty update my-prompts --all-categories
 dumpty update --all`}
           />
 
