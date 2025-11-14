@@ -132,14 +132,16 @@ def select_categories(
 
         # Get user input - use plain input() to avoid any Click interaction
         try:
-            selection = input('Enter numbers separated by spaces (e.g., "1 2"): ')
+            selection = input('Enter numbers (comma or space separated, e.g., "1 2" or "1,2"): ')
         except (EOFError, KeyboardInterrupt):
             console.print("\n[yellow]Installation cancelled[/]")
             sys.exit(0)
 
-        # Parse selection
+        # Parse selection - support both comma and space separated
         try:
-            indices = [int(x.strip()) for x in selection.split()]
+            # Replace commas with spaces, then split by whitespace
+            normalized = selection.replace(',', ' ')
+            indices = [int(x.strip()) for x in normalized.split() if x.strip()]
         except ValueError:
             console.print("[red]Error:[/] Invalid input. Please enter numbers only.")
             sys.exit(1)
