@@ -42,7 +42,7 @@ class OpencodeAgent(BaseAgent):
             True if OpenCode is detected
         """
         # Check for .opencode directory
-        if (project_root / ".opencode").exists():
+        if (project_root / ".opencode").is_dir():
             return True
 
         # Check for opencode.json configuration file
