@@ -1,6 +1,5 @@
 """Tests for OpenCode agent implementation."""
 
-from pathlib import Path
 from dumpty.agents.opencode import OpencodeAgent
 
 
