@@ -1,2 +1,2 @@
 // This version should match the version in pyproject.toml
-export const VERSION = '0.6.1'
+export const VERSION = '0.6.2'
