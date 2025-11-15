@@ -73,6 +73,7 @@ dumpty uninstall my-prompts
 - **Cline** (`.cline/`)
 - **Aider** (`.aider/`)
 - **Continue** (`.continue/`)
+- **OpenCode** (`.opencode/`)
 
 ## Usage Examples
 

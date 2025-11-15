@@ -10,7 +10,7 @@ A lightweight, universal package manager for AI coding assistants (prompts, inst
 
 ## What is it?
 
-PromptyDumpty lets you install and manage prompt packages across different AI coding assistants like GitHub Copilot, Claude, Cursor, Gemini, Windsurf, and more.
+PromptyDumpty lets you install and manage prompt packages across different AI coding assistants like GitHub Copilot, Claude, Cursor, Gemini, Windsurf, OpenCode, and more.
 
 ## Why?
 
@@ -292,6 +292,7 @@ make run ARGS='install https://github.com/org/my-prompts'
 - **Cline** (`.cline/`)
 - **Aider** (`.aider/`)
 - **Continue** (`.continue/`)
+- **OpenCode** (`.opencode/`)
 
 ## Project Structure
 

@@ -140,7 +140,7 @@ def select_categories(
         # Parse selection - support both comma and space separated
         try:
             # Replace commas with spaces, then split by whitespace
-            normalized = selection.replace(',', ' ')
+            normalized = selection.replace(",", " ")
             indices = [int(x.strip()) for x in normalized.split() if x.strip()]
         except ValueError:
             console.print("[red]Error:[/] Invalid input. Please enter numbers only.")

@@ -8,6 +8,7 @@ from dumpty.agents.windsurf import WindsurfAgent
 from dumpty.agents.cline import ClineAgent
 from dumpty.agents.aider import AiderAgent
 from dumpty.agents.continue_agent import ContinueAgent
+from dumpty.agents.opencode import OpencodeAgent
 
 
 class TestCopilotAgent:
@@ -467,3 +468,7 @@ class TestAllAgentsSupportedGroups:
     def test_continue_supported_types(self):
         """Test ContinueAgent has correct supported types (files only)."""
         assert ContinueAgent.SUPPORTED_TYPES == ["files"]
+
+    def test_opencode_supported_types(self):
+        """Test OpencodeAgent has correct supported types."""
+        assert OpencodeAgent.SUPPORTED_TYPES == ["commands", "files"]

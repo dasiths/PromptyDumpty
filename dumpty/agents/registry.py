@@ -83,6 +83,7 @@ def get_agent_by_name(name: str) -> Type[BaseAgent]:
     from .cline import ClineAgent
     from .aider import AiderAgent
     from .continue_agent import ContinueAgent
+    from .opencode import OpencodeAgent
 
     agents = {
         "copilot": CopilotAgent,
@@ -93,6 +94,7 @@ def get_agent_by_name(name: str) -> Type[BaseAgent]:
         "cline": ClineAgent,
         "aider": AiderAgent,
         "continue": ContinueAgent,
+        "opencode": OpencodeAgent,
     }
 
     agent_class = agents.get(name.lower())

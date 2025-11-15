@@ -1,0 +1,20 @@
+name: opencode-test-package
+version: 1.0.0
+description: Test package for OpenCode agent
+manifest_version: 1.0
+author: Test Author
+license: MIT
+
+agents:
+  opencode:
+    commands:
+      - name: test-command
+        description: Test command for OpenCode
+        file: src/test-command.md
+        installed_path: test-command.md
+    
+    files:
+      - name: helper
+        description: Helper instructions
+        file: src/helper.md
+        installed_path: helper.md

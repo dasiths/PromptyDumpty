@@ -542,4 +542,4 @@ class TestVersionCommand:
         result = cli_runner.invoke(cli, ["--version"])
 
         assert result.exit_code == 0
-        assert "0.6.2" in result.output
+        assert "0.7.0" in result.output
