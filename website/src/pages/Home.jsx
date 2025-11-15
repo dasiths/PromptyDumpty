@@ -15,7 +15,7 @@ export default function Home() {
             A lightweight, universal package manager for AI coding assistants
           </p>
           <p className="text-lg text-slate-400 mb-12 max-w-2xl mx-auto">
-            Install and manage prompts, instructions, rules, and workflows across GitHub Copilot, Claude, Cursor, Gemini, Windsurf, and more.
+            Install and manage prompts, instructions, rules, and workflows across GitHub Copilot, Claude, Cursor, Gemini, Windsurf, OpenCode, and more.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -109,13 +109,40 @@ dumpty list`}
       <section className="py-20 px-4 bg-slate-800/30">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold mb-12 text-center">Supported AI Coding Assistants</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            <AgentCard name="GitHub Copilot" icon="💻" />
-            <AgentCard name="Claude" icon="🤖" />
-            <AgentCard name="Cursor" icon="⚡" />
-            <AgentCard name="Gemini" icon="✨" />
-            <AgentCard name="Windsurf" icon="🏄" />
-            <AgentCard name="Cline" icon="🔮" />
+          <div className="flex flex-col items-center gap-1 max-w-4xl mx-auto">
+            {/* Row 1 - 4 bricks */}
+            <div className="flex gap-1">
+              <BrickCard name="GitHub Copilot" icon="💻" />
+              <BrickCard name="Claude" icon="🤖" />
+              <BrickCard name="Cursor" icon="⚡" />
+              <BrickCard empty />
+            </div>
+            
+            {/* Row 2 - 4 bricks (offset) */}
+            <div className="flex gap-1 -ml-24">
+              <BrickCard empty />
+              <BrickCard name="Gemini" icon="✨" />
+              <BrickCard name="Windsurf" icon="🏄" />
+              <BrickCard name="Cline" icon="🔮" />
+              <BrickCard empty />
+            </div>
+            
+            {/* Row 3 - 4 bricks */}
+            <div className="flex gap-1">
+              <BrickCard name="Aider" icon="🔧" />
+              <BrickCard name="Continue" icon="➡️" />
+              <BrickCard name="OpenCode" icon="🔓" />
+              <BrickCard empty />
+            </div>
+            
+            {/* Row 4 - 4 bricks (offset) */}
+            <div className="flex gap-1 -ml-24">
+              <BrickCard empty />
+              <BrickCard empty />
+              <BrickCard empty />
+              <BrickCard empty />
+              <BrickCard empty />
+            </div>
           </div>
         </div>
       </section>
@@ -154,6 +181,55 @@ function AgentCard({ name, icon }) {
     <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700 text-center hover:border-primary-600/50 transition-colors">
       <div className="text-4xl mb-2">{icon}</div>
       <div className="text-sm font-medium">{name}</div>
+    </div>
+  )
+}
+
+function HexagonCard({ name, icon }) {
+  return (
+    <div className="relative w-32 h-28 group">
+      {/* SVG Hexagon with border */}
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <polygon 
+          points="25,0 75,0 100,50 75,100 25,100 0,50" 
+          className="fill-slate-800/50 stroke-slate-600 stroke-[3] group-hover:stroke-primary-500 group-hover:fill-slate-700/50 transition-all duration-300"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      {/* Content */}
+      <div className="relative h-full flex flex-col items-center justify-center gap-1">
+        <div className="text-3xl">{icon}</div>
+        <div className="text-xs font-medium text-center px-2">{name}</div>
+      </div>
+    </div>
+  )
+}
+
+function BrickCard({ name, icon, empty }) {
+  if (empty) {
+    return (
+      <div className="bg-slate-800/30 border-2 border-slate-700/50 rounded-sm px-6 py-4 w-44 h-16" 
+           style={{
+             boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(255,255,255,0.05)'
+           }}>
+      </div>
+    )
+  }
+  
+  return (
+    <div className="bg-gradient-to-br from-slate-700/90 to-slate-800/90 border-2 border-slate-600 rounded-sm px-6 py-4 w-44 h-16 hover:border-primary-500 hover:from-slate-600/90 hover:to-slate-700/90 transition-all duration-300 group relative"
+         style={{
+           boxShadow: 'inset 2px 2px 4px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(255,255,255,0.08), 2px 2px 6px rgba(0,0,0,0.3)'
+         }}>
+      <div className="flex items-center gap-3 h-full">
+        <div className="text-2xl">{icon}</div>
+        <div className="text-sm font-semibold">{name}</div>
+      </div>
+      {/* Brick texture lines */}
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+        <div className="absolute top-1/3 left-0 right-0 h-px bg-slate-900"></div>
+        <div className="absolute top-2/3 left-0 right-0 h-px bg-slate-900"></div>
+      </div>
     </div>
   )
 }

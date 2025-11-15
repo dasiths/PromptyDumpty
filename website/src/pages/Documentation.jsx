@@ -134,9 +134,21 @@ dumpty update --all`}
                 <td className="py-2 pr-4">Windsurf</td>
                 <td className="py-2"><code>.windsurf/</code></td>
               </tr>
-              <tr>
+              <tr className="border-b border-slate-700/50">
                 <td className="py-2 pr-4">Cline</td>
                 <td className="py-2"><code>.cline/</code></td>
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-2 pr-4">Aider</td>
+                <td className="py-2"><code>.aider/</code></td>
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-2 pr-4">Continue</td>
+                <td className="py-2"><code>.continue/</code></td>
+              </tr>
+              <tr>
+                <td className="py-2 pr-4">OpenCode</td>
+                <td className="py-2"><code>.opencode/</code> or <code>opencode.json</code></td>
               </tr>
             </tbody>
           </table>

@@ -16,6 +16,7 @@ class Agent(Enum):
     CLINE = "cline"
     AIDER = "aider"
     CONTINUE = "continue"
+    OPENCODE = "opencode"
 
     def _get_impl(self):
         """Get the agent implementation for this enum member."""

@@ -27,7 +27,7 @@ def test_agent_all_names():
     assert "copilot" in names
     assert "claude" in names
     assert "cursor" in names
-    assert len(names) == 8  # Update this if you add more agents
+    assert len(names) == 9  # Update this if you add more agents
 
 
 def test_detect_agents_empty_project(tmp_path):
@@ -142,7 +142,7 @@ def test_agent_enum_backward_compatibility():
 
     # Can iterate through enum
     agents = list(Agent)
-    assert len(agents) == 8
+    assert len(agents) == 9
 
     # Enum comparison works
     assert Agent.COPILOT == Agent.COPILOT
@@ -195,7 +195,7 @@ def test_agent_from_name_backward_compatible():
 def test_agent_all_names_backward_compatible():
     """Test that all_names still works."""
     names = Agent.all_names()
-    assert len(names) == 8
+    assert len(names) == 9
     assert "copilot" in names
     assert "claude" in names
     assert "cursor" in names

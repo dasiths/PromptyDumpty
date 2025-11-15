@@ -12,6 +12,7 @@ from .windsurf import WindsurfAgent
 from .cline import ClineAgent
 from .aider import AiderAgent
 from .continue_agent import ContinueAgent
+from .opencode import OpencodeAgent
 
 # Initialize registry and register all agents
 _registry = AgentRegistry()
@@ -23,6 +24,7 @@ _registry.register(WindsurfAgent())
 _registry.register(ClineAgent())
 _registry.register(AiderAgent())
 _registry.register(ContinueAgent())
+_registry.register(OpencodeAgent())
 
 # Public exports
 __all__ = [
@@ -36,4 +38,5 @@ __all__ = [
     "ClineAgent",
     "AiderAgent",
     "ContinueAgent",
+    "OpencodeAgent",
 ]

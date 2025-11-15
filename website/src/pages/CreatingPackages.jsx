@@ -425,84 +425,101 @@ agents:
           </p>
         </div>
 
-        <div className="space-y-4">
-          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <span className="text-primary-400">GitHub Copilot</span>
-              <code className="text-sm text-slate-400 font-normal">.github/</code>
-            </h3>
-            <p className="text-slate-300 mb-2">
-              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">prompts</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">agents</code>
-            </p>
-            <p className="text-slate-400 text-sm">
-              Supports custom prompts and agents for the Copilot chat interface
-            </p>
-          </div>
-
-          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <span className="text-primary-400">Claude</span>
-              <code className="text-sm text-slate-400 font-normal">.claude/</code>
-            </h3>
-            <p className="text-slate-300 mb-2">
-              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">agents</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">commands</code>
-            </p>
-            <p className="text-slate-400 text-sm">
-              Supports agent configurations and custom commands
-            </p>
-          </div>
-
-          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <span className="text-primary-400">Cursor</span>
-              <code className="text-sm text-slate-400 font-normal">.cursor/</code>
-            </h3>
-            <p className="text-slate-300 mb-2">
-              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">rules</code>
-            </p>
-            <p className="text-slate-400 text-sm">
-              Supports custom rules that guide Cursor's behavior
-            </p>
-          </div>
-
-          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <span className="text-primary-400">Windsurf</span>
-              <code className="text-sm text-slate-400 font-normal">.windsurf/</code>
-            </h3>
-            <p className="text-slate-300 mb-2">
-              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">workflows</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">rules</code>
-            </p>
-            <p className="text-slate-400 text-sm">
-              Supports custom workflows and rules
-            </p>
-          </div>
-
-          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <span className="text-primary-400">Cline</span>
-              <code className="text-sm text-slate-400 font-normal">.cline/</code>
-            </h3>
-            <p className="text-slate-300 mb-2">
-              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">rules</code>, <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">workflows</code>
-            </p>
-            <p className="text-slate-400 text-sm">
-              Supports rules and workflows for customization
-            </p>
-          </div>
-
-          <div className="bg-slate-800/50 rounded-lg p-5 border border-slate-700">
-            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-              <span className="text-primary-400">Gemini / Aider / Continue</span>
-              <code className="text-sm text-slate-400 font-normal">.gemini/ .aider/ .continue/</code>
-            </h3>
-            <p className="text-slate-300 mb-2">
-              <strong>Types:</strong> <code className="bg-slate-700 px-1.5 py-0.5 rounded text-sm">files</code> only
-            </p>
-            <p className="text-slate-400 text-sm">
-              These agents only support the universal files type for generic artifacts
-            </p>
-          </div>
+        <div className="bg-slate-800/50 rounded-lg border border-slate-700 overflow-hidden">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-slate-700">
+                <th className="py-3 px-4 text-slate-200 font-semibold">Agent</th>
+                <th className="py-3 px-4 text-slate-200 font-semibold">Directory</th>
+                <th className="py-3 px-4 text-slate-200 font-semibold">Supported Types</th>
+                <th className="py-3 px-4 text-slate-200 font-semibold">Notes</th>
+              </tr>
+            </thead>
+            <tbody className="text-slate-300">
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 font-medium text-primary-400">GitHub Copilot</td>
+                <td className="py-3 px-4"><code className="text-sm">.github/</code></td>
+                <td className="py-3 px-4">
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">prompts</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">agents</code>
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-400">Custom prompts and agents for chat</td>
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 font-medium text-primary-400">Claude</td>
+                <td className="py-3 px-4"><code className="text-sm">.claude/</code></td>
+                <td className="py-3 px-4">
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">agents</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">commands</code>
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-400">Agent configs and custom commands</td>
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 font-medium text-primary-400">Cursor</td>
+                <td className="py-3 px-4"><code className="text-sm">.cursor/</code></td>
+                <td className="py-3 px-4">
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">rules</code>
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-400">Custom rules for behavior</td>
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 font-medium text-primary-400">Windsurf</td>
+                <td className="py-3 px-4"><code className="text-sm">.windsurf/</code></td>
+                <td className="py-3 px-4">
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">workflows</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">rules</code>
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-400">Workflows and rules</td>
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 font-medium text-primary-400">Cline</td>
+                <td className="py-3 px-4"><code className="text-sm">.cline/</code></td>
+                <td className="py-3 px-4">
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">rules</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">workflows</code>
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-400">Rules and workflows</td>
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 font-medium text-primary-400">OpenCode</td>
+                <td className="py-3 px-4"><code className="text-sm">.opencode/</code></td>
+                <td className="py-3 px-4">
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">commands</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-400">Commands install to command/ (singular)</td>
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 font-medium text-primary-400">Gemini</td>
+                <td className="py-3 px-4"><code className="text-sm">.gemini/</code></td>
+                <td className="py-3 px-4">
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-400">Files only</td>
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 font-medium text-primary-400">Aider</td>
+                <td className="py-3 px-4"><code className="text-sm">.aider/</code></td>
+                <td className="py-3 px-4">
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-400">Files only</td>
+              </tr>
+              <tr>
+                <td className="py-3 px-4 font-medium text-primary-400">Continue</td>
+                <td className="py-3 px-4"><code className="text-sm">.continue/</code></td>
+                <td className="py-3 px-4">
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-400">Files only</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
