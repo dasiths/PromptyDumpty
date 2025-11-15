@@ -45,6 +45,7 @@ def test_agents_module_structure():
         "ClineAgent",
         "AiderAgent",
         "ContinueAgent",
+        "OpencodeAgent",
     ]
 
     for name in expected_exports:

@@ -51,8 +51,8 @@ class TestOpencodeAgent:
         """Test detection when .opencode is a file not directory."""
         (tmp_path / ".opencode").touch()  # File, not directory
         agent = OpencodeAgent()
-        # Should still return True (exists() returns True for files)
-        assert agent.is_configured(tmp_path) is True
+        # Should return False - only directories are valid
+        assert agent.is_configured(tmp_path) is False
 
     def test_detection_empty_directory(self, tmp_path):
         """Test detection with empty .opencode directory."""
