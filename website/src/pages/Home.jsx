@@ -224,26 +224,6 @@ function AgentCard({ name, icon }) {
   )
 }
 
-function HexagonCard({ name, icon }) {
-  return (
-    <div className="relative w-32 h-28 group">
-      {/* SVG Hexagon with border */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <polygon 
-          points="25,0 75,0 100,50 75,100 25,100 0,50" 
-          className="fill-slate-800/50 stroke-slate-600 stroke-[3] group-hover:stroke-primary-500 group-hover:fill-slate-700/50 transition-all duration-300"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-      {/* Content */}
-      <div className="relative h-full flex flex-col items-center justify-center gap-1">
-        <div className="text-3xl">{icon}</div>
-        <div className="text-xs font-medium text-center px-2">{name}</div>
-      </div>
-    </div>
-  )
-}
-
 function BrickCard({ name, icon, empty, mobile }) {
   if (empty) {
     return (
