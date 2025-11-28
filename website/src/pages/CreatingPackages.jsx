@@ -64,7 +64,7 @@ agents:
         description: Coding standards agent
         file: src/standards.md
         installed_path: standards.agent.md
-  
+
   claude:
     commands:
       - name: code-review
@@ -442,9 +442,11 @@ agents:
                 <td className="py-3 px-4">
                   <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">files</code>{' '}
                   <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">prompts</code>{' '}
-                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">agents</code>
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">agents</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">instructions</code>{' '}
+                  <code className="bg-slate-700 px-1.5 py-0.5 rounded text-xs">chatmodes</code>
                 </td>
-                <td className="py-3 px-4 text-sm text-slate-400">Custom prompts and agents for chat</td>
+                <td className="py-3 px-4 text-sm text-slate-400">Prompts, custom agents, repository instructions, and chat modes</td>
               </tr>
               <tr className="border-b border-slate-700/50">
                 <td className="py-3 px-4 font-medium text-primary-400">Claude</td>
