@@ -74,9 +74,13 @@ class TestCopilotAgent:
         assert ".github/prompts/test-package" in settings["chat.promptFilesLocations"]
         assert settings["chat.promptFilesLocations"][".github/prompts/test-package"] is True
 
-        assert "chat.agentFilesLocations" in settings
-        assert ".github/prompts/test-package" in settings["chat.agentFilesLocations"]
-        assert settings["chat.agentFilesLocations"][".github/prompts/test-package"] is True
+        assert "chat.instructionsFilesLocations" in settings
+        assert ".github/prompts/test-package" in settings["chat.instructionsFilesLocations"]
+        assert settings["chat.instructionsFilesLocations"][".github/prompts/test-package"] is True
+
+        assert "chat.modeFilesLocations" in settings
+        assert ".github/prompts/test-package" in settings["chat.modeFilesLocations"]
+        assert settings["chat.modeFilesLocations"][".github/prompts/test-package"] is True
 
     def test_post_install_updates_existing_settings(self, tmp_path):
         """Test post_install updates existing VS Code settings."""
@@ -179,7 +183,11 @@ class TestCopilotAgent:
                 ".github/prompts/test-package": True,
                 ".github/prompts/other-package": True,
             },
-            "chat.agentFilesLocations": {
+            "chat.instructionsFilesLocations": {
+                ".github/prompts/test-package": True,
+                ".github/prompts/other-package": True,
+            },
+            "chat.modeFilesLocations": {
                 ".github/prompts/test-package": True,
                 ".github/prompts/other-package": True,
             },
@@ -204,8 +212,10 @@ class TestCopilotAgent:
 
         assert ".github/prompts/test-package" not in settings["chat.promptFilesLocations"]
         assert ".github/prompts/other-package" in settings["chat.promptFilesLocations"]
-        assert ".github/prompts/test-package" not in settings["chat.agentFilesLocations"]
-        assert ".github/prompts/other-package" in settings["chat.agentFilesLocations"]
+        assert ".github/prompts/test-package" not in settings["chat.instructionsFilesLocations"]
+        assert ".github/prompts/other-package" in settings["chat.instructionsFilesLocations"]
+        assert ".github/prompts/test-package" not in settings["chat.modeFilesLocations"]
+        assert ".github/prompts/other-package" in settings["chat.modeFilesLocations"]
 
     def test_post_uninstall_no_settings_file(self, tmp_path):
         """Test post_uninstall when settings file doesn't exist."""
@@ -439,7 +449,13 @@ class TestAllAgentsSupportedGroups:
 
     def test_copilot_supported_types(self):
         """Test CopilotAgent has correct supported types."""
-        assert CopilotAgent.SUPPORTED_TYPES == ["files", "prompts", "agents"]
+        assert CopilotAgent.SUPPORTED_TYPES == [
+            "files",
+            "prompts",
+            "agents",
+            "instructions",
+            "chatmodes",
+        ]
 
     def test_cursor_supported_types(self):
         """Test CursorAgent has correct supported types."""

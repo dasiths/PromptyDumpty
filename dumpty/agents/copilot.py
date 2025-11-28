@@ -9,8 +9,16 @@ from .base import BaseAgent
 class CopilotAgent(BaseAgent):
     """GitHub Copilot agent implementation."""
 
-    # Copilot supports prompts and agents in addition to universal files
-    SUPPORTED_TYPES: List[str] = ["files", "prompts", "agents"]
+    # Copilot supports prompts, agents, instructions, and chatmodes in addition to universal files
+    # Reference: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/chat/common/promptSyntax/config/promptFileLocations.ts
+    # Reference: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/chat/common/promptSyntax/config/config.ts
+    #
+    # Artifact Types and their configuration:
+    # - "prompts"      → .github/prompts       (chat.promptFilesLocations, extension: .prompt.md)
+    # - "agents"       → .github/agents        (auto-discovered, no setting, extension: .agent.md or .md)
+    # - "instructions" → .github/instructions  (chat.instructionsFilesLocations, extension: .instructions.md)
+    # - "chatmodes"    → .github/chatmodes     (chat.modeFilesLocations, extension: .chatmode.md - legacy)
+    SUPPORTED_TYPES: List[str] = ["files", "prompts", "agents", "instructions", "chatmodes"]
 
     @property
     def name(self) -> str:
@@ -46,8 +54,14 @@ class CopilotAgent(BaseAgent):
         """
         Update VS Code settings to include new prompt file locations.
 
-        Adds the installed package paths to chat.promptFilesLocations and
-        chat.agentFilesLocations in .vscode/settings.json.
+        Adds the installed package paths to chat.promptFilesLocations,
+        chat.instructionsFilesLocations, and chat.modeFilesLocations
+        in .vscode/settings.json.
+
+        Note: Agents are auto-discovered from .github/agents/ and don't require
+        a VS Code setting.
+
+        Reference: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/chat/common/promptSyntax/config/config.ts
 
         Args:
             project_root: Root directory of the project
@@ -83,11 +97,17 @@ class CopilotAgent(BaseAgent):
             if package_path not in settings["chat.promptFilesLocations"]:
                 settings["chat.promptFilesLocations"][package_path] = True
 
-            # Add to agentFilesLocations if not already present
-            if "chat.agentFilesLocations" not in settings:
-                settings["chat.agentFilesLocations"] = {}
-            if package_path not in settings["chat.agentFilesLocations"]:
-                settings["chat.agentFilesLocations"][package_path] = True
+            # Add to instructionsFilesLocations if not already present
+            if "chat.instructionsFilesLocations" not in settings:
+                settings["chat.instructionsFilesLocations"] = {}
+            if package_path not in settings["chat.instructionsFilesLocations"]:
+                settings["chat.instructionsFilesLocations"][package_path] = True
+
+            # Add to modeFilesLocations if not already present
+            if "chat.modeFilesLocations" not in settings:
+                settings["chat.modeFilesLocations"] = {}
+            if package_path not in settings["chat.modeFilesLocations"]:
+                settings["chat.modeFilesLocations"][package_path] = True
 
         # Save settings
         settings_file.parent.mkdir(parents=True, exist_ok=True)
@@ -100,8 +120,14 @@ class CopilotAgent(BaseAgent):
         """
         Remove package paths from VS Code settings.
 
-        Removes the package paths from chat.promptFilesLocations and
-        chat.agentFilesLocations in .vscode/settings.json.
+        Removes the package paths from chat.promptFilesLocations,
+        chat.instructionsFilesLocations, and chat.modeFilesLocations
+        in .vscode/settings.json.
+
+        Note: Agents are auto-discovered from .github/agents/ and don't require
+        a VS Code setting.
+
+        Reference: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/chat/common/promptSyntax/config/config.ts
 
         Args:
             project_root: Root directory of the project
@@ -133,10 +159,15 @@ class CopilotAgent(BaseAgent):
                 if package_path in settings["chat.promptFilesLocations"]:
                     del settings["chat.promptFilesLocations"][package_path]
 
-            # Remove from agentFilesLocations
-            if "chat.agentFilesLocations" in settings:
-                if package_path in settings["chat.agentFilesLocations"]:
-                    del settings["chat.agentFilesLocations"][package_path]
+            # Remove from instructionsFilesLocations
+            if "chat.instructionsFilesLocations" in settings:
+                if package_path in settings["chat.instructionsFilesLocations"]:
+                    del settings["chat.instructionsFilesLocations"][package_path]
+
+            # Remove from modeFilesLocations
+            if "chat.modeFilesLocations" in settings:
+                if package_path in settings["chat.modeFilesLocations"]:
+                    del settings["chat.modeFilesLocations"][package_path]
 
         # Save settings
         with open(settings_file, "w") as f:

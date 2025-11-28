@@ -343,13 +343,15 @@ def test_copilot_vscode_settings_integration(tmp_path):
     with open(settings_file) as f:
         settings = json.load(f)
 
-    # Check that package path was added to both settings
+    # Check that package path was added to settings
     # With artifact types, the path now includes the type folder
     expected_path = ".github/prompts/test-prompts"
     assert "chat.promptFilesLocations" in settings
     assert expected_path in settings["chat.promptFilesLocations"]
-    assert "chat.agentFilesLocations" in settings
-    assert expected_path in settings["chat.agentFilesLocations"]
+    assert "chat.instructionsFilesLocations" in settings
+    assert expected_path in settings["chat.instructionsFilesLocations"]
+    assert "chat.modeFilesLocations" in settings
+    assert expected_path in settings["chat.modeFilesLocations"]
 
     # Note: With typed structure, uninstall now properly handles multiple directories
 

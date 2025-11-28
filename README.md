@@ -84,7 +84,12 @@ agents:
         description: Coding standards agent
         file: src/standards.md
         installed_path: standards.agent.md
-  
+    instructions:
+      - name: repo-guidelines
+        description: Repository-specific coding guidelines
+        file: src/guidelines.md
+        installed_path: guidelines.instructions.md
+
   claude:
     commands:
       - name: code-review
