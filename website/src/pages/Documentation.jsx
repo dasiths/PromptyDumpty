@@ -170,7 +170,7 @@ dumpty update --all`}
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
             <h3 className="text-lg font-semibold mb-2 text-primary-400">GitHub Copilot</h3>
             <p className="text-slate-300 mb-3">
-              Automatically updates VS Code workspace settings to register package directories for prompts, repository instructions, and chat modes. Agents are auto-discovered from <code>.github/agents/</code>.
+              Automatically updates VS Code workspace settings to register package directories for prompts, repository instructions, and chat modes.
             </p>
             <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
               <p className="text-xs text-slate-400 mb-2">Updates <code>.vscode/settings.json</code>:</p>
@@ -189,7 +189,7 @@ dumpty update --all`}
               </CodeBlock>
             </div>
             <p className="text-slate-400 text-sm mt-3">
-              This ensures GitHub Copilot can discover and use the installed prompts, repository instructions, and chat modes. Agents in <code>.github/agents/</code> are discovered automatically without requiring settings. All settings are automatically cleaned up on uninstall.
+              This ensures GitHub Copilot can discover and use the installed prompts, repository instructions, and chat modes. All settings are automatically cleaned up on uninstall.
             </p>
             <p className="text-slate-500 text-xs mt-2">
               Reference: <a href="https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/chat/common/promptSyntax/config/config.ts" className="text-primary-400 hover:underline" target="_blank" rel="noopener noreferrer">VS Code source</a>

@@ -16,10 +16,8 @@ export default function Layout() {
                 <span className="text-xl font-bold text-white">PromptyDumpty</span>
                 <span className="text-xs text-slate-400">v{VERSION}</span>
               </div>
-            </Link>
-            
-            {/* Desktop Menu */}
-            <div className="hidden md:flex space-x-8">
+            </Link>            {/* Desktop Menu */}
+            <div className="hidden md:flex space-x-8 items-center">
               <Link to="/" className="text-slate-300 hover:text-white transition-colors">
                 Home
               </Link>
@@ -109,10 +107,20 @@ export default function Layout() {
           <div className="text-center text-slate-400">
             <p>© 2025 PromptyDumpty. Licensed under MIT.</p>
             <p className="mt-2">
-              Visit us at{' '}
-              <a href="https://dumpty.dev" className="text-primary-400 hover:text-primary-300">
-                dumpty.dev
+              <a href="https://github.com/dasiths/PromptyDumpty" className="text-primary-400 hover:text-primary-300">
+                GitHub
               </a>
+              {' • '}
+              <a href="https://github.com/dasiths/PromptyDumpty/issues" className="text-primary-400 hover:text-primary-300">
+                Submit Issues
+              </a>
+              {' • '}
+              <a href="mailto:info@dumpty.dev" className="text-primary-400 hover:text-primary-300">
+                Contact
+              </a>
+            </p>
+            <p className="mt-2 text-sm">
+              Developed using GitHub Copilot
             </p>
           </div>
         </div>

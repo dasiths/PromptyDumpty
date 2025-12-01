@@ -22,25 +22,25 @@ export default function CreatingPackages() {
         <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-6 mb-12">
           <h2 className="text-2xl font-semibold mb-4 text-blue-300">Why Create Packages?</h2>
           <p className="text-slate-300 mb-4">
-            Package your prompts once, distribute everywhere. Instead of maintaining separate copies 
-            for different AI tools or manually syncing team prompts, create a package.
+            Turn your existing repository into a distributable package. Create a manifest to index your prompts, 
+            scripts, configs, and other assets - then let consumers install them with one command.
           </p>
           <div className="space-y-3 text-slate-300">
             <div className="flex items-start gap-3">
               <span className="text-emerald-400 font-bold">✓</span>
-              <span>Share your team's coding standards and workflows</span>
+              <span>Index existing repo assets (prompts, scripts, configs, docs)</span>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-emerald-400 font-bold">✓</span>
-              <span>Version and update prompts without manual distribution</span>
+              <span>Support multiple AI assistants from a single manifest</span>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-emerald-400 font-bold">✓</span>
-              <span>Support multiple AI assistants from one codebase</span>
+              <span>Version your assets using Git tags</span>
             </div>
             <div className="flex items-start gap-3">
               <span className="text-emerald-400 font-bold">✓</span>
-              <span>Let others discover and use your prompt collections</span>
+              <span>Let consumers discover and install your work instantly</span>
             </div>
           </div>
         </div>
@@ -50,7 +50,8 @@ export default function CreatingPackages() {
             <a href="#package-structure" className="hover:text-primary-400 transition-colors">Package Structure</a>
           </h2>
         <p className="text-slate-300 mb-4">
-          A PromptyDumpty package is simply a Git repository with a <code>dumpty.package.yaml</code> manifest file. You can organize your files however you want!
+          A PromptyDumpty package is simply a Git repository with a <code>dumpty.package.yaml</code> manifest file that indexes your assets. 
+          Keep your existing file structure - the manifest tells Dumpty what to install and where.
         </p>
         <div className="border border-slate-700 mb-6">
           <CodeBlock language="bash">
@@ -70,7 +71,8 @@ export default function CreatingPackages() {
           <a href="#manifest-file" className="hover:text-primary-400 transition-colors">The Manifest File</a>
         </h2>
         <p className="text-slate-300 mb-4">
-          The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent. Files are organized by type (prompts, agents, rules, etc.):
+          The <code>dumpty.package.yaml</code> manifest indexes your repository's assets and defines what gets installed for each AI agent. 
+          Organize files by type (prompts, agents, rules, commands) or use the generic <code>files</code> type for scripts, configs, and other assets.
         </p>
         <div className="border border-slate-700 mb-6">
           <CodeBlock language="yaml">

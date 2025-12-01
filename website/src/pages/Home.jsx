@@ -111,34 +111,34 @@ dumpty list`}
             <h3 className="text-2xl font-semibold mb-6 text-center text-primary-400">For Package Consumers</h3>
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               <FeatureCard
-                icon="🎯"
-                title="Zero Config"
-                description="Auto-detects your AI agent. Just install and go—no setup required."
+                icon="🚀"
+                title="One Command Install"
+                description="No manual file copying. Point to a repo and everything installs automatically."
               />
               <FeatureCard
-                icon="⚡"
-                title="Lightning Fast"
-                description="Simple CLI commands get you productive in seconds, not hours."
+                icon="🔍"
+                title="Smart Detection"
+                description="Finds your AI agents and installs the right assets for each one automatically."
               />
               <FeatureCard
                 icon="🔄"
-                title="Switch Agents Freely"
-                description="One package works everywhere. Try different AI tools without rewriting."
+                title="Easy Updates"
+                description="Get latest versions with one command. No re-downloading or re-copying files."
+              />
+              <FeatureCard
+                icon="📦"
+                title="Discover Packages"
+                description="Find and install community packages for your AI assistant instantly."
               />
               <FeatureCard
                 icon="🔒"
-                title="Version Locked"
-                description="Git-based packages with lockfiles keep your environment reproducible."
+                title="Reproducible Setup"
+                description="Lockfile ensures everyone on your team has the exact same configuration."
               />
               <FeatureCard
-                icon="📊"
-                title="Track Everything"
-                description="Know exactly what's installed, from where, and when it changed."
-              />
-              <FeatureCard
-                icon="🧹"
-                title="Clean Removal"
-                description="Uninstall packages completely with no orphaned files left behind."
+                icon="✨"
+                title="Just Works"
+                description="Install packages and start using them immediately - no config needed."
               />
             </div>
           </div>
@@ -148,34 +148,34 @@ dumpty list`}
             <h3 className="text-2xl font-semibold mb-6 text-center text-emerald-400">For Package Creators</h3>
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               <FeatureCard
-                icon="🌐"
-                title="Publish Anywhere"
-                description="Host packages on GitHub, GitLab, or any Git repository. No central registry required."
+                icon="📇"
+                title="Index Your Repo"
+                description="Create a manifest to index prompts, scripts, configs, and docs already in your repository."
               />
               <FeatureCard
                 icon="🎯"
-                title="One Package, All Agents"
-                description="Write your prompts once. Support Copilot, Claude, Cursor, and more from a single manifest."
+                title="Multi-Agent Support"
+                description="One manifest supports multiple AI assistants. Define agent-specific assets in the same package."
               />
               <FeatureCard
                 icon="📦"
-                title="Flexible Structure"
-                description="Organize files however you want. The manifest controls what gets installed where."
+                title="Any Asset Type"
+                description="Package prompts, rules, commands, scripts, configs, docs - anything users need to install."
               />
               <FeatureCard
-                icon="📝"
-                title="Curate Without Forking"
-                description="Reference external repos to build collections without duplication."
+                icon="🌐"
+                title="Git-Based Distribution"
+                description="Host on GitHub, GitLab, or any Git repository. No central registry or special hosting needed."
               />
               <FeatureCard
                 icon="🔖"
-                title="Semantic Versioning"
-                description="Use Git tags for versions. Users can install specific versions or update to latest."
+                title="Git Tag Versioning"
+                description="Version using Git tags. Users can install specific versions or automatically get the latest."
               />
               <FeatureCard
-                icon="🎁"
-                title="MIT Licensed"
-                description="Free and open source. Build on it, extend it, make it yours."
+                icon="📝"
+                title="Reference External Repos"
+                description="Build curated collections by referencing files from other repositories without forking."
               />
             </div>
           </div>
