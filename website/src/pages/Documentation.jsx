@@ -20,7 +20,9 @@ export default function Documentation() {
         <h1 className="text-4xl font-bold mb-8">Documentation</h1>
 
         <section id="command-reference" className="mb-12 scroll-mt-24">
-          <h2 className="text-3xl font-semibold mb-4">Command Reference</h2>
+          <h2 className="text-3xl font-semibold mb-4">
+            <a href="#command-reference" className="hover:text-primary-400 transition-colors">Command Reference</a>
+          </h2>
         
         <div className="space-y-6">
           <CommandDoc
@@ -101,7 +103,9 @@ dumpty update --all`}
       </section>
 
       <section id="agent-detection" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Agent Detection</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#agent-detection" className="hover:text-primary-400 transition-colors">Agent Detection</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           PromptyDumpty automatically detects which AI coding assistants are configured in your project by looking for specific directories:
         </p>
@@ -156,7 +160,9 @@ dumpty update --all`}
       </section>
 
       <section id="agent-behaviors" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Agent-Specific Behaviors</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#agent-behaviors" className="hover:text-primary-400 transition-colors">Agent-Specific Behaviors</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           Some agents have additional behaviors when packages are installed or uninstalled:
         </p>
@@ -164,7 +170,7 @@ dumpty update --all`}
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
             <h3 className="text-lg font-semibold mb-2 text-primary-400">GitHub Copilot</h3>
             <p className="text-slate-300 mb-3">
-              Automatically updates VS Code workspace settings to register package directories for prompts, repository instructions, and chat modes. Agents are auto-discovered from <code>.github/agents/</code>.
+              Automatically updates VS Code workspace settings to register package directories for prompts, repository instructions, and chat modes.
             </p>
             <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
               <p className="text-xs text-slate-400 mb-2">Updates <code>.vscode/settings.json</code>:</p>
@@ -183,7 +189,7 @@ dumpty update --all`}
               </CodeBlock>
             </div>
             <p className="text-slate-400 text-sm mt-3">
-              This ensures GitHub Copilot can discover and use the installed prompts, repository instructions, and chat modes. Agents in <code>.github/agents/</code> are discovered automatically without requiring settings. All settings are automatically cleaned up on uninstall.
+              This ensures GitHub Copilot can discover and use the installed prompts, repository instructions, and chat modes. All settings are automatically cleaned up on uninstall.
             </p>
             <p className="text-slate-500 text-xs mt-2">
               Reference: <a href="https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/chat/common/promptSyntax/config/config.ts" className="text-primary-400 hover:underline" target="_blank" rel="noopener noreferrer">VS Code source</a>
@@ -193,7 +199,9 @@ dumpty update --all`}
       </section>
 
       <section id="lockfile-format" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Lockfile Format</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#lockfile-format" className="hover:text-primary-400 transition-colors">Lockfile Format</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           PromptyDumpty maintains a <code>dumpty.lock</code> file to track installed packages:
         </p>
@@ -249,7 +257,9 @@ packages:
       </section>
 
       <section id="package-organization" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Package Organization</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#package-organization" className="hover:text-primary-400 transition-colors">Package Organization</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           Packages are installed with artifact types in the path to organize files by their purpose:
         </p>
@@ -279,7 +289,9 @@ packages:
       </section>
 
       <section id="troubleshooting" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Troubleshooting</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#troubleshooting" className="hover:text-primary-400 transition-colors">Troubleshooting</a>
+        </h2>
 
         <div className="space-y-6">
           <TroubleshootingItem
@@ -305,7 +317,9 @@ packages:
       </section>
 
       <section id="contributing" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Contributing</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#contributing" className="hover:text-primary-400 transition-colors">Contributing</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           PromptyDumpty is open source and welcomes contributions!
         </p>
@@ -321,7 +335,9 @@ packages:
       </section>
 
       <section id="resources" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Resources</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#resources" className="hover:text-primary-400 transition-colors">Resources</a>
+        </h2>
         <div className="grid md:grid-cols-2 gap-4">
           <a 
             href="https://github.com/dasiths/PromptyDumpty" 

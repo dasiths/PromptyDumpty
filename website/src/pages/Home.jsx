@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="text-white">
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section className="py-12 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <img src="/logo.png" alt="PromptyDumpty Logo" className="w-48 h-48 mx-auto mb-6" />
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent min-h-[80px] flex items-center justify-center">
@@ -37,7 +37,7 @@ export default function Home() {
       </section>
 
       {/* Quick Example */}
-      <section className="py-16 px-4 bg-slate-800/30">
+      <section className="py-12 px-4 bg-slate-800/30">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 text-center">Quick Start</h2>
           <TerminalBlock>
@@ -56,73 +56,126 @@ dumpty list`}
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold mb-16 text-center">Why PromptyDumpty?</h2>
+      {/* The Problem Section */}
+      <section className="py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold mb-4 text-center">
+            How PromptyDumpty Solves Your Problems
+          </h2>
+          <p className="text-slate-400 text-center mb-12 max-w-2xl mx-auto">
+            Stop wrestling with manual prompt management. Here's what changes when you use PromptyDumpty.
+          </p>
           
-          {/* For Solo Developers */}
+          <div className="space-y-6">
+            <ProblemSolutionCard
+              problem="Manual copying"
+              problemDesc="Copying .md files between projects and AI agent folders"
+              solution="One-command install"
+              solutionDesc="dumpty install https://repo-url installs everything"
+            />
+            <ProblemSolutionCard
+              problem="No updates"
+              problemDesc="When prompts improve, you manually re-copy everywhere"
+              solution="Version control"
+              solutionDesc="dumpty update pulls latest versions automatically"
+            />
+            <ProblemSolutionCard
+              problem="Messy removal"
+              problemDesc="Deleting prompts leaves orphaned files scattered around"
+              solution="Clean uninstall"
+              solutionDesc="dumpty uninstall removes all files tracked in lockfile"
+            />
+            <ProblemSolutionCard
+              problem="No tracking"
+              problemDesc="Can't remember what's installed or where it came from"
+              solution="Full audit trail"
+              solutionDesc="Lockfile tracks every package, version, and file location"
+            />
+            <ProblemSolutionCard
+              problem="Multi-tool duplication"
+              problemDesc="Maintaining separate prompt versions for each AI assistant"
+              solution="Universal packages"
+              solutionDesc="One package manifest supports all AI assistants"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-12 px-4 bg-slate-800/30">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold mb-8 text-center">Features</h2>
+          
+          {/* For Package Consumers */}
           <div className="mb-16">
-            <h3 className="text-2xl font-semibold mb-6 text-center text-primary-400">For Solo Developers</h3>
+            <h3 className="text-2xl font-semibold mb-6 text-center text-primary-400">For Package Consumers</h3>
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               <FeatureCard
-                icon="🎯"
-                title="Zero Config"
-                description="Auto-detects your AI agent. Just install and go—no setup required."
+                icon="🚀"
+                title="One Command Install"
+                description="No manual file copying. Point to a repo and everything installs automatically."
               />
               <FeatureCard
-                icon="⚡"
-                title="Lightning Fast"
-                description="Simple CLI commands get you productive in seconds, not hours."
+                icon="🔍"
+                title="Smart Detection"
+                description="Finds your AI agents and installs the right assets for each one automatically."
               />
               <FeatureCard
                 icon="🔄"
-                title="Switch Agents Freely"
-                description="One package works everywhere. Try different AI tools without rewriting."
+                title="Easy Updates"
+                description="Get latest versions with one command. No re-downloading or re-copying files."
               />
-            </div>
-          </div>
-
-          {/* For Teams */}
-          <div className="mb-16">
-            <h3 className="text-2xl font-semibold mb-6 text-center text-emerald-400">For Teams</h3>
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              <FeatureCard
+                icon="📦"
+                title="Discover Packages"
+                description="Find and install community packages for your AI assistant instantly."
+              />
               <FeatureCard
                 icon="🔒"
-                title="Version Control"
-                description="Git-based packages mean everyone stays in sync with lockfiles."
+                title="Reproducible Setup"
+                description="Lockfile ensures everyone on your team has the exact same configuration."
               />
               <FeatureCard
-                icon="👥"
-                title="Share Standards"
-                description="Distribute team prompts, rules, and workflows as versioned packages."
-              />
-              <FeatureCard
-                icon="📊"
-                title="Track Everything"
-                description="Know exactly what's installed, from where, and when it changed."
+                icon="✨"
+                title="Just Works"
+                description="Install packages and start using them immediately - no config needed."
               />
             </div>
           </div>
 
-          {/* For Open Source */}
+          {/* For Package Creators */}
           <div>
-            <h3 className="text-2xl font-semibold mb-6 text-center text-blue-400">For Open Source</h3>
+            <h3 className="text-2xl font-semibold mb-6 text-center text-emerald-400">For Package Creators</h3>
             <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
               <FeatureCard
+                icon="📇"
+                title="Index Your Repo"
+                description="Create a manifest to index prompts, scripts, configs, and docs already in your repository."
+              />
+              <FeatureCard
+                icon="🎯"
+                title="Multi-Agent Support"
+                description="One manifest supports multiple AI assistants. Define agent-specific assets in the same package."
+              />
+              <FeatureCard
+                icon="📦"
+                title="Any Asset Type"
+                description="Package prompts, rules, commands, scripts, configs, docs - anything users need to install."
+              />
+              <FeatureCard
                 icon="🌐"
-                title="Publish Anywhere"
-                description="Host packages on GitHub, GitLab, or any Git repository."
+                title="Git-Based Distribution"
+                description="Host on GitHub, GitLab, or any Git repository. No central registry or special hosting needed."
+              />
+              <FeatureCard
+                icon="🔖"
+                title="Git Tag Versioning"
+                description="Version using Git tags. Users can install specific versions or automatically get the latest."
               />
               <FeatureCard
                 icon="📝"
-                title="Curate Without Forking"
-                description="Reference external repos to build collections without duplication."
-              />
-              <FeatureCard
-                icon="🎁"
-                title="MIT Licensed"
-                description="Free and open source. Build on it, extend it, make it yours."
+                title="Reference External Repos"
+                description="Build curated collections by referencing files from other repositories without forking."
               />
             </div>
           </div>
@@ -130,7 +183,7 @@ dumpty list`}
       </section>
 
       {/* Supported Agents */}
-      <section className="py-20 px-4 bg-slate-800/30">
+      <section className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl font-bold mb-12 text-center">Supported AI Coding Assistants</h2>
           
@@ -187,7 +240,7 @@ dumpty list`}
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-4">
+      <section className="py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6">Ready to get started?</h2>
           <p className="text-xl text-slate-300 mb-8">
@@ -220,6 +273,31 @@ function AgentCard({ name, icon }) {
     <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700 text-center hover:border-primary-600/50 transition-colors">
       <div className="text-4xl mb-2">{icon}</div>
       <div className="text-sm font-medium">{name}</div>
+    </div>
+  )
+}
+
+function ProblemSolutionCard({ problem, problemDesc, solution, solutionDesc }) {
+  return (
+    <div className="bg-slate-800/50 rounded-lg border border-slate-700 overflow-hidden">
+      <div className="grid md:grid-cols-[1fr_auto_1fr] gap-0">
+        {/* Problem - Red side */}
+        <div className="bg-red-900/10 p-6 text-right border-r border-slate-700/50">
+          <h3 className="text-lg font-semibold text-red-400 mb-2">❌ {problem}</h3>
+          <p className="text-slate-400 text-sm">{problemDesc}</p>
+        </div>
+        
+        {/* Arrow - Centered */}
+        <div className="hidden md:flex items-center justify-center px-4 bg-slate-800/80">
+          <div className="text-4xl text-primary-400 font-bold">→</div>
+        </div>
+        
+        {/* Solution - Green side */}
+        <div className="bg-emerald-900/10 p-6 border-l border-slate-700/50 md:border-l-0">
+          <h3 className="text-lg font-semibold text-emerald-400 mb-2">✅ {solution}</h3>
+          <p className="text-slate-300 text-sm">{solutionDesc}</p>
+        </div>
+      </div>
     </div>
   )
 }

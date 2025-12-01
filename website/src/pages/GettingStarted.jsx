@@ -16,8 +16,38 @@ export default function GettingStarted() {
       <div className="flex-1 min-w-0 text-white">
         <h1 className="text-4xl font-bold mb-8">Getting Started</h1>
 
+        <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-6 mb-12">
+          <h2 className="text-2xl font-semibold mb-4 text-amber-300">Why Do I Need This?</h2>
+          <p className="text-slate-300 mb-4">
+            If you've ever copied prompt files between projects, struggled to keep team prompts in sync, 
+            or wondered which version of a prompt you're using, PromptyDumpty solves these problems.
+          </p>
+          <div className="grid md:grid-cols-2 gap-4 mt-6">
+            <div>
+              <h3 className="font-semibold text-red-300 mb-2">Without Package Management:</h3>
+              <ul className="text-slate-400 text-sm space-y-1 list-disc list-inside">
+                <li>Manual file copying</li>
+                <li>No version tracking</li>
+                <li>Hard to share updates</li>
+                <li>Messy removal</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-emerald-300 mb-2">With PromptyDumpty:</h3>
+              <ul className="text-slate-400 text-sm space-y-1 list-disc list-inside">
+                <li>Install with one command</li>
+                <li>Update to latest versions</li>
+                <li>Share via Git repos</li>
+                <li>Clean, tracked removal</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <section id="installation" className="mb-12 scroll-mt-24">
-          <h2 className="text-3xl font-semibold mb-4">Installation</h2>
+          <h2 className="text-3xl font-semibold mb-4">
+            <a href="#installation" className="hover:text-primary-400 transition-colors">Installation</a>
+          </h2>
         <p className="text-slate-300 mb-4">
           Install PromptyDumpty using pip:
         </p>
@@ -35,7 +65,9 @@ pip install -e .`}
       </section>
 
       <section id="initialize" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Initialize Your Project</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#initialize" className="hover:text-primary-400 transition-colors">Initialize Your Project</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           Navigate to your project directory and initialize PromptyDumpty:
         </p>
@@ -51,7 +83,9 @@ dumpty init`}
       </section>
 
       <section id="installing-packages" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Installing Packages</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#installing-packages" className="hover:text-primary-400 transition-colors">Installing Packages</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           Install a package from a Git repository using the full URL:
         </p>
@@ -78,7 +112,9 @@ dumpty init`}
       </section>
 
       <section id="managing-packages" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Managing Packages</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#managing-packages" className="hover:text-primary-400 transition-colors">Managing Packages</a>
+        </h2>
         <p className="text-slate-300 mb-6">
           After installation, manage packages using their name from the manifest (not the full URL).
         </p>
@@ -118,7 +154,9 @@ dumpty update --all`}
       </section>
 
       <section id="how-it-works" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">How It Works</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#how-it-works" className="hover:text-primary-400 transition-colors">How It Works</a>
+        </h2>
         <div className="space-y-4 text-slate-300">
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
             <div className="flex items-start">
@@ -153,7 +191,9 @@ dumpty update --all`}
       </section>
 
       <section id="next-steps" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Next Steps</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#next-steps" className="hover:text-primary-400 transition-colors">Next Steps</a>
+        </h2>
         <div className="bg-primary-900/30 border border-primary-700/50 rounded-lg p-6">
           <ul className="space-y-3 text-slate-300">
             <li>✅ Check out <a href="/creating-packages" className="text-primary-400 hover:text-primary-300">Creating Packages</a> to learn how to create your own packages</li>

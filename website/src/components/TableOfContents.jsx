@@ -32,6 +32,27 @@ export default function TableOfContents({ items }) {
       }
     }
 
+    // Scroll to anchor on page load
+    const hash = window.location.hash
+    if (hash) {
+      const id = hash.replace('#', '')
+      const element = document.getElementById(id)
+      if (element) {
+        // Use setTimeout to ensure page is fully rendered
+        setTimeout(() => {
+          const offset = 80
+          const elementPosition = element.getBoundingClientRect().top
+          const offsetPosition = elementPosition + window.pageYOffset - offset
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          })
+          setActiveId(id)
+        }, 100)
+      }
+    }
+
     // Initial check
     handleScroll()
 
@@ -44,6 +65,9 @@ export default function TableOfContents({ items }) {
   const scrollToSection = (id) => {
     const element = document.getElementById(id)
     if (element) {
+      // Update URL with anchor
+      window.history.pushState(null, '', `#${id}`)
+      
       const offset = 80
       const elementPosition = element.getBoundingClientRect().top
       const offsetPosition = elementPosition + window.pageYOffset - offset
