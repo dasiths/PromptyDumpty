@@ -8,12 +8,25 @@ A lightweight, universal package manager for AI coding assistants (prompts, inst
 
 PromptyDumpty lets you install and manage prompt packages across different AI coding assistants like GitHub Copilot, Claude, Cursor, Gemini, Windsurf, and more.
 
-## Why?
+## Why PromptyDumpty?
 
-- **Share prompts easily**: Package and distribute your team's prompts
+### The Problem
+
+Without a package manager, sharing AI assistant configurations is painful:
+
+- 📋 **Manual file management** - Copying `.md` files between projects and agent folders
+- 🔄 **No updates** - When prompts improve, you manually re-copy everywhere
+- 🗑️ **Messy removal** - Deleting prompts leaves orphaned files scattered across directories
+- 🤷 **No tracking** - Can't remember what's installed or where it came from
+- 🔁 **Multi-agent duplication** - Maintaining separate versions for Copilot, Claude, Cursor, etc.
+- 📧 **Ad-hoc sharing** - Sending via email/Slack with instructions like "just copy to `.claude/commands/`"
+
+### The Solution
+
+- **Share prompts easily**: Package and distribute your team's prompts via Git
 - **Works everywhere**: One package works with multiple AI coding assistants
 - **Simple**: Just YAML files and Git repos, no complex setup
-- **Safe**: Clean installation and removal, clear tracking
+- **Safe**: Clean installation and removal, clear tracking with lockfiles
 
 ## Installation
 

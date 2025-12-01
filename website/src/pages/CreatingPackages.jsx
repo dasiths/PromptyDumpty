@@ -19,8 +19,36 @@ export default function CreatingPackages() {
       <div className="flex-1 min-w-0 text-white">
         <h1 className="text-4xl font-bold mb-8">Creating Packages</h1>
 
+        <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-6 mb-12">
+          <h2 className="text-2xl font-semibold mb-4 text-blue-300">Why Create Packages?</h2>
+          <p className="text-slate-300 mb-4">
+            Package your prompts once, distribute everywhere. Instead of maintaining separate copies 
+            for different AI tools or manually syncing team prompts, create a package.
+          </p>
+          <div className="space-y-3 text-slate-300">
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 font-bold">✓</span>
+              <span>Share your team's coding standards and workflows</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 font-bold">✓</span>
+              <span>Version and update prompts without manual distribution</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 font-bold">✓</span>
+              <span>Support multiple AI assistants from one codebase</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="text-emerald-400 font-bold">✓</span>
+              <span>Let others discover and use your prompt collections</span>
+            </div>
+          </div>
+        </div>
+
         <section id="package-structure" className="mb-12 scroll-mt-24">
-          <h2 className="text-3xl font-semibold mb-4">Package Structure</h2>
+          <h2 className="text-3xl font-semibold mb-4">
+            <a href="#package-structure" className="hover:text-primary-400 transition-colors">Package Structure</a>
+          </h2>
         <p className="text-slate-300 mb-4">
           A PromptyDumpty package is simply a Git repository with a <code>dumpty.package.yaml</code> manifest file. You can organize your files however you want!
         </p>
@@ -38,7 +66,9 @@ export default function CreatingPackages() {
       </section>
 
       <section id="manifest-file" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">The Manifest File</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#manifest-file" className="hover:text-primary-400 transition-colors">The Manifest File</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           The <code>dumpty.package.yaml</code> file defines your package metadata and what files to install for each AI agent. Files are organized by type (prompts, agents, rules, etc.):
         </p>
@@ -76,7 +106,9 @@ agents:
       </section>
 
       <section id="manifest-fields" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Manifest Fields</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#manifest-fields" className="hover:text-primary-400 transition-colors">Manifest Fields</a>
+        </h2>
         
         <div className="space-y-6">
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
@@ -126,7 +158,9 @@ agents:
       </section>
 
       <section id="artifact-categories" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Artifact Categories</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#artifact-categories" className="hover:text-primary-400 transition-colors">Artifact Categories</a>
+        </h2>
         
         <p className="text-slate-300 mb-4">
           Categories allow users to selectively install artifacts from your package based on their workflow needs. For example, you might have development tools, testing tools, and documentation generators in one package.
@@ -251,7 +285,9 @@ Enter category numbers (comma-separated): 1,2`}
       </section>
 
       <section id="external-repos" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">External Repository References</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#external-repos" className="hover:text-primary-400 transition-colors">External Repository References</a>
+        </h2>
         
         <p className="text-slate-300 mb-4">
           Create "wrapper packages" that reference files from repositories you don't own. Perfect for curating content from large community repositories or version-locking third-party prompts.
@@ -323,7 +359,9 @@ agents:
       </section>
 
       <section id="example-package" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Complete Example</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#example-package" className="hover:text-primary-400 transition-colors">Complete Example</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           Here's a complete example of a code review workflow package with categories:
         </p>
@@ -414,7 +452,9 @@ agents:
       </section>
 
       <section id="supported-agents" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Agent-Specific Artifact Types</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#supported-agents" className="hover:text-primary-400 transition-colors">Agent-Specific Artifact Types</a>
+        </h2>
         <p className="text-slate-300 mb-4">
           Each AI agent supports specific artifact types that align with their special folder structures. All agents support the universal <code className="bg-slate-700 px-1.5 py-0.5 rounded">files</code> type for generic artifacts.
         </p>
@@ -526,7 +566,9 @@ agents:
       </section>
 
       <section id="publishing" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Publishing Your Package</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#publishing" className="hover:text-primary-400 transition-colors">Publishing Your Package</a>
+        </h2>
         <div className="space-y-4 text-slate-300">
           <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-700">
             <div className="flex items-start">
@@ -585,7 +627,9 @@ agents:
       </section>
 
       <section id="best-practices" className="mb-12 scroll-mt-24">
-        <h2 className="text-3xl font-semibold mb-4">Best Practices</h2>
+        <h2 className="text-3xl font-semibold mb-4">
+          <a href="#best-practices" className="hover:text-primary-400 transition-colors">Best Practices</a>
+        </h2>
         <div className="bg-primary-900/30 border border-primary-700/50 rounded-lg p-6">
           <ul className="space-y-3 text-slate-300">
             <li>✅ Use semantic versioning (e.g., 1.0.0, 1.1.0, 2.0.0)</li>
